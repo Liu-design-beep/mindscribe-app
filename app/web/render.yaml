@@ -3,6 +3,7 @@ services:
   - type: web
     name: smart-clip-api
     env: python
+    rootDir: app/web
     buildCommand: pip install -r requirements.txt
     startCommand: python api_server.py
     envVars:
