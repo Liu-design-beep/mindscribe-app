@@ -185,8 +185,52 @@ body {
     color: var(--text-secondary);
     font-weight: 500;
     letter-spacing: 0.5px;
-    margin-left: var(--spacing-md);
+    margin-left: var(--spacing-sm);
     margin-right: var(--spacing-md);
+}
+
+/* 无状态演示模式标识 */
+.demo-mode-badge {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ec4899;
+    background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+    padding: 4px 12px;
+    border-radius: 12px;
+    margin-left: var(--spacing-sm);
+    margin-right: var(--spacing-md);
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 4px rgba(236, 72, 153, 0.2);
+    vertical-align: middle;
+    font-family: 'Comic Sans MS', 'Apple Color Emoji', 'Segoe UI Emoji', cursive, sans-serif;
+    border: 1px solid rgba(236, 72, 153, 0.2);
+}
+
+/* Session ID 显示 */
+.session-id-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+    padding: 4px 10px;
+    border-radius: 8px;
+    margin-left: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+}
+
+.session-id-label {
+    font-weight: 600;
+    color: var(--text-tertiary);
+}
+
+.session-id-value {
+    font-weight: 500;
+    color: var(--primary-color);
+    letter-spacing: 0.5px;
 }
 
 /* 处理中logo容器（中间位置） */

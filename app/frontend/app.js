@@ -1473,9 +1473,13 @@ async function handleBackendResponse(response) {
     console.log('是否编辑模式:', edit_mode_enabled);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
-    // 演示模式：不保存 session_id
+    // 演示模式：不保存 session_id，但显示在界面上
     // 即使后端返回了 new_session_id，也不保存
     // 下次刷新时会创建新的 session
+    if (new_session_id) {
+        // 更新界面显示（但不保存到 AppState）
+        updateSessionIdDisplay(new_session_id);
+    }
     // if (new_session_id) {
     //     AppState.sessionId = new_session_id;
     // }   
@@ -3467,6 +3471,20 @@ function hideFeedbackSuccessPanel() {
             elements.feedbackSuccessPanel.classList.add('hidden');
             elements.feedbackSuccessPanel.classList.remove('fading');
         }, 500);
+    }
+}
+
+/**
+ * 更新 Session ID 显示
+ * @param {string} sessionId - 会话 ID
+ */
+function updateSessionIdDisplay(sessionId) {
+    const sessionIdValueElement = document.getElementById('session-id-value');
+    if (sessionIdValueElement && sessionId) {
+        // 只显示 session_id 的前 8 位
+        const shortSessionId = sessionId.substring(0, 12);
+        sessionIdValueElement.textContent = shortSessionId;
+        console.log(`[Session] 更新界面显示: ${shortSessionId}`);
     }
 }
 
