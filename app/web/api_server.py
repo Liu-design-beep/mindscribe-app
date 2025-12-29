@@ -629,7 +629,8 @@ async def chat(request: ChatRequest):
                             "• 自然语言处理和理解",
                             "• 智能内容分类和整理"
                         ]
-                        all_documents["介绍文档"] = intro_content
+                        if is_dev_mode:
+                            all_documents["介绍文档"] = intro_content
 
                         # 只有在非开发者模式（试用模式）下才添加通信原理笔记
                         if not is_dev_mode:
@@ -955,8 +956,9 @@ async def chat(request: ChatRequest):
                             "通信原理是电子信息工程、通信工程等专业的重要基础课程，掌握这些知识对于从事通信系统设计、网络规划、信号处理等工作具有重要意义。随着5G、6G等新一代通信技术的发展，通信原理的知识也在不断更新和扩展，需要持续学习和实践。"
                         ]
 
-                    if "PM问答笔记" not in all_documents or not all_documents.get("PM问答笔记"):
-                        all_documents["PM问答笔记"] = [
+                    if not is_dev_mode:
+                        if "PM问答笔记" not in all_documents or not all_documents.get("PM问答笔记"):
+                            all_documents["PM问答笔记"] = [
                             "欢迎使用灵辑 (Mindscribe) - AI 内容收藏助手",
                             "",
                             "## PM问答笔记",
