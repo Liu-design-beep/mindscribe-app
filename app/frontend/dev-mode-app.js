@@ -92,8 +92,11 @@ const API_CONFIG = {
     endpoints: {
         chat: '/api/chat',
         documents: '/api/documents',
-        updateLog: '/api/get-update-log',
-        systemPrompt: '/system_prompt.md'
+        updateLog: '/api/get-update-log'
+    },
+    // 静态文件直接从 GitHub 加载
+    staticFiles: {
+        systemPrompt: 'https://raw.githubusercontent.com/Liu-design-beep/mindscribe-app/main/app/web/system_prompt.md'
     }
 };
 
@@ -262,8 +265,8 @@ async function loadUpdateLogFromFile() {
 // 从文件加载系统提示词
 async function loadSystemPromptFromFile() {
     try {
-        // 从 GitHub 获取 system_prompt.md 文件
-        const response = await fetch(API_CONFIG.baseURL + API_CONFIG.endpoints.systemPrompt);
+        // 直接从 GitHub Raw URL 获取 system_prompt.md 文件
+        const response = await fetch(API_CONFIG.staticFiles.systemPrompt);
         if (response.ok) {
             const text = await response.text();
             // 将 Markdown 文本按行分割
