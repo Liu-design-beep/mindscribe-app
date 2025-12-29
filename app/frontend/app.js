@@ -1260,7 +1260,7 @@ async function fetchDocumentList() {
                 documents = ["通信原理笔记", "PM问答笔记", "试用文档"];
                 console.log('[获取文档列表] 文档列表为空，使用试用模式默认文档:', documents);
             } else {
-                documents = ["介绍文档", "更新记录日志"];
+                documents = ["介绍文档", "更新记录日志", "系统提示词文档"];
                 console.log('[获取文档列表] 文档列表为空，使用开发者模式默认文档:', documents);
             }
         }

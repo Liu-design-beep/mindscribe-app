@@ -3089,11 +3089,13 @@ async def get_documents(
                     if "通信原理笔记" not in documents:
                         documents.append("通信原理笔记")
                 elif actual_doc_type == "dev":
-                    # 开发者模式：确保有"介绍文档"和"更新记录日志"
+                    # 开发者模式：确保有"介绍文档"、"更新记录日志"和"系统提示词文档"
                     if "介绍文档" not in documents:
                         documents.append("介绍文档")
                     if "更新记录日志" not in documents:
                         documents.append("更新记录日志")
+                    if "系统提示词文档" not in documents:
+                        documents.append("系统提示词文档")
                 
                 print(f"[文档列表] D1数据库返回文档: {documents}")
                 return DocumentsResponse(documents=documents)
@@ -3143,11 +3145,13 @@ async def get_documents(
                     if "通信原理笔记" not in documents:
                         documents.append("通信原理笔记")
                 elif actual_doc_type == "dev":
-                    # 开发者模式：确保有"介绍文档"和"更新记录日志"
+                    # 开发者模式：确保有"介绍文档"、"更新记录日志"和"系统提示词文档"
                     if "介绍文档" not in documents:
                         documents.append("介绍文档")
                     if "更新记录日志" not in documents:
                         documents.append("更新记录日志")
+                    if "系统提示词文档" not in documents:
+                        documents.append("系统提示词文档")
                 
                 print(f"[文档列表] Cloudflare KV返回文档: {documents}")
                 return DocumentsResponse(documents=documents)
