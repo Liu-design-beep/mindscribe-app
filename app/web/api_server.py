@@ -392,7 +392,7 @@ async def chat(request: ChatRequest):
                         "## 📋 模式说明",
                         "",
                         "• 试用模式：文档 = 试用文档（空白）、PM问答笔记；数据隔离，可能被清理",
-                        "• 开发者模式：文档 = 介绍文档（本页）、更新记录日志、评价体系设计；云端长期保存",
+                        "• 开发者模式：文档 = 介绍文档（本页）、更新记录日志；云端长期保存",
                         "",
                         "## 🚀 快速开始",
                         "",
@@ -421,22 +421,6 @@ async def chat(request: ChatRequest):
                     except ImportError:
                         all_documents["更新记录日志"] = ["更新记录日志内容"]
                 
-                # 确保有评价体系设计文档
-                if "评价体系设计" not in all_documents:
-                    try:
-                        # 读取评价体系设计文档
-                        import os
-                        evaluation_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "灵辑智能笔记助手 - 评价体系设计.md")
-                        if os.path.exists(evaluation_file):
-                            with open(evaluation_file, 'r', encoding='utf-8') as f:
-                                evaluation_content = f.read().split('\n')
-                                all_documents["评价体系设计"] = evaluation_content
-                        else:
-                            # 如果文件不存在，使用默认内容
-                            all_documents["评价体系设计"] = ["评价体系设计文档内容暂不可用"]
-                    except Exception as e:
-                        print(f"[警告] 加载评价体系设计文档失败: {e}")
-                        all_documents["评价体系设计"] = ["评价体系设计文档内容暂不可用"]
                 
                 # 返回所有文档内容，让前端自动显示
                 return ChatResponse(
@@ -654,7 +638,7 @@ async def chat(request: ChatRequest):
                             "",
                             "### 开发者模式",
                             "• 登录后启用，提供完整功能",
-                            "• 包含「介绍文档」、「更新记录日志」和「评价体系设计」",
+                            "• 包含「介绍文档」、「更新记录日志」",
                             "• 数据永久保存，支持高级功能",
                             "",
                             "## 👨‍💻 开发团队",
@@ -722,7 +706,7 @@ async def chat(request: ChatRequest):
             # 如果没有使用D1/Cloudflare，或读取失败，补全默认文档内容
             if not USE_D1 or not D1_AVAILABLE or not D1_DATABASE_ID:
                 if is_dev_mode:
-                    # 开发者模式兜底：介绍文档 & 更新记录日志 & 评价体系设计
+                    # 开发者模式兜底：介绍文档 & 更新记录日志
                     if "介绍文档" not in all_documents or not all_documents.get("介绍文档"):
                         all_documents["介绍文档"] = [
                             "欢迎使用灵辑 (Mindscribe) - AI 智能笔记助手",
@@ -751,23 +735,6 @@ async def chat(request: ChatRequest):
                         except ImportError:
                             all_documents["更新记录日志"] = ["更新记录日志内容"]
                     
-                    # 确保有评价体系设计文档
-                    if "评价体系设计" not in all_documents:
-                        try:
-                            # 读取评价体系设计文档
-                            import os
-                            evaluation_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "灵辑智能笔记助手 - 评价体系设计.md")
-                            if os.path.exists(evaluation_file):
-                                with open(evaluation_file, 'r', encoding='utf-8') as f:
-                                    evaluation_content = f.read().split('\n')
-                                    all_documents["评价体系设计"] = evaluation_content
-                                    print(f"[API] 评价体系设计文档已加载，行数: {len(evaluation_content)}")
-                            else:
-                                # 如果文件不存在，使用默认内容
-                                all_documents["评价体系设计"] = ["评价体系设计文档内容暂不可用"]
-                        except Exception as e:
-                            print(f"[警告] 加载评价体系设计文档失败: {e}")
-                            all_documents["评价体系设计"] = ["评价体系设计文档内容暂不可用"]
                 else:
                     # 试用模式兜底：试用文档(空) + PM问答笔记
                     if "试用文档" not in all_documents or not all_documents.get("试用文档"):
@@ -911,7 +878,7 @@ async def chat(request: ChatRequest):
                         "## 📋 模式说明",
                         "",
                         "• 试用模式：文档 = 试用文档（空白）、PM问答笔记；数据隔离，可能被清理",
-                        "• 开发者模式：文档 = 介绍文档（本页）、更新记录日志、评价体系设计；云端长期保存",
+                        "• 开发者模式：文档 = 介绍文档（本页）、更新记录日志；云端长期保存",
                         "",
                         "## 🚀 快速开始",
                         "",
@@ -941,22 +908,6 @@ async def chat(request: ChatRequest):
                     except ImportError:
                         all_documents["更新记录日志"] = ["更新记录日志内容"]
                 
-                # 确保有评价体系设计文档
-                if "评价体系设计" not in all_documents:
-                    try:
-                        # 读取评价体系设计文档
-                        import os
-                        evaluation_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "灵辑智能笔记助手 - 评价体系设计.md")
-                        if os.path.exists(evaluation_file):
-                            with open(evaluation_file, 'r', encoding='utf-8') as f:
-                                evaluation_content = f.read().split('\n')
-                                all_documents["评价体系设计"] = evaluation_content
-                        else:
-                            # 如果文件不存在，使用默认内容
-                            all_documents["评价体系设计"] = ["评价体系设计文档内容暂不可用"]
-                    except Exception as e:
-                        print(f"[警告] 加载评价体系设计文档失败: {e}")
-                        all_documents["评价体系设计"] = ["评价体系设计文档内容暂不可用"]
             else:
                 # 试用模式：确保有试用文档和 PM问答笔记，且内容不是默认提示
                 trial_default = [""]  # 试用文档默认空
@@ -1283,7 +1234,7 @@ async def chat(request: ChatRequest):
                             "## 📋 模式说明",
                             "",
                             "• 试用模式：文档 = 试用文档（空白）、PM问答笔记；数据隔离，可能被清理",
-                            "• 开发者模式：文档 = 介绍文档（本页）、更新记录日志、评价体系设计；云端长期保存",
+                            "• 开发者模式：文档 = 介绍文档（本页）、更新记录日志；云端长期保存",
                             "",
                             "## 🚀 快速开始",
                             "",
@@ -1814,7 +1765,7 @@ async def chat(request: ChatRequest):
             available_docs = app_instance.doc_manager.get_document_titles()
             
             # 默认文档列表（这些文档是系统预设的，用户可能明确指定）
-            default_docs = ["试用文档", "PM问答笔记", "介绍文档", "更新记录日志", "评价体系设计"]
+            default_docs = ["试用文档", "PM问答笔记", "介绍文档", "更新记录日志"]
             
             if llm_doc_title and llm_doc_title == active_doc_title:
                 # LLM 返回的文档名与当前活动文档相同，使用它
@@ -2909,13 +2860,11 @@ async def get_documents(
                     if "通信原理笔记" not in documents:
                         documents.append("通信原理笔记")
                 elif actual_doc_type == "dev":
-                    # 开发者模式：确保有"介绍文档"、"更新记录日志"和"评价体系设计"
+                    # 开发者模式：确保有"介绍文档"和"更新记录日志"
                     if "介绍文档" not in documents:
                         documents.append("介绍文档")
                     if "更新记录日志" not in documents:
                         documents.append("更新记录日志")
-                    if "评价体系设计" not in documents:
-                        documents.append("评价体系设计")
                 
                 print(f"[文档列表] D1数据库返回文档: {documents}")
                 return DocumentsResponse(documents=documents)
@@ -2959,13 +2908,11 @@ async def get_documents(
                     if "通信原理笔记" not in documents:
                         documents.append("通信原理笔记")
                 elif actual_doc_type == "dev":
-                    # 开发者模式：确保有"介绍文档"、"更新记录日志"和"评价体系设计"
+                    # 开发者模式：确保有"介绍文档"和"更新记录日志"
                     if "介绍文档" not in documents:
                         documents.append("介绍文档")
                     if "更新记录日志" not in documents:
                         documents.append("更新记录日志")
-                    if "评价体系设计" not in documents:
-                        documents.append("评价体系设计")
                 
                 print(f"[文档列表] Cloudflare KV返回文档: {documents}")
                 return DocumentsResponse(documents=documents)
@@ -2989,8 +2936,8 @@ async def get_documents(
             print(f"[文档列表] 试用模式，返回文档: {documents}")
             print(f"[文档列表] 文档数量: {len(documents)}, 包含通信原理笔记: {'通信原理笔记' in documents}")
         else:
-            # 开发者模式：返回"介绍文档"、"更新记录日志"和"评价体系设计"
-            documents = ["介绍文档", "更新记录日志", "评价体系设计"]
+            # 开发者模式：返回"介绍文档"和"更新记录日志"
+            documents = ["介绍文档", "更新记录日志"]
             print(f"[文档列表] 开发者模式，返回文档: {documents}")
         
         # 最终兜底：确保试用模式包含所有默认文档
@@ -3007,8 +2954,6 @@ async def get_documents(
                 documents.append("介绍文档")
             if "更新记录日志" not in documents:
                 documents.append("更新记录日志")
-            if "评价体系设计" not in documents:
-                documents.append("评价体系设计")
             print(f"[文档列表] 开发者模式最终兜底: {documents}")
         
         # 过滤掉“默认文档”等无关占位文档
