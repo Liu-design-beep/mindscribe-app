@@ -23,6 +23,7 @@ if current_dir not in sys.path:
 from smart_clip_llm import SmartClipLLM
 from document_manager import DocumentManager
 from config import API_KEY, APP_ID
+from chapter_extractor import extract_chapter_content  # 新增：章节提取功能
 
 from dashscope import Application
 
@@ -2347,7 +2348,9 @@ async def chat(request: ChatRequest):
         elif intent == "SUMMARY":
             # 文档总结功能
             doc_title = intent_data.get("doc_title") or app_instance.doc_manager.active_doc_title
-            print(f"[SUMMARY] 开始总结文档: {doc_title}")
+            summary_scope = intent_data.get("summary_scope", "full")  # 新增：获取总结范围
+            target_chapter = intent_data.get("target_chapter")  # 新增：获取目标章节
+            print(f"[SUMMARY] 开始总结文档: {doc_title}, 范围: {summary_scope}, 目标章节: {target_chapter}")
             
             # 调试信息：检查文档是否存在于文档列表中
             all_docs = list(app_instance.doc_manager.documents.keys())
@@ -2619,6 +2622,23 @@ async def chat(request: ChatRequest):
                 # 将文档内容列表合并为字符串
                 full_content = '\n'.join(doc_content) if isinstance(doc_content, list) else str(doc_content)
                 
+                # 新增：章节提取逻辑
+                if summary_scope == "chapter" and target_chapter:
+                    print(f"[SUMMARY] 提取章节内容: {target_chapter}")
+                    chapter_content = extract_chapter_content(full_content, target_chapter)
+                    if chapter_content:
+                        print(f"[SUMMARY] 成功提取章节内容，长度: {len(chapter_content)} 字符")
+                        content_to_summarize = chapter_content
+                        summary_prompt = f"请总结以下'{target_chapter}'的内容，要求简洁明了，控制在200字以内：\n\n{content_to_summarize}"
+                    else:
+                        print(f"[SUMMARY] 未找到章节 '{target_chapter}'，回退到全文总结")
+                        content_to_summarize = full_content
+                        summary_prompt = f"请总结以下文档内容，要求简洁明了，控制在200字以内：\n\n{content_to_summarize}"
+                else:
+                    # 全文总结
+                    content_to_summarize = full_content
+                    summary_prompt = f"请总结以下文档内容，要求简洁明了，控制在200字以内：\n\n{content_to_summarize}"
+                
                 # 调用 LLM 生成总结
                 try:
                     summary_messages = [
@@ -2628,7 +2648,7 @@ async def chat(request: ChatRequest):
                         },
                         {
                             "role": "user",
-                            "content": f"请总结以下文档内容，要求简洁明了，控制在200字以内：\n\n{full_content}"
+                            "content": summary_prompt
                         }
                     ]
                     
