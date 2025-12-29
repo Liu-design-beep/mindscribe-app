@@ -3075,6 +3075,12 @@ async def get_documents(
                 # 试用模式：应该有"试用文档"和"PM问答笔记"
                 # initialize()应该已经创建了这些文档，但为了确保，我们检查一下
                 if actual_doc_type == "trial":
+                    # 试用模式：清理脏数据（开发者文档）
+                    if "介绍文档" in documents:
+                        documents.remove("介绍文档")
+                    if "更新记录日志" in documents:
+                        documents.remove("更新记录日志")
+                        
                     # 试用模式：确保有"试用文档"、"PM问答笔记"和"通信原理笔记"
                     if "试用文档" not in documents:
                         documents.append("试用文档")
@@ -3123,6 +3129,12 @@ async def get_documents(
                 
                 # 根据模式确保正确的文档存在
                 if actual_doc_type == "trial":
+                    # 试用模式：清理脏数据（开发者文档）
+                    if "介绍文档" in documents:
+                        documents.remove("介绍文档")
+                    if "更新记录日志" in documents:
+                        documents.remove("更新记录日志")
+                        
                     # 试用模式：确保有"试用文档"、"PM问答笔记"和"通信原理笔记"
                     if "试用文档" not in documents:
                         documents.append("试用文档")
