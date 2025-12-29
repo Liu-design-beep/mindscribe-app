@@ -446,6 +446,10 @@ class LLMIntentRecognizer:
         # 字段映射
         normalized["doc_title"] = intent_data.get("target_document")
         normalized["content"] = intent_data.get("content_to_process")
+        # 修复：添加 target_chapter 和 summary_scope 映射
+        normalized["target_chapter"] = intent_data.get("target_chapter")
+        normalized["summary_scope"] = intent_data.get("summary_scope")
+        
         # 处理position：如果target_location_raw是None或不存在，默认为"end"
         position_raw = intent_data.get("target_location_raw")
         normalized["position"] = position_raw if position_raw is not None else "end"

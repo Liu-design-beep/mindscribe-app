@@ -2791,6 +2791,7 @@ async def chat(request: ChatRequest):
                     chapter_content = extract_chapter_content(full_content, target_chapter)
                     if chapter_content:
                         print(f"[SUMMARY] 成功提取章节内容，长度: {len(chapter_content)} 字符")
+                        print(f"[SUMMARY] 提取内容预览: {chapter_content[:100]}...")
                         content_to_summarize = chapter_content
                         summary_prompt = f"请总结以下'{target_chapter}'的内容，要求简洁明了，控制在200字以内：\n\n{content_to_summarize}"
                     else:
