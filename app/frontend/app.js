@@ -214,8 +214,9 @@ function initSession() {
     console.log('[初始化] 演示模式，不使用 session_id，每次刷新都重置');
     
     // 清理旧的 session_id（如果有）
+    // 注意：不要清除 is_trial_mode，否则刷新页面会丢失用户的选择
     localStorage.removeItem('trial_session_id');
-    localStorage.removeItem('is_trial_mode');
+    // localStorage.removeItem('is_trial_mode');
 }
 
 /**
@@ -1197,7 +1198,16 @@ async function fetchDocumentList() {
     const url = new URL(API_CONFIG.baseURL + API_CONFIG.endpoints.documents);
     
     // 检查是否为试用模式
-    const isTrialMode = localStorage.getItem('is_trial_mode') === 'true';
+    // 默认为试用模式，除非明确设置为 'false'（即用户已登录）
+    const storedMode = localStorage.getItem('is_trial_mode');
+    const isTrialMode = storedMode !== 'false';
+    
+    console.log('[获取文档列表] 模式检查:', {
+        storedMode: storedMode,
+        isTrialMode: isTrialMode,
+        sessionId: AppState.sessionId,
+        trialSessionId: localStorage.getItem('trial_session_id')
+    });
     
     // 试用模式必须使用trial_session_id
     if (isTrialMode) {
@@ -1207,14 +1217,14 @@ async function fetchDocumentList() {
         }
         url.searchParams.set('doc_type', 'trial');
         url.searchParams.set('is_trial', 'true');
-        console.log('[获取文档列表] 试用模式，session_id:', trialSessionId);
+        console.log('[获取文档列表] 启用试用模式，session_id:', trialSessionId);
     } else {
         if (AppState.sessionId) {
             url.searchParams.set('session_id', AppState.sessionId);
         }
         url.searchParams.set('doc_type', 'dev');
         url.searchParams.set('is_trial', 'false');
-        console.log('[获取文档列表] 开发者模式，session_id:', AppState.sessionId);
+        console.log('[获取文档列表] 启用开发者模式，session_id:', AppState.sessionId);
     }
     
     // 使用try-catch捕获可能的错误
@@ -1243,9 +1253,11 @@ async function fetchDocumentList() {
         
         // 如果文档列表为空，根据模式返回默认文档
         if (documents.length === 0) {
-            const isTrialMode = localStorage.getItem('is_trial_mode') === 'true';
+            const storedMode = localStorage.getItem('is_trial_mode');
+            const isTrialMode = storedMode !== 'false';
+            
             if (isTrialMode) {
-                documents = ["试用文档", "PM问答笔记"];
+                documents = ["通信原理笔记", "PM问答笔记", "试用文档"];
                 console.log('[获取文档列表] 文档列表为空，使用试用模式默认文档:', documents);
             } else {
                 documents = ["介绍文档", "更新记录日志"];
@@ -2790,7 +2802,9 @@ async function initApp() {
         } else {
             console.warn('[初始化] 文档列表为空，使用默认文档');
             // 如果文档列表为空，根据模式设置默认文档
-            const isTrialMode = localStorage.getItem('is_trial_mode') === 'true';
+            const storedMode = localStorage.getItem('is_trial_mode');
+            const isTrialMode = storedMode !== 'false';
+            
             if (isTrialMode) {
                 AppState.currentDocument = '试用文档';
                 updateActiveDocTitle('试用文档');
@@ -2803,7 +2817,9 @@ async function initApp() {
         // 如果加载失败，在控制台输出警告，但不阻止应用运行
         console.error('[初始化] 无法加载文档列表:', error);
         // 设置默认文档
-        const isTrialMode = localStorage.getItem('is_trial_mode') === 'true';
+        const storedMode = localStorage.getItem('is_trial_mode');
+        const isTrialMode = storedMode !== 'false';
+        
         if (isTrialMode) {
             AppState.currentDocument = '试用文档';
             updateActiveDocTitle('试用文档');
@@ -2838,7 +2854,8 @@ async function initApp() {
  */
 function initPageUnloadHandler() {
     // 检查是否为试用模式
-    const isTrialMode = localStorage.getItem('is_trial_mode') === 'true';
+    const storedMode = localStorage.getItem('is_trial_mode');
+    const isTrialMode = storedMode !== 'false';
     
     if (!isTrialMode) {
         // 如果不是试用模式，不需要清空数据
@@ -3111,10 +3128,11 @@ function initExamplePanel() {
     
     // 默认收缩状态（无论是试用模式还是开发者模式）
     if (elements.examplePanel) {
-        // 检查是否在试用模式（通过检查localStorage或试用模式标识）
-        const isTrialMode = localStorage.getItem('is_trial_mode') === 'true' ||
-                           (document.getElementById('trial-mode-indicator') && 
-                            !document.getElementById('trial-mode-indicator').classList.contains('hidden'));
+    // 检查是否在试用模式（通过检查localStorage或试用模式标识）
+    const storedMode = localStorage.getItem('is_trial_mode');
+    const isTrialMode = storedMode !== 'false' ||
+                       (document.getElementById('trial-mode-indicator') && 
+                        !document.getElementById('trial-mode-indicator').classList.contains('hidden'));
         console.log('[示例面板] 初始化，试用模式:', isTrialMode, '当前类名:', elements.examplePanel.className);
         // 默认状态为收缩（无论是试用模式还是开发者模式）
             elements.examplePanel.classList.add('collapsed');
@@ -3271,7 +3289,8 @@ function updateTrialStatusBubble() {
     const trialCloseBtn = document.getElementById('trial-status-close');
     
     // 检查是否为试用模式
-    const isTrialMode = localStorage.getItem('is_trial_mode') === 'true';
+    const storedMode = localStorage.getItem('is_trial_mode');
+    const isTrialMode = storedMode !== 'false';
     
     if (isTrialMode) {
         // 显示左侧试用状态面板（3秒后自动消失）
