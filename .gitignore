@@ -14,6 +14,7 @@ config_local.py
 .env
 .env.local
 .env.*.local
+!.env.example
 .venv
 env/
 venv/
@@ -21,6 +22,7 @@ venv/
 
 # IDE
 .vscode/
+.vscode-test
 .idea/
 *.swp
 *.swo
@@ -36,10 +38,15 @@ desktop.ini
 dist/
 build/
 *.egg-info/
+build/Release
 
 # 日志文件
-*.log
 logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
 # 数据库文件
 *.db
@@ -50,6 +57,7 @@ logs/
 *.tmp
 *.temp
 .cache/
+.parcel-cache
 
 # 部署相关
 .vercel
@@ -60,9 +68,58 @@ logs/
 *.zip
 *.tar.gz
 *.rar
+*.tgz
+
+# Node.js (from remote)
+node_modules/
+jspm_packages/
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# TypeScript
+*.tsbuildinfo
+
+# Coverage
+coverage/
+*.lcov
+.nyc_output
+
+# Next.js / Nuxt.js
+.next
+out
+.nuxt
+
+# Gatsby
+.cache/
+# public
+
+# Vuepress
+.vuepress/dist
+.temp
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Svelte
+.svelte-kit/
+
+# VitePress
+**/.vitepress/dist
+**/.vitepress/cache
+
+# Docusaurus
+.docusaurus
+
+# Serverless
+.serverless/
 
 # 文档数据（可选，根据需要取消注释）
 # 程序/documents/
 # 程序/web/documents/
 # 程序/web/vector_storage/
-
