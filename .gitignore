@@ -155,3 +155,18 @@ continue-git-setup.bat
 # 临时文本文件
 快速解决.txt
 解决冲突*.txt
+
+# 临时脚本和文档
+*.bat
+*.ps1
+推送*.md
+解决*.md
+完成*.md
+立即*.md
+推荐*.md
+清理*.md
+如何*.md
+*.txt
+推送命令.txt
+快速解决.txt
+解决冲突*.txt
