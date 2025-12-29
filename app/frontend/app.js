@@ -1340,11 +1340,21 @@ async function handleSendMessage() {
     
     // 使用try-catch处理可能的错误
     try {
+        // 记录开始时间（用于计算响应时间）
+        const startTime = performance.now();
+        
         // 发送消息到后端，等待响应
         console.log('📤 发送消息到后端:', text.substring(0, 50) + (text.length > 50 ? '...' : ''));
         addAIFeedback('[系统] 正在调用意图识别器...');
         
         const response = await sendMessageToBackend(text);
+        
+        // 计算响应时间
+        const endTime = performance.now();
+        const elapsedTime = ((endTime - startTime) / 1000).toFixed(2); // 转换为秒，保留两位小数
+        console.log(`⏱️ 响应时间: ${elapsedTime}秒`);
+        addAIFeedback(`⏱️ [响应时间] ${elapsedTime}秒`);
+        
         console.log('✅ 收到后端响应:', response);
         console.log('✅ 响应中的意图信息:', response.intent_info);
         console.log('✅ 响应中的工具调用:', response.tools_used);
