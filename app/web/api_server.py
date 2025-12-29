@@ -545,8 +545,9 @@ async def chat(request: ChatRequest):
                         "产品概述" not in str(existing_intro)
                     )
                     
-                    if is_empty_or_old:
-                        # 如果介绍文档不存在或内容过时，创建/更新它
+                    # 如果介绍文档需要更新，或者处于试用模式（需要初始化试用文档）
+                    if is_empty_or_old or not is_dev_mode:
+                        # 定义介绍文档内容（可能用于更新，也可能不使用）
                         intro_content = [
                             "欢迎使用灵辑 (Mindscribe) - AI 智能笔记助手",
                             "",
@@ -634,6 +635,10 @@ async def chat(request: ChatRequest):
 
                         # 只有在非开发者模式（试用模式）下才添加通信原理笔记
                         if not is_dev_mode:
+                            # 确保清理掉可能存在的开发者文档（脏数据）
+                            if "介绍文档" in all_documents:
+                                del all_documents["介绍文档"]
+                            
                             comm_content = [
                                 "## 第一章 绪论",
                                 "通信的基本概念：通信是将信息从一地传输到另一地的过程。通信系统模型包括信源、发送设备、信道、接收设备和信宿。模拟通信系统和数字通信系统的区别在于传输信号的性质。",
