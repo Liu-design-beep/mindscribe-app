@@ -392,14 +392,24 @@
     width: 100px;
     height: 100px;
     object-fit: contain;
-    animation: bounce 1s ease-in-out infinite;
+    animation: rotate 8s linear infinite;
 }
 
 .trial-password-icon-fallback {
     font-size: 80px;
-    animation: bounce 1s ease-in-out infinite;
+    animation: rotate 8s linear infinite;
 }
 
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* 保留原有的 bounce 动画，以防其他地方使用 */
 @keyframes bounce {
     0%, 100% {
         transform: translateY(0);

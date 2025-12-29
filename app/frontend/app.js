@@ -1493,6 +1493,49 @@ async function handleBackendResponse(response) {
         return;
     }
     
+    // 检查是否需要总结文档（优先处理）
+    if (response.system_action_required === 'SUMMARIZE_DOCUMENT') {
+        console.log('[总结功能] 检测到总结请求');
+        const targetDoc = response.target_document || AppState.currentDocument;
+        console.log('[总结功能] 目标文档:', targetDoc);
+        
+        // 显示加载提示
+        addMessageToChat('ai', `📝 正在生成「${targetDoc}」的总结...`, 'text');
+        addAIFeedback(`[系统] 开始总结文档: ${targetDoc}`);
+        
+        // 调用后端 API 获取总结
+        try {
+            const summaryResponse = await fetch(API_CONFIG.baseURL + API_CONFIG.endpoints.chat, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `请总结文档「${targetDoc}」的内容`,
+                    session_id: AppState.sessionId,
+                    current_document: targetDoc
+                })
+            });
+            
+            if (summaryResponse.ok) {
+                const summaryData = await summaryResponse.json();
+                if (summaryData.content) {
+                    // 显示总结结果
+                    addMessageToChat('ai', summaryData.content, 'text');
+                    addAIFeedback(`[系统] 总结完成`);
+                } else {
+                    addMessageToChat('ai', '⚠️ 无法生成总结，请稍后再试。', 'text', false, true);
+                }
+            } else {
+                addMessageToChat('ai', '⚠️ 总结请求失败，请稍后再试。', 'text', false, true);
+            }
+        } catch (error) {
+            console.error('[总结功能] 错误:', error);
+            addMessageToChat('ai', '⚠️ 总结请求失败，请检查网络连接。', 'text', false, true);
+        }
+        return;
+    }
+    
     // 根据响应类型执行不同的操作
     switch (response_type) {
         case 'DEV_MODE_REQUIRED':
