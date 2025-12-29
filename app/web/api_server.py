@@ -739,6 +739,23 @@ async def chat(request: ChatRequest):
                     # 试用模式兜底：试用文档(空) + PM问答笔记
                     if "试用文档" not in all_documents or not all_documents.get("试用文档"):
                         all_documents["试用文档"] = [""]
+                    if "通信原理笔记" not in all_documents or not all_documents.get("通信原理笔记"):
+                        all_documents["通信原理笔记"] = [
+                            "## 通信原理笔记",
+                            "",
+                            "### 1. 信号与系统基础",
+                            "- 信号分类：模拟信号 vs 数字信号",
+                            "- 傅里叶变换：时域与频域的转换",
+                            "",
+                            "### 2. 调制技术",
+                            "- 模拟调制：AM, FM, PM",
+                            "- 数字调制：ASK, FSK, PSK, QAM",
+                            "",
+                            "### 3. 信道编码",
+                            "- 纠错编码：汉明码, 卷积码",
+                            "- 香农定理：信道容量极限"
+                        ]
+
                     if "PM问答笔记" not in all_documents or not all_documents.get("PM问答笔记"):
                         all_documents["PM问答笔记"] = [
                             "欢迎使用灵辑 (Mindscribe) - AI 内容收藏助手",
