@@ -130,3 +130,28 @@ vite.config.ts.timestamp-*
 *token*.txt
 *密码*.txt
 *password*.txt
+
+# 临时脚本和文档（Git 初始化相关）
+推送.bat
+只推送.bat
+提交剩余更改.bat
+init-git-repo.bat
+init-git-repo.ps1
+configure-git-user.bat
+continue-git-setup.bat
+清理*.bat
+修复*.bat
+简单*.bat
+
+# 临时文档
+推送*.md
+解决*.md
+完成*.md
+立即*.md
+推荐*.md
+清理*.md
+如何推送*.md
+
+# 临时文本文件
+快速解决.txt
+解决冲突*.txt
