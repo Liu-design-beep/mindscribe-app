@@ -2623,6 +2623,10 @@ async def chat(request: ChatRequest):
                 try:
                     summary_messages = [
                         {
+                            "role": "system",
+                            "content": "你是一个专业的文档总结助手。你的任务是阅读文档内容并生成简洁明了的总结。请直接返回总结文本，不要返回JSON格式，不要添加任何额外的格式标记。"
+                        },
+                        {
                             "role": "user",
                             "content": f"请总结以下文档内容，要求简洁明了，控制在200字以内：\n\n{full_content}"
                         }
