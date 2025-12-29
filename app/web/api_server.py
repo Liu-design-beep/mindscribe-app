@@ -2840,6 +2840,11 @@ async def chat(request: ChatRequest):
                         summary = response.output.text.strip()
                         # 构建意图信息和工具调用信息
                         intent_info = build_intent_info(intent_data, intent)
+                        # 添加调试信息到 intent_info，方便在前端 AI 反馈面板查看
+                        if target_chapter:
+                            intent_info["debug_target_chapter"] = str(target_chapter)
+                            intent_info["debug_extracted_preview"] = content_to_summarize[:50].replace('\n', ' ') + "..."
+                        
                         tools_used = build_tools_used(
                             intent,
                             is_dev_mode,
