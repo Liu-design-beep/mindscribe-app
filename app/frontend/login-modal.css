@@ -339,3 +339,193 @@
     }
 }
 
+/* ================================ */
+/* 试用密码验证弹窗样式 */
+/* ================================ */
+
+.trial-password-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10001;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.trial-password-modal.hidden {
+    display: none !important;
+}
+
+.trial-password-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.trial-password-content {
+    position: relative;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    animation: slideUp 0.4s ease-out;
+    border: 2px solid rgba(74, 144, 226, 0.3);
+}
+
+.trial-password-icon-container {
+    margin-bottom: 20px;
+}
+
+.trial-password-icon {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    animation: bounce 1s ease-in-out infinite;
+}
+
+.trial-password-icon-fallback {
+    font-size: 80px;
+    animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.trial-password-title {
+    color: #333333;
+    font-size: 28px;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.trial-password-subtitle {
+    color: #666666;
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+
+.trial-password-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.trial-password-input {
+    flex: 1;
+    padding: 15px 20px;
+    font-size: 16px;
+    border: 2px solid rgba(74, 144, 226, 0.3);
+    border-radius: 12px;
+    outline: none;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.trial-password-input:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.1);
+    background: #ffffff;
+}
+
+.trial-password-submit {
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+}
+
+.trial-password-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+}
+
+.trial-password-submit:active {
+    transform: translateY(0);
+}
+
+.trial-password-error {
+    color: #dc3545;
+    font-size: 14px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(220, 53, 69, 0.1);
+    border-radius: 8px;
+    animation: shake 0.5s ease-in-out;
+}
+
+.trial-password-error.hidden {
+    display: none;
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-10px);
+    }
+    75% {
+        transform: translateX(10px);
+    }
+}
+
+.trial-password-cancel {
+    padding: 12px 24px;
+    font-size: 14px;
+    background: transparent;
+    color: #666666;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.trial-password-cancel:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #333333;
+}
+
+/* 响应式设计 - 密码弹窗 */
+@media (max-width: 768px) {
+    .trial-password-content {
+        padding: 30px 20px;
+        max-width: 90%;
+    }
+    
+    .trial-password-icon {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .trial-password-title {
+        font-size: 24px;
+    }
+    
+    .trial-password-input-group {
+        flex-direction: column;
+    }
+}

@@ -47,23 +47,13 @@ function hideModal() {
     }
 }
 
-// 进入试用模式
+// 进入试用模式（点击试用按钮时调用）
 function enterTrialMode() {
-    // 保存选择
-    localStorage.setItem('user_choice', 'trial');
-    
-    // 每次进入试用模式时，生成新的会话ID（确保数据库重新开始）
-    // 删除旧的 session_id，生成新的
-    localStorage.removeItem('trial_session_id');
-    const sessionId = 'trial_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('trial_session_id', sessionId);
-    console.log('[试用模式] 生成新的会话ID:', sessionId);
-    
-    // 设置试用模式标志
-    localStorage.setItem('is_trial_mode', 'true');
-    
-    // 隐藏模态框
+    // 隐藏登录/试用选择弹窗
     hideModal();
+    
+    // 显示密码验证弹窗
+    showPasswordModal();
     
     // 显示应用界面（如果应用被隐藏）
     const appContainer = document.querySelector('.app-container') || document.body;
@@ -398,4 +388,174 @@ if (document.readyState === 'loading') {
 // 导出函数供其他脚本使用
 window.enterTrialMode = enterTrialMode;
 window.handleLogin = handleLogin;
+
+// ================================
+// 试用密码验证功能
+// ================================
+
+const TRIAL_PASSWORD = '123'; // 试用密码
+
+// 显示密码验证弹窗
+function showPasswordModal() {
+    const passwordModal = document.getElementById('trial-password-modal');
+    const passwordInput = document.getElementById('trial-password-input');
+    const errorMsg = document.getElementById('trial-password-error');
+    
+    if (passwordModal) {
+        passwordModal.classList.remove('hidden');
+        console.log('[密码验证] 显示密码验证弹窗');
+        
+        // 清空输入框和错误提示
+        if (passwordInput) {
+            passwordInput.value = '';
+            passwordInput.focus();
+        }
+        if (errorMsg) {
+            errorMsg.classList.add('hidden');
+        }
+    }
+}
+
+// 隐藏密码验证弹窗
+function hidePasswordModal() {
+    const passwordModal = document.getElementById('trial-password-modal');
+    if (passwordModal) {
+        passwordModal.classList.add('hidden');
+        console.log('[密码验证] 隐藏密码验证弹窗');
+    }
+}
+
+// 验证密码
+function verifyPassword() {
+    const passwordInput = document.getElementById('trial-password-input');
+    const errorMsg = document.getElementById('trial-password-error');
+    
+    if (!passwordInput) return;
+    
+    const inputPassword = passwordInput.value.trim();
+    
+    if (inputPassword === TRIAL_PASSWORD) {
+        console.log('[密码验证] ✅ 密码正确');
+        
+        // 隐藏密码弹窗
+        hidePasswordModal();
+        
+        // 执行原来的试用模式初始化逻辑
+        startTrialMode();
+    } else {
+        console.log('[密码验证] ❌ 密码错误');
+        
+        // 显示错误提示
+        if (errorMsg) {
+            errorMsg.classList.remove('hidden');
+        }
+        
+        // 清空输入框
+        passwordInput.value = '';
+        passwordInput.focus();
+    }
+}
+
+// 开始试用模式（密码验证成功后调用）
+function startTrialMode() {
+    // 保存选择
+    localStorage.setItem('user_choice', 'trial');
+    
+    // 每次进入试用模式时，生成新的会话ID（确保数据库重新开始）
+    localStorage.removeItem('trial_session_id');
+    const sessionId = 'trial_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('trial_session_id', sessionId);
+    console.log('[试用模式] 生成新的会话ID:', sessionId);
+    
+    // 设置试用模式标志
+    localStorage.setItem('is_trial_mode', 'true');
+    
+    // 显示应用界面（如果应用被隐藏）
+    const appContainer = document.querySelector('.app-container') || document.body;
+    if (appContainer.style) {
+        appContainer.style.display = '';
+    }
+    
+    // 延迟一点时间，确保模态框完全隐藏后再初始化
+    setTimeout(() => {
+        console.log('[试用模式] 开始初始化试用模式...');
+        
+        // 重新初始化DOM元素引用
+        if (typeof initElements === 'function') {
+            initElements();
+            console.log('[试用模式] DOM元素引用已重新初始化');
+        }
+        
+        // 重新初始化会话
+        if (typeof initSession === 'function') {
+            initSession();
+            console.log('[试用模式] 会话已重新初始化');
+        }
+        
+        // 强制重新绑定事件监听器
+        if (typeof initEventListeners === 'function') {
+            if (window.eventListenersBound !== undefined) {
+                window.eventListenersBound = false;
+            }
+            initEventListeners();
+            console.log('[试用模式] 事件监听器已重新绑定');
+        }
+        
+        // 更新试用状态气泡
+        if (typeof updateTrialStatusBubble === 'function') {
+            updateTrialStatusBubble();
+        }
+        
+        // 刷新文档列表
+        if (typeof fetchDocumentList === 'function' && typeof updateDocumentList === 'function') {
+            fetchDocumentList().then(documents => {
+                updateDocumentList(documents);
+            }).catch(err => {
+                console.error('刷新文档列表失败:', err);
+            });
+        }
+        
+        console.log('[试用模式] 试用模式初始化完成');
+    }, 200);
+}
+
+// 取消密码验证，返回登录/试用选择弹窗
+function cancelPasswordVerification() {
+    hidePasswordModal();
+    showModal();
+    console.log('[密码验证] 取消验证，返回选择弹窗');
+}
+
+// 初始化密码验证弹窗事件
+function initPasswordModal() {
+    const submitBtn = document.getElementById('trial-password-submit');
+    const cancelBtn = document.getElementById('trial-password-cancel');
+    const passwordInput = document.getElementById('trial-password-input');
+    
+    if (submitBtn) {
+        submitBtn.addEventListener('click', verifyPassword);
+        console.log('[密码验证] 确认按钮事件已绑定');
+    }
+    
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', cancelPasswordVerification);
+        console.log('[密码验证] 取消按钮事件已绑定');
+    }
+    
+    if (passwordInput) {
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                verifyPassword();
+            }
+        });
+        console.log('[密码验证] 输入框回车事件已绑定');
+    }
+}
+
+// 在 DOM 加载完成后初始化密码弹窗
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPasswordModal);
+} else {
+    setTimeout(initPasswordModal, 100);
+}
 
