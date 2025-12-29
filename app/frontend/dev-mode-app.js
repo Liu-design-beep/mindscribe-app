@@ -71,7 +71,8 @@ const LOCAL_DOCUMENTS = {
         "版本：Beta | 更新：2025-12-23 | 模型：通义千问3-coder-plus",
         ""
     ],
-    '更新记录日志': [] // 将在初始化时从update_log_content.js加载
+    '更新记录日志': [], // 将在初始化时从 API 加载
+    '系统提示词': [] // 将在初始化时从 API 加载
 };
 
 // 应用状态
@@ -87,10 +88,12 @@ const AppState = {
 
 // API 配置
 const API_CONFIG = {
-    baseURL: 'http://localhost:8001', // 本地开发地址
+    baseURL: 'https://mindscribe-backend-nr7q.onrender.com', // 生产环境地址
     endpoints: {
         chat: '/api/chat',
-        documents: '/api/documents'
+        documents: '/api/documents',
+        updateLog: '/api/get-update-log',
+        systemPrompt: '/system_prompt.md'
     }
 };
 
@@ -217,9 +220,12 @@ function loadLocalDocuments() {
     AppState.editModeEnabled = false; // 开发者模式不允许修改
     updateStatus();
     
-    // 加载更新记录日志内容（从API获取，只读，不需要D1）
-    loadUpdateLogFromFile().then(() => {
-        // 更新文档列表（确保"更新记录日志"显示在列表中）
+    // 加载更新记录日志和系统提示词（从API获取，只读，不需要D1）
+    Promise.all([
+        loadUpdateLogFromFile(),
+        loadSystemPromptFromFile()
+    ]).then(() => {
+        // 更新文档列表（确保所有文档显示在列表中）
         updateDocumentList();
         // 直接显示介绍文档的完整内容（首次加载，清空之前的消息）
         displayCurrentDocument(true);
@@ -230,7 +236,7 @@ function loadLocalDocuments() {
 async function loadUpdateLogFromFile() {
     try {
         // 尝试从后端API获取更新记录日志内容（只读，不需要D1）
-        const response = await fetch('http://localhost:8001/api/get-update-log');
+        const response = await fetch(API_CONFIG.baseURL + API_CONFIG.endpoints.updateLog);
         if (response.ok) {
             const data = await response.json();
             if (data.content && Array.isArray(data.content)) {
@@ -249,6 +255,33 @@ async function loadUpdateLogFromFile() {
         LOCAL_DOCUMENTS['更新记录日志'] = ['更新记录日志内容暂不可用，请检查后端服务是否运行'];
         AppState.documents['更新记录日志'] = LOCAL_DOCUMENTS['更新记录日志'];
         // 即使加载失败，也要更新文档列表，确保"更新记录日志"显示在列表中
+        updateDocumentList();
+    }
+}
+
+// 从文件加载系统提示词
+async function loadSystemPromptFromFile() {
+    try {
+        // 从 GitHub 获取 system_prompt.md 文件
+        const response = await fetch(API_CONFIG.baseURL + API_CONFIG.endpoints.systemPrompt);
+        if (response.ok) {
+            const text = await response.text();
+            // 将 Markdown 文本按行分割
+            const lines = text.split('\n');
+            LOCAL_DOCUMENTS['系统提示词'] = lines;
+            AppState.documents['系统提示词'] = lines;
+            console.log('[开发者模式] 系统提示词已加载，行数:', lines.length);
+            // 立即更新文档列表
+            updateDocumentList();
+        } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    } catch (error) {
+        console.warn('[开发者模式] 无法从 API 加载系统提示词，使用空内容:', error);
+        // 如果 API 不可用，使用空数组
+        LOCAL_DOCUMENTS['系统提示词'] = ['系统提示词内容暂不可用，请检查后端服务是否运行'];
+        AppState.documents['系统提示词'] = LOCAL_DOCUMENTS['系统提示词'];
+        // 即使加载失败，也要更新文档列表
         updateDocumentList();
     }
 }
