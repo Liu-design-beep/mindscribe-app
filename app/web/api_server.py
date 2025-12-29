@@ -95,53 +95,19 @@ class SessionManager:
         Returns:
             (session_id, SmartClipLLM实例)
         """
-        if session_id and session_id in self.sessions:
-            return session_id, self.sessions[session_id]
+        # 演示模式：每次都创建新会话，不复用旧会话
+        # if session_id and session_id in self.sessions:
+        #     return session_id, self.sessions[session_id]
         
-        # 创建新会话
-        new_session_id = session_id or f"session_{uuid.uuid4().hex[:16]}"
-        app_instance = SmartClipLLM()
+        # 创建新会话（每次都创建新的）
+        new_session_id = f"demo_{uuid.uuid4().hex[:16]}"
+        print(f"[会话管理] 创建新的演示会话: {new_session_id}")
+        
+        # 创建 SmartClipLLM 实例（启用演示模式）
+        app_instance = SmartClipLLM(demo_mode=True)
         self.sessions[new_session_id] = app_instance
         
-        # 如果是试用模式的新会话，重置数据
-        if new_session_id and new_session_id.startswith('trial_'):
-            print(f"[会话管理] 检测到试用模式新会话，开始重置数据...")
-            doc_manager = app_instance.doc_manager
-            
-            # 1. 清空"试用文档"的内容
-            if "试用文档" in doc_manager.documents:
-                doc_manager.clear_document("试用文档")
-                print(f"[会话管理] 已清空'试用文档'")
-            
-            # 2. 删除所有用户创建的文档（保留系统默认文档）
-            default_docs = ["试用文档", "PM问答笔记", "介绍文档", "更新记录日志", "评价体系设计"]
-            docs_to_delete = [
-                title for title in list(doc_manager.documents.keys())
-                if title not in default_docs
-            ]
-            for title in docs_to_delete:
-                # 删除文档文件
-                doc_file = doc_manager._get_document_file(title)
-                if doc_file.exists():
-                    try:
-                        doc_file.unlink()  # 删除文件
-                        print(f"[会话管理] 已删除文档文件: {doc_file}")
-                    except Exception as e:
-                        print(f"[会话管理] 删除文档文件失败: {e}")
-                
-                # 从内存中删除
-                if title in doc_manager.documents:
-                    del doc_manager.documents[title]
-                    print(f"[会话管理] 已从内存中删除文档: {title}")
-            
-            # 更新元数据
-            doc_manager._save_metadata()
-            
-            # 3. 重置活跃文档为"试用文档"
-            doc_manager.active_doc_title = "试用文档"
-            doc_manager._save_metadata()
-            
-            print(f"[会话管理] 试用模式数据已完全重置")
+        print(f"[会话管理] 演示会话创建完成，文档已初始化")
         
         return new_session_id, self.sessions[new_session_id]
     

@@ -208,23 +208,14 @@ function generateSessionId() {
  */
 function initSession() {
     // 检查是否为试用模式
-    const isTrialMode = localStorage.getItem('is_trial_mode') === 'true';
+    // 演示模式：每次刷新页面时都不使用 session_id
+    // 后端会自动创建新的 session
+    AppState.sessionId = null;
+    console.log('[初始化] 演示模式，不使用 session_id，每次刷新都重置');
     
-    if (isTrialMode) {
-        // 试用模式：每次刷新页面时生成新的会话ID（确保数据库重新开始）
-        // 删除旧的 session_id，生成新的
-        localStorage.removeItem('trial_session_id');
-        const trialSessionId = 'trial_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            localStorage.setItem('trial_session_id', trialSessionId);
-        AppState.sessionId = trialSessionId;
-        console.log('[初始化] 试用模式会话ID（已重新生成）:', AppState.sessionId);
-    } else {
-        // 非试用模式：生成或获取普通session_id
-        if (!AppState.sessionId) {
-            AppState.sessionId = generateSessionId();
-            console.log('[初始化] 普通模式会话ID:', AppState.sessionId);
-        }
-    }
+    // 清理旧的 session_id（如果有）
+    localStorage.removeItem('trial_session_id');
+    localStorage.removeItem('is_trial_mode');
 }
 
 /**
@@ -1482,12 +1473,12 @@ async function handleBackendResponse(response) {
     console.log('是否编辑模式:', edit_mode_enabled);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
-    // 如果后端返回了新的会话ID
-    if (new_session_id) {
-        // 更新应用状态中的会话ID
-        AppState.sessionId = new_session_id;
-    }
-    
+    // 演示模式：不保存 session_id
+    // 即使后端返回了 new_session_id，也不保存
+    // 下次刷新时会创建新的 session
+    // if (new_session_id) {
+    //     AppState.sessionId = new_session_id;
+    // }   
     // 更新开发者模式状态（仅用于状态跟踪，不再自动跳转）
     if (dev_mode_enabled !== undefined) {
         AppState.devModeEnabled = dev_mode_enabled;

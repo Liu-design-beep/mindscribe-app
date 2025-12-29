@@ -5,13 +5,15 @@ import json
 from pathlib import Path
 
 class DocumentManager:
-    def __init__(self, storage_dir="documents"):
+    def __init__(self, storage_dir="documents", demo_mode=True):
         """
         初始化文档管理器
         
         Args:
             storage_dir: 文档存储目录，默认为 "documents"
+            demo_mode: 演示模式，True 时不保存到文件系统，只使用内存
         """
+        self.demo_mode = demo_mode  # 演示模式标志
         # 设置存储目录
         self.storage_dir = Path(storage_dir)
         self.storage_dir.mkdir(exist_ok=True)  # 如果目录不存在则创建
@@ -22,14 +24,21 @@ class DocumentManager:
         # 从本地文件加载文档
         self.documents = {}
         self.active_doc_title = "试用文档"
-        self._load_documents()
         
-        # 如果没有任何文档，创建试用文档（空白）
-        if not self.documents:
-            default_content = [""]
-            self.documents["试用文档"] = default_content
-            self._save_document("试用文档")
-            self._save_metadata()
+        if self.demo_mode:
+            # 演示模式：只使用内存，不加载文件
+            print("[DocumentManager] 演示模式已启用，不保存到文件系统")
+            self._init_demo_documents()
+        else:
+            # 正常模式：从文件加载
+            self._load_documents()
+            
+            # 如果没有任何文档，创建试用文档（空白）
+            if not self.documents:
+                default_content = [""]
+                self.documents["试用文档"] = default_content
+                self._save_document("试用文档")
+                self._save_metadata()
 
     def _get_document_file(self, title):
         """获取文档对应的文件路径"""
@@ -98,6 +107,10 @@ class DocumentManager:
         if title not in self.documents:
             return
         
+        # 演示模式：不保存到文件
+        if self.demo_mode:
+            return
+        
         # 检测并清理默认占位文本（防止保存时写入）
         def contains_default(c):
             s = str(c)
@@ -130,6 +143,10 @@ class DocumentManager:
     
     def _save_metadata(self):
         """保存元数据（活跃文档等）"""
+        # 演示模式：不保存到文件
+        if self.demo_mode:
+            return
+        
         try:
             with open(self.metadata_file, 'w', encoding='utf-8') as f:
                 json.dump({
@@ -287,5 +304,52 @@ class DocumentManager:
             output += f"{i+1}. {line}\n"
         output += "----------------------"
         return output
+    
+    def _init_demo_documents(self):
+        """初始化演示文档（只在内存中）"""
+        print("[DocumentManager] 正在初始化演示文档...")
+        
+        # 初始化空白的试用文档
+        self.documents["试用文档"] = [""]
+        
+        # 初始化通信原理笔记（完整内容）
+        communication_notes = [
+            "# 通信原理笔记",
+            "",
+            "## 第一章 绪论",
+            "通信系统的基本组成包括信源、发送设备、信道、接收设备和信宿。",
+            "",
+            "### 1.1 通信系统的基本组成",
+            "- 信源：产生原始信息",
+            "- 发送设备：将信息转换为适合传输的信号",
+            "- 信道：信号传输的物理媒介",
+            "- 接收设备：将接收的信号转换为原始信息",
+            "- 信宿：信息的最终接收者",
+            "",
+            "## 第二章 信号与系统",
+            "信号分为模拟信号和数字信号两类。模拟信号是连续的，数字信号是离散的。",
+            "",
+            "## 第三章 模拟调制",
+            "模拟调制包括幅度调制（AM）、频率调制（FM）和相位调制（PM）。",
+            "",
+            "### 3.1 幅度调制（AM）",
+            "AM 调制是最简单的调制方式，通过改变载波的幅度来传送信息。",
+            "",
+            "### 3.2 频率调制（FM）",
+            "FM 调制通过改变载波的频率来传送信息，抗干扰能力强。",
+            "",
+            "## 第四章 数字基带传输",
+            "数字基带传输是指数字信号不经过调制，直接在信道中传输。",
+            "",
+            "## 第五章 数字调制",
+            "数字调制包括 ASK、FSK、PSK 和 QAM 等。",
+            ""
+        ]
+        self.documents["通信原理笔记"] = communication_notes
+        
+        # 设置活跃文档
+        self.active_doc_title = "试用文档"
+        
+        print(f"[DocumentManager] 演示文档初始化完成，共 {len(self.documents)} 个文档")
 
 

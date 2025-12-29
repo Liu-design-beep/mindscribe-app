@@ -7,8 +7,15 @@ from intent_recognizer import LLMIntentRecognizer
 from config import get_llm_client
 
 class SmartClipLLM:
-    def __init__(self):
-        self.doc_manager = DocumentManager()
+    def __init__(self, demo_mode=True):
+        """
+        初始化 SmartClipLLM
+        
+        Args:
+            demo_mode: 演示模式，True 时不保存到文件系统
+        """
+        self.demo_mode = demo_mode
+        self.doc_manager = DocumentManager(demo_mode=demo_mode)
         self.client_config = get_llm_client()
         
         # 检查LLM配置
