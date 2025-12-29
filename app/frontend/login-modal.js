@@ -243,9 +243,11 @@ function showTrialWarning() {
 window.addEventListener('beforeunload', () => {
     const choice = localStorage.getItem('user_choice');
     if (choice === 'trial') {
-        // 清除试用数据
+        // 清除试用数据，确保下次刷新时重新显示弹窗
+        localStorage.removeItem('user_choice');
         localStorage.removeItem('trial_session_id');
         localStorage.removeItem('trial_documents');
+        localStorage.removeItem('is_trial_mode');
         // 注意：这里只是清除本地存储，实际的 D1 数据库清理需要在后端处理
     }
 });
