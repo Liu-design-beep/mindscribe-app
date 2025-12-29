@@ -8,6 +8,7 @@ on:
     paths:
       - '程序/frontend/**'
       - '.github/workflows/deploy-frontend.yml'
+      - 'build-frontend.sh'
   workflow_dispatch:
 
 jobs:
