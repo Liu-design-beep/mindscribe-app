@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>灵辑 - 开发者模式</title>
+    <link rel="icon" type="image/png" href="窗口logo.png">
+    <style>
+        /* 强制全红背景，防止任何其他样式覆盖 */
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #8B0000 !important;
+            width: 100% !important;
+            height: 100% !important;
+            overflow: hidden !important;
+        }
+    </style>
+    <link rel="stylesheet" href="dev-mode-style.css">
+</head>
+<body style="background: #8B0000 !important; margin: 0 !important; padding: 0 !important;">
+    <!-- 主容器 -->
+    <div class="dev-container">
+        <!-- 顶部状态栏 -->
+        <div class="dev-header">
+            <div class="dev-header-left">
+                <!-- 返回按钮 -->
+                <button class="back-btn" id="back-to-normal-btn" aria-label="返回试用界面">
+                    <span class="back-icon">←</span>
+                    <span class="back-text">返回</span>
+                </button>
+                <div class="dev-status">
+                    <span class="status-item" id="edit-mode-status">修改权限: 未启用</span>
+                </div>
+            </div>
+            <!-- 开发者模式logo（中间位置，常显） -->
+            <div class="dev-logo-container" id="dev-logo-container">
+                <img src="开发者模式logo.png" alt="开发者模式" class="dev-logo" id="dev-logo">
+            </div>
+        </div>
+
+        <!-- 对话模式区域 -->
+        <div class="dev-content" id="chat-mode-content">
+            <!-- 左侧文档列表 -->
+            <aside class="dev-sidebar" id="dev-sidebar">
+                <div class="dev-sidebar-header">
+                    <h2>文档列表</h2>
+                </div>
+                <ul class="dev-doc-list" id="dev-doc-list">
+                    <!-- 文档列表将在这里动态生成 -->
+                </ul>
+            </aside>
+            <!-- 主内容区域 -->
+            <div class="dev-main-content">
+            <div class="chat-area" id="chat-area">
+                <div class="system-message">
+                    <p>🔴 开发者模式界面</p>
+                    <p>如需修改笔记，请输入修改权限代码启用修改权限</p>
+                    <p>介绍文档为只读文档，用于介绍系统设计内容</p>
+                </div>
+            </div>
+            <div class="input-area">
+                <textarea id="user-input" placeholder="输入指令..."></textarea>
+                <button id="send-btn">发送</button>
+            </div>
+            </div>
+            <!-- 右侧章节列表 -->
+            <aside class="dev-chapter-sidebar" id="dev-chapter-sidebar">
+                <div class="dev-chapter-header">
+                    <h3>章节</h3>
+                </div>
+                <div class="dev-chapter-list" id="dev-chapter-list">
+                    <!-- 章节列表将在这里动态生成 -->
+                </div>
+            </aside>
+        </div>
+
+        <!-- 完整查看模式区域 -->
+        <div class="dev-content hidden" id="view-mode-content">
+            <div class="view-controls">
+                <button class="view-btn" id="view-all-btn">查看所有笔记</button>
+                <button class="view-btn" id="refresh-btn">刷新</button>
+            </div>
+            <div class="documents-list" id="documents-list">
+                <!-- 文档列表将在这里动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗：查看完整笔记内容 -->
+    <div class="modal-overlay" id="document-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">笔记内容</h2>
+                <button class="close-btn" id="close-modal-btn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="document-content-wrapper">
+                <div class="document-content" id="modal-document-content">
+                    <!-- 文档内容将在这里显示 -->
+                    </div>
+                    <div class="document-toc" id="modal-document-toc">
+                        <div class="toc-header">目录</div>
+                        <div class="toc-list" id="toc-list">
+                            <!-- 目录将在这里动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="dev-mode-app.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,23 @@
+{
+  "name": "smart-clip-cloudflare",
+  "version": "1.0.0",
+  "description": "灵辑 (Mindscribe) - Cloudflare Workers 后端",
+  "main": "worker.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:preview": "wrangler deploy --env preview"
+  },
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "notes",
+    "ai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
+

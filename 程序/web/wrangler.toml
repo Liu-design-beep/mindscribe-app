@@ -1,0 +1,35 @@
+# Cloudflare Workers 配置文件
+# 用于部署灵辑 (Mindscribe) 后端服务
+
+name = "smart-clip-api"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# KV Namespace 配置
+# 需要在 Cloudflare Dashboard 中创建 KV Namespace，然后绑定
+# 创建命令: wrangler kv:namespace create "NOTES_KV"
+# 绑定命令: wrangler kv:namespace bind "NOTES_KV" --preview
+[[kv_namespaces]]
+binding = "NOTES_KV"
+id = "YOUR_KV_NAMESPACE_ID"  # 替换为实际的 KV Namespace ID
+
+# D1 数据库配置
+# 数据库 ID: 8fb7b530-17e4-44f1-819f-ee585effdbf2
+[[d1_databases]]
+binding = "DB"
+database_name = "developernote"
+database_id = "8fb7b530-17e4-44f1-819f-ee585effdbf2"
+
+# 环境变量配置
+[vars]
+DEV_MODE_CODE = "开发者模式#000"
+EDIT_MODE_CODE = "set000"
+
+# 生产环境配置
+[env.production]
+name = "smart-clip-api-prod"
+
+# 预览环境配置
+[env.preview]
+name = "smart-clip-api-preview"
+

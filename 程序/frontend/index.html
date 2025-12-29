@@ -1,0 +1,732 @@
+<!-- HTML5文档类型声明，告诉浏览器这是HTML5格式的文档 -->
+<!DOCTYPE html>
+<!-- html根元素，lang="zh-CN"表示页面语言是简体中文，有助于搜索引擎和屏幕阅读器 -->
+<html lang="zh-CN">
+<!-- head标签：包含文档的元数据（不会在页面上显示的内容） -->
+<head>
+    <!-- meta标签：设置文档的字符编码为UTF-8，支持中文和特殊字符 -->
+    <meta charset="UTF-8">
+    <!-- meta标签：设置视口（viewport），使页面在移动设备上正确显示 -->
+    <!-- width=device-width：宽度等于设备宽度 -->
+    <!-- initial-scale=1.0：初始缩放比例为100% -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- title标签：设置浏览器标签页上显示的标题 -->
+    <title>灵辑 - 智能笔记助手</title>
+    <!-- favicon：浏览器标签页图标 -->
+    <link rel="icon" type="image/png" href="窗口logo.png">
+    <!-- link标签：引入外部CSS样式表文件，rel="stylesheet"表示这是样式表 -->
+    <!-- href="style.css"：样式表文件的路径 -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="login-modal.css">
+<!-- head标签结束 -->
+</head>
+<!-- body标签：包含页面上所有可见的内容 -->
+<body>
+    <!-- 登录/试用选择悬浮提示 -->
+    <div class="login-trial-modal" id="login-trial-modal" style="position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; display: flex !important; justify-content: center !important; align-items: center !important; visibility: visible !important; opacity: 1 !important; z-index: 10000 !important;">
+        <div class="modal-container">
+            <!-- 左侧介绍窗口 -->
+            <div class="intro-panel">
+                <div class="intro-header">
+                    <img src="封面图标.png" alt="灵辑" class="cover-icon" onerror="this.style.display='none';">
+                    <h2>关于灵辑</h2>
+                </div>
+                <div class="intro-content">
+                    <div class="intro-section">
+                        <h3>📝 灵辑 (Mindscribe)</h3>
+                        <p>智能笔记管理助手，专注于帮助用户高效整理和管理碎片化笔记。通过自然语言对话，智能理解您的意图，自动将笔记内容分类、整理并存储。</p>
+                    </div>
+                    <div class="intro-section">
+                        <h3>✨ 核心特点</h3>
+                        <ul>
+                            <li>💡 智能整理碎片化笔记</li>
+                            <li>🗂️ 自动分类和归档</li>
+                            <li>☁️ 云端永久存储</li>
+                            <li>💬 自然语言交互</li>
+                        </ul>
+                    </div>
+                    <div class="intro-section">
+                        <h3>👨‍💻 开发团队</h3>
+                        <p><strong>开发者：</strong>刘莫昕</p>
+                        <p>感谢您使用灵辑！我们致力于为您提供更好的笔记管理体验。</p>
+                        <p>联系我们🐧：2226778997</p>
+                    </div>
+                </div>
+            </div>
+            <!-- 右侧登录/试用选择窗口 -->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>欢迎使用灵辑</h2>
+                    <p class="subtitle">请选择使用方式</p>
+                </div>
+                <div class="modal-body">
+                    <div class="option-card" id="login-option">
+                        <div class="option-icon">🔐</div>
+                        <h3>登录</h3>
+                        <p>登录后可使用云端存储功能，数据永久保存</p>
+                    </div>
+                    <div class="option-card" id="trial-option">
+                        <div class="option-icon">✨</div>
+                        <h3>试用</h3>
+                        <p>立即体验，无需登录</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 顶部导航栏 -->
+    <header class="header">
+        <div class="header-left">
+            <h1 class="app-title">
+                <img src="封面图标.png" alt="灵辑" class="app-icon-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                <span class="app-icon" style="display: none;">📝</span>
+                灵辑 <span class="app-title-en">Mindscribe</span>
+                <span class="app-beta-badge">Beta</span>
+            </h1>
+            <!-- 版本号 -->
+            <span class="version-number">v0.5.3.3</span>
+        </div>
+        <!-- 处理中logo（中间位置，默认隐藏） -->
+        <div class="processing-logo-container" id="processing-logo-container">
+            <img src="试用模式logo.png" alt="处理中" class="processing-logo" id="processing-logo">
+        </div>
+        <div class="header-right">
+            <!-- 登录按钮（保留，用于左侧侧边栏按钮触发） -->
+            <button id="login-btn" class="login-btn hidden" aria-label="登录" style="display: none;">
+                <span class="login-icon">🔐</span>
+                <span class="login-text">登录</span>
+            </button>
+            <!-- 说明书按钮 -->
+            <button id="manual-btn" class="manual-btn" aria-label="说明书">
+                <span class="manual-icon">📖</span>
+                <span class="manual-text">说明书</span>
+            </button>
+            <!-- 说明书面板 -->
+            <div id="manual-panel" class="manual-panel hidden">
+                <div class="manual-header">
+                    <h3>📖 系统说明书</h3>
+                    <button id="close-manual-btn" class="close-manual-btn" aria-label="关闭">×</button>
+                </div>
+                <div class="manual-content" id="manual-content">
+                    <!-- 说明书内容将通过 JavaScript 动态加载 -->
+                </div>
+            </div>
+            <!-- 应用端下载按钮 -->
+            <div class="download-app-container-header">
+                <button id="download-app-btn" class="download-app-btn" aria-label="应用端下载">
+                    <span class="download-app-icon">📥</span>
+                    <span class="download-app-text">应用端下载</span>
+                </button>
+                <!-- 应用端下载提示框 -->
+                <div id="download-app-tooltip" class="download-app-tooltip hidden">
+                    <div class="tooltip-content">
+                        <h3 class="tooltip-title">📥 应用端下载</h3>
+                        <p class="tooltip-text">未来灵辑将兼容手机、网页、以及桌面微型用户端，为您提供全平台无缝体验。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- AI反馈信息面板（上方栏左下方顶格） -->
+    <div id="ai-feedback-panel" class="ai-feedback-panel">
+        <div class="ai-feedback-header" id="ai-feedback-header">
+            <div class="ai-feedback-title">
+                <span class="ai-feedback-icon">🤖</span>
+                <span class="ai-feedback-title-text">灵辑思考反馈</span>
+                <span class="ai-feedback-time" id="ai-feedback-time"></span>
+            </div>
+            <button class="ai-feedback-toggle" id="ai-feedback-toggle" aria-label="展开/收起">
+                <span class="toggle-icon">▼</span>
+            </button>
+        </div>
+        <div class="ai-feedback-content" id="ai-feedback-content">
+            <div class="ai-feedback-list" id="ai-feedback-list">
+                <!-- 反馈信息将在这里动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 左侧功能侧边栏（铃铛、设置和开发者模式按钮） -->
+    <aside id="left-sidebar" class="left-sidebar">
+        <div class="left-sidebar-bottom">
+            <!-- 知识库广场按钮 -->
+            <div class="left-sidebar-btn-wrapper">
+                <button id="knowledge-base-btn" class="left-sidebar-btn" aria-label="知识库广场">
+                    <img src="灯泡logo.png" alt="知识库广场" class="knowledge-base-icon-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                    <span class="knowledge-base-icon" style="display: none;">💡</span>
+                </button>
+                <!-- 知识库广场详细提示框 -->
+                <div class="left-sidebar-tooltip knowledge-base-tooltip">
+                    <div class="tooltip-content">
+                        <div class="tooltip-title">💡 知识库广场</div>
+                        <div class="tooltip-text">
+                            <p>📚 笔记共享平台，汇聚各行业各学科优质笔记内容</p>
+                            <p style="margin-top: 8px;">📖 例如：</p>
+                            <p>• 📊 数据分析与统计学笔记</p>
+                            <p>• 💻 编程语言与算法学习笔记</p>
+                            <p>• 📝 文学创作与写作技巧笔记</p>
+                            <p>• 🔬 科学研究与实验方法笔记</p>
+                            <p>• 💼 商业管理与市场营销笔记</p>
+                            <p style="margin-top: 8px;">🎁 个人知识库上传可获得积分悬赏</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 更新通知按钮 -->
+            <div class="left-sidebar-btn-wrapper">
+                <button id="update-notification-btn-left" class="left-sidebar-btn" aria-label="功能更新">
+                    <span class="notification-icon">🔔</span>
+                    <span class="notification-badge" id="notification-badge-left"></span>
+                </button>
+                <!-- 更新通知提示框 -->
+                <div class="left-sidebar-tooltip">
+                    <div class="tooltip-content">
+                        <span class="tooltip-text">功能更新</span>
+                    </div>
+                </div>
+                <!-- 更新通知面板（从左侧侧边栏按钮旁边生成） -->
+                <div id="update-notification-panel" class="update-notification-panel hidden">
+                    <div class="notification-header">
+                        <h3>📢 功能更新</h3>
+                        <button id="close-notification-btn" class="close-notification-btn" aria-label="关闭">×</button>
+                    </div>
+                    <div id="update-list" class="update-list">
+                        <!-- 更新项将由JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+            <!-- 设置按钮（原登录按钮） -->
+            <div class="left-sidebar-btn-wrapper">
+                <button id="settings-btn" class="left-sidebar-btn" aria-label="设置">
+                    <span class="settings-icon">⚙️</span>
+                </button>
+                <!-- 设置提示框 -->
+                <div class="left-sidebar-tooltip">
+                    <div class="tooltip-content">
+                        <span class="tooltip-text">设置</span>
+                    </div>
+                </div>
+            </div>
+            <!-- 开发者模式按钮 -->
+            <div class="left-sidebar-btn-wrapper">
+                <button id="dev-mode-btn-left" class="left-sidebar-btn" aria-label="开发者模式">
+                    <img src="开发者模式logo.png" alt="开发者模式" class="dev-mode-icon-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                    <span class="dev-mode-icon" style="display: none;">⚙️</span>
+                </button>
+                <!-- 开发者模式提示框 -->
+                <div class="left-sidebar-tooltip">
+                    <div class="tooltip-content">
+                        <span class="tooltip-text">开发者模式</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- HTML注释：侧边栏区域的说明 -->
+    <!-- 侧边栏（文档列表） -->
+    <!-- aside标签：语义化标签，表示侧边栏内容 -->
+    <!-- id="sidebar"：唯一标识符，JavaScript通过这个id控制侧边栏的显示/隐藏 -->
+    <!-- class="sidebar"：CSS类名，用于应用侧边栏样式 -->
+    <aside id="sidebar" class="sidebar doc-sidebar">
+        <!-- div标签：侧边栏头部容器 -->
+        <!-- class="sidebar-header"：CSS类名 -->
+        <div class="sidebar-header">
+            <!-- h2标签：二级标题，显示"文档列表" -->
+            <h2>
+                文档列表
+                <img src="文档列表logo.png" alt="文档列表" class="sidebar-header-icon" onerror="this.style.display='none';">
+            </h2>
+            <!-- button标签：关闭侧边栏的按钮 -->
+            <!-- id="close-sidebar-btn"：唯一标识符，JavaScript通过这个id绑定点击事件 -->
+            <!-- class="close-btn"：CSS类名，用于关闭按钮样式 -->
+            <!-- aria-label="关闭菜单"：无障碍属性，为屏幕阅读器提供描述 -->
+            <!-- ×：Unicode字符，显示为关闭符号（X） -->
+            <button id="close-sidebar-btn" class="close-btn" aria-label="关闭菜单">×</button>
+        <!-- sidebar-header div结束 -->
+        </div>
+        <!-- ul标签：无序列表，用于显示文档列表 -->
+        <!-- id="doc-list"：唯一标识符，JavaScript会在这个容器中动态添加文档列表项 -->
+        <!-- class="doc-list"：CSS类名，用于列表样式 -->
+        <ul id="doc-list" class="doc-list">
+            <!-- HTML注释：说明列表项将由JavaScript动态生成 -->
+            <!-- 列表项将由JS动态生成 -->
+        <!-- ul标签结束 -->
+        </ul>
+    <!-- aside标签结束 -->
+    </aside>
+
+    <!-- HTML注释：侧边栏遮罩层的说明 -->
+    <!-- 侧边栏遮罩层（点击可关闭侧边栏） -->
+    <!-- div标签：半透明遮罩层，当侧边栏打开时显示，点击可关闭侧边栏 -->
+    <!-- id="sidebar-overlay"：唯一标识符，JavaScript通过这个id控制遮罩层的显示/隐藏 -->
+    <!-- class="sidebar-overlay"：CSS类名，用于遮罩层样式（半透明黑色背景） -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- 试用模式提示窗口（左侧独立窗口，5秒后自动消失） -->
+    <div id="trial-status-panel" class="trial-status-panel hidden">
+        <div class="trial-status-content">
+            <span class="trial-status-icon">⚠️</span>
+            <span class="trial-status-message">退出网页会把记录全部删除，需要进行登录才具备云端存储功能</span>
+            <button id="trial-status-close" class="trial-status-close" aria-label="关闭">×</button>
+        </div>
+    </div>
+
+    <!-- 面试模式介绍弹窗（左侧，在试用模式弹窗下方，点击面试模式后显示，5秒后自动消失） -->
+    <div id="interview-mode-info-panel" class="interview-mode-info-panel hidden">
+        <div class="interview-mode-info-content">
+            <div class="interview-mode-info-header">
+                <span class="interview-mode-info-icon">💼</span>
+                <h3 class="interview-mode-info-title">面试模式</h3>
+                <button id="interview-mode-info-close" class="interview-mode-info-close" aria-label="关闭">×</button>
+            </div>
+            <div class="interview-mode-info-body">
+                <p class="interview-mode-info-warning">🚧 开发中</p>
+                <p>🎯 智能记录面试过程中的问答内容，</p>
+                <p>💬 包括面试官的提问和您的回答。</p>
+                <p>📝 同时记录面试官的反馈和评价，</p>
+                <p>✨ 帮助您全面复盘面试过程，</p>
+                <p>🚀 发现不足并持续改进。</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- HTML注释：主聊天区域的说明 -->
+    <!-- 主聊天区域 -->
+    <!-- main标签：语义化标签，表示页面主要内容区域 -->
+    <!-- id="chat-area"：唯一标识符，JavaScript会在这个容器中动态添加聊天消息 -->
+    <!-- class="chat-area"：CSS类名，用于聊天区域样式 -->
+    <main id="chat-area" class="chat-area">
+        <!-- HTML注释：欢迎消息的说明 -->
+        <!-- 欢迎消息 -->
+        <!-- div标签：欢迎消息的气泡容器 -->
+        <!-- class="chat-bubble ai welcome-message"：多个CSS类名 -->
+        <!-- chat-bubble：聊天气泡的基础样式 -->
+        <!-- ai：表示这是AI的消息（左对齐，白色背景） -->
+        <!-- welcome-message：欢迎消息的特殊样式（渐变背景） -->
+        <div class="chat-bubble ai welcome-message">
+            <!-- 消息包装容器（包含图标和内容） -->
+            <div class="message-wrapper">
+                <!-- 消息头像 -->
+                <div class="message-avatar">
+                    <img src="ai-icon.png" alt="灵辑" class="avatar-img">
+                </div>
+                <!-- div标签：消息内容容器 -->
+                <!-- class="message-content"：CSS类名，用于消息内容样式 -->
+                <div class="message-content">
+                    <p>👋 您好！我是灵辑，您的智能笔记助手。</p>
+                    <p>📝 我可以帮您快速记录、自动分类、智能整理笔记。</p>
+                    <p style="margin-top: 16px;"><strong>💡 试试这些：</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 8px; margin-bottom: 16px;">
+                        <li>"今天学了量子计算" → 自动放到学习笔记的物理部分</li>
+                        <li>"会议要点：下周发布新版本" → 自动放到工作笔记</li>
+                        <li>"笔记里说了什么" → 快速总结当前笔记</li>
+                    </ul>
+                    <p style="margin-top: 16px;">👉 点击右上角"说明书📖"查看详细说明，或直接开始输入！</p>
+                <!-- message-content div结束 -->
+            </div>
+            <!-- message-wrapper div结束 -->
+            </div>
+        <!-- welcome-message div结束 -->
+        </div>
+        <!-- HTML注释：说明后续的聊天气泡将由JavaScript动态生成 -->
+        <!-- 聊天气泡将由JS动态生成 -->
+        <!-- 加载指示器现在由JavaScript动态创建，不再需要静态HTML元素 -->
+    <!-- main标签结束 -->
+    </main>
+
+    <!-- 标准对话示例面板（右侧） -->
+    <div id="example-panel" class="example-panel collapsed">
+        <div class="example-header" id="example-header">
+            <div class="example-title">
+                <span class="example-icon">💬</span>
+                <span class="example-title-text">对话格式示例</span>
+            </div>
+            <button class="example-toggle" id="example-toggle" aria-label="展开/收起">
+                <span class="toggle-icon">▼</span>
+            </button>
+        </div>
+        <div class="example-content" id="example-content">
+            <div class="example-list" id="example-list">
+                <!-- 示例项将在这里动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- HTML注释：底部输入区域的说明 -->
+    <!-- 底部输入区域 -->
+    <!-- footer标签：语义化标签，表示页面底部区域 -->
+    <!-- class="input-area"：CSS类名，用于输入区域样式 -->
+    <footer class="input-area">
+        <!-- 底部大框容器（框住所有内容：状态栏、输入框、工具栏） -->
+        <div class="bottom-container">
+            <!-- 笔记共享按钮（左上角） -->
+            <div class="share-note-btn-wrapper">
+                <button id="share-note-btn" class="share-note-btn" aria-label="笔记共享">
+                    <img src="纸飞机图标.png" alt="笔记共享" class="share-note-icon-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                    <span class="share-note-icon" style="display: none;">✈️</span>
+                </button>
+                <!-- 笔记共享提示框（在按钮上方） -->
+                <div id="share-note-tooltip" class="share-note-tooltip hidden">
+                    <div class="tooltip-content">
+                        <div class="tooltip-text">
+                            <p>📤 笔记共享</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 笔记共享弹窗 -->
+            <div id="share-note-modal" class="share-note-modal hidden">
+                <div class="share-note-modal-content">
+                    <div class="share-note-modal-header">
+                        <h3>📤 笔记共享</h3>
+                        <button id="close-share-note-modal" class="close-share-note-btn" aria-label="关闭">×</button>
+                    </div>
+                    <div class="share-note-modal-body">
+                        <div class="share-note-qr-section">
+                            <img src="更新中二维码.png" alt="分享二维码" class="share-note-qr-code">
+                        </div>
+                        <div class="share-note-link-section">
+                            <label class="share-note-link-label">分享链接：</label>
+                            <div class="share-note-link-container">
+                                <input type="text" id="share-note-link" class="share-note-link-input" value="https://mindscribe.app/share/abc123xyz789" readonly>
+                                <button id="copy-share-link-btn" class="copy-share-link-btn" aria-label="复制链接">📋 复制</button>
+                            </div>
+                        </div>
+                        <div class="share-note-description">
+                            <p>💡 复制链接或保存二维码进行分享，可进行笔记共享</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 状态栏（试用模式、意见反馈、已连接） -->
+            <div class="status-bar-container">
+                <div class="status-bar">
+                    <!-- 试用模式标识 -->
+                    <div id="trial-mode-indicator" class="trial-mode-indicator status-item hidden">
+                        <span class="trial-mode-icon">⚠️</span>
+                        <span class="trial-mode-text">试用模式</span>
+                    </div>
+                    <!-- 意见反馈按钮 -->
+                    <button id="feedback-btn" class="feedback-btn status-item" aria-label="意见反馈">
+                        <span class="feedback-icon">💬</span>
+                        <span class="feedback-text">意见反馈</span>
+                    </button>
+                    <!-- 连接状态指示器 -->
+                    <div id="connection-status-indicator" class="connection-status-indicator status-item">
+                        <div class="connection-icon-wrapper">
+                            <div class="connection-icon">📡</div>
+                            <div class="connection-status-dot"></div>
+                        </div>
+                        <span class="connection-status-text" id="connection-status-text">已连接</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 输入框区域 -->
+            <div class="input-section">
+            <!-- div标签：输入框包装器，用于样式控制（边框、阴影等） -->
+            <!-- class="input-wrapper"：CSS类名 -->
+            <div class="input-wrapper">
+                <!-- textarea标签：多行文本输入框，用户可以在这里输入指令 -->
+                <!-- id="user-input"：唯一标识符，JavaScript通过这个id获取用户输入的内容 -->
+                <!-- class="user-input"：CSS类名，用于输入框样式 -->
+                <!-- placeholder="..."：占位符文本，当输入框为空时显示的提示文字 -->
+                <!-- rows="1"：初始显示行数，JavaScript会根据内容自动调整高度 -->
+                <textarea 
+                    id="user-input" 
+                    class="user-input" 
+                    placeholder="灵动笔记，记录灵感..." 
+                    rows="1"
+                    autocomplete="off"
+                    spellcheck="false"
+                ></textarea>
+                <!-- 附件上传按钮（曲别针图标） -->
+                <div class="attachment-btn-container">
+                    <button id="attachment-btn" class="attachment-btn" aria-label="附件上传" title="附件上传">
+                        <span class="attachment-icon">📎</span>
+                    </button>
+                    <!-- 附件上传提示框（在图标下方弹出） -->
+                    <div id="attachment-btn-tooltip" class="attachment-btn-tooltip hidden">
+                        <div class="tooltip-content">
+                            <div class="tooltip-text">
+                                <p>🚧 开发中</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- button标签：发送按钮，用户点击后发送消息 -->
+                <!-- id="send-btn"：唯一标识符，JavaScript通过这个id绑定点击事件 -->
+                <!-- class="send-btn"：CSS类名，用于发送按钮样式（圆形渐变按钮） -->
+                <!-- aria-label="发送消息"：无障碍属性，为屏幕阅读器提供描述 -->
+                <!-- title="发送 (Enter)"：鼠标悬停时显示的提示文字 -->
+                <button id="send-btn" class="send-btn" aria-label="发送消息" title="发送 (Enter)">
+                    <!-- span标签：发送图标 -->
+                    <!-- class="send-icon"：CSS类名 -->
+                    <!-- ➤：Unicode字符，显示为向右的箭头图标 -->
+                    <span class="send-icon">➤</span>
+                <!-- button标签结束 -->
+                </button>
+            <!-- input-wrapper div结束 -->
+            </div>
+            </div>
+            
+            <!-- 底部工具栏（图标在输入框下方） -->
+        <div class="bottom-toolbar">
+            <!-- 左侧：对话模式按钮 -->
+            <div class="toolbar-left">
+                <div class="mode-selector-container">
+                    <button id="dialogue-mode-btn" class="mode-selector-btn" aria-label="对话模式">
+                        <span class="mode-icon">💬</span>
+                        <span class="mode-text">对话模式</span>
+                        <span class="mode-arrow">▼</span>
+                    </button>
+                    <!-- 对话模式下拉菜单（面试模式切换） -->
+                    <div id="dialogue-mode-dropdown" class="mode-dropdown hidden">
+                        <div class="mode-dropdown-item" id="normal-mode-item">
+                            <span class="mode-item-icon">💬</span>
+                            <span class="mode-item-text">对话模式</span>
+                        </div>
+                        <div class="mode-dropdown-item" id="interview-mode-item">
+                            <span class="mode-item-icon">💼</span>
+                            <span class="mode-item-text">面试模式</span>
+                            <!-- 面试模式提示框（鼠标悬停时显示） -->
+                            <div id="interview-mode-tooltip-bottom" class="interview-mode-tooltip-bottom hidden">
+                                <div class="tooltip-content">
+                                    <h3 class="tooltip-title">💼 面试模式</h3>
+                                    <div class="tooltip-text">
+                                        <p style="color: var(--warning-color); font-weight: 600; margin-bottom: 8px;">🚧 开发中</p>
+                                        <p>🎯 智能记录面试过程中的问答内容，</p>
+                                        <p>💬 包括面试官的提问和您的回答。</p>
+                                        <p>📝 同时记录面试官的反馈和评价，</p>
+                                        <p>✨ 帮助您全面复盘面试过程，</p>
+                                        <p>🚀 发现不足并持续改进。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 模型选型按钮 -->
+                <div class="model-selector-container">
+                    <button id="model-selector-btn" class="mode-selector-btn" aria-label="模型选型">
+                        <span class="mode-icon">🌐</span>
+                        <span class="mode-text">V3.1</span>
+                        <span class="mode-arrow">▼</span>
+                    </button>
+                    <!-- 模型选型提示框（鼠标悬停时显示） -->
+                    <div id="model-selector-tooltip" class="model-selector-tooltip hidden">
+                        <div class="tooltip-content">
+                            <div class="tooltip-text">
+                                <p>🚧 开发中</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 中间：文档控制按钮 -->
+            <div class="toolbar-center">
+                <!-- 切换文档按钮 -->
+                <button id="switch-doc-btn" class="toolbar-btn-with-text" aria-label="切换文档">
+                    <span class="toolbar-icon">⇄</span>
+                    <span class="toolbar-text">切换文档</span>
+                </button>
+                <!-- 查看文档按钮 -->
+                <button id="view-doc-btn" class="toolbar-btn-with-text" aria-label="查看文档">
+                    <span class="toolbar-icon">👁️</span>
+                    <span class="toolbar-text">查看文档</span>
+                </button>
+            </div>
+            
+            <!-- 右侧：其他功能按钮 -->
+            <div class="toolbar-right">
+                <!-- 可以添加其他右侧按钮 -->
+            </div>
+        </div>
+    <!-- footer标签结束 -->
+    </footer>
+
+    <!-- 查看文档弹窗 -->
+    <div id="view-document-modal" class="view-document-modal hidden">
+        <div class="view-document-content">
+            <div class="view-document-header">
+                <h3 id="view-document-title" class="view-document-title">文档内容</h3>
+                <button id="close-view-document-btn" class="close-view-document-btn" aria-label="关闭">×</button>
+            </div>
+            <div class="view-document-body">
+                <pre id="view-document-text" class="view-document-text"></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- 文档匹配确认对话框 -->
+    <div id="match-confirmation-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>文档匹配确认</h3>
+            </div>
+            <div class="modal-body">
+                <p id="match-confirmation-message"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="match-confirm-yes" class="btn btn-primary">确认添加</button>
+                <button id="match-confirm-new-doc" class="btn btn-secondary">新建文档</button>
+                <button id="match-confirm-cancel" class="btn btn-secondary">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HTML注释：确认操作模态框的说明 -->
+    <!-- 确认操作的模态框（默认隐藏） -->
+    <!-- div标签：确认对话框的容器 -->
+    <!-- id="confirmation-modal"：唯一标识符，JavaScript通过这个id控制模态框的显示/隐藏 -->
+    <!-- class="modal"：CSS类名，默认隐藏，添加'show'类后显示 -->
+    <div id="confirmation-modal" class="modal">
+        <!-- div标签：模态框的半透明遮罩层，点击可关闭（但这里不实现，必须点击按钮） -->
+        <!-- class="modal-overlay"：CSS类名，用于遮罩层样式 -->
+        <div class="modal-overlay"></div>
+        <!-- div标签：模态框的内容容器 -->
+        <!-- class="modal-content"：CSS类名，用于模态框内容样式（白色背景、圆角、阴影） -->
+        <div class="modal-content">
+            <!-- div标签：模态框头部，包含标题 -->
+            <!-- class="modal-header"：CSS类名 -->
+            <div class="modal-header">
+                <!-- h3标签：三级标题，显示"确认操作" -->
+                <h3>确认操作</h3>
+            <!-- modal-header div结束 -->
+            </div>
+            <!-- div标签：模态框主体，包含确认消息 -->
+            <!-- class="modal-body"：CSS类名 -->
+            <div class="modal-body">
+                <!-- p标签：确认消息文本 -->
+                <!-- id="modal-text"：唯一标识符，JavaScript会更新这个元素的内容 -->
+                <!-- 默认显示"您确定要执行此操作吗？" -->
+                <p id="modal-text">您确定要执行此操作吗？</p>
+            <!-- modal-body div结束 -->
+            </div>
+            <!-- div标签：模态框底部，包含确认和取消按钮 -->
+            <!-- class="modal-footer"：CSS类名 -->
+            <div class="modal-footer">
+                <!-- button标签：确认按钮 -->
+                <!-- id="confirm-yes-btn"：唯一标识符，JavaScript通过这个id绑定点击事件 -->
+                <!-- class="btn btn-primary"：多个CSS类名 -->
+                <!-- btn：按钮的基础样式 -->
+                <!-- btn-primary：主要按钮样式（渐变背景） -->
+                <button id="confirm-yes-btn" class="btn btn-primary">确定</button>
+                <!-- button标签：取消按钮 -->
+                <!-- id="confirm-no-btn"：唯一标识符，JavaScript通过这个id绑定点击事件 -->
+                <!-- class="btn btn-secondary"：多个CSS类名 -->
+                <!-- btn-secondary：次要按钮样式（灰色背景） -->
+                <button id="confirm-no-btn" class="btn btn-secondary">取消</button>
+            <!-- modal-footer div结束 -->
+            </div>
+        <!-- modal-content div结束 -->
+        </div>
+    <!-- confirmation-modal div结束 -->
+    </div>
+
+    <!-- 意见反馈弹窗 -->
+    <div id="feedback-modal" class="feedback-modal hidden">
+        <div class="feedback-modal-content">
+            <div class="feedback-modal-header">
+                <h3>意见反馈</h3>
+                <button id="close-feedback-modal" class="close-feedback-modal" aria-label="关闭">×</button>
+            </div>
+            <div class="feedback-modal-body">
+                <div class="feedback-rating-section">
+                    <label class="feedback-label">评分</label>
+                    <div id="star-rating" class="star-rating" data-rating="0">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                    <span id="rating-text" class="rating-text">请选择评分</span>
+                </div>
+                <div class="feedback-text-section">
+                    <label class="feedback-label" for="feedback-textarea">您的意见</label>
+                    <textarea id="feedback-textarea" class="feedback-textarea" placeholder="请输入您的意见和建议..."></textarea>
+                </div>
+            </div>
+            <div class="feedback-modal-footer">
+                <button id="feedback-cancel-btn" class="feedback-cancel-btn">取消</button>
+                <button id="feedback-submit-btn" class="feedback-submit-btn">提交</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 意见反馈提交成功提示面板 -->
+    <div id="feedback-success-panel" class="feedback-success-panel hidden">
+        <div style="padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 20px;">✅</span>
+                <span style="font-size: 14px; color: var(--text-primary);">已收到您的反馈意见</span>
+            </div>
+            <button id="feedback-success-close" style="background: transparent; border: none; font-size: 18px; color: var(--text-secondary); cursor: pointer; padding: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">×</button>
+        </div>
+    </div>
+
+    <!-- HTML注释：加载动画的说明 -->
+    <!-- 加载动画（用于AI回复时） -->
+    <!-- div标签：加载指示器容器 -->
+    <!-- id="loading-indicator"：唯一标识符，JavaScript通过这个id控制加载指示器的显示/隐藏 -->
+    <!-- class="loading-indicator"：CSS类名，默认隐藏，添加'show'类后显示 -->
+    <div id="loading-indicator" class="loading-indicator">
+        <!-- div标签：加载动画的圆点容器 -->
+        <!-- class="loading-dots"：CSS类名 -->
+        <div class="loading-dots">
+            <!-- span标签：第一个圆点，用于跳动动画 -->
+            <span></span>
+            <!-- span标签：第二个圆点，用于跳动动画 -->
+            <span></span>
+            <!-- span标签：第三个圆点，用于跳动动画 -->
+            <span></span>
+        <!-- loading-dots div结束 -->
+        </div>
+        <!-- span标签：加载提示文本 -->
+        <!-- class="loading-text"：CSS类名 -->
+        <span class="loading-text">AI正在思考...</span>
+    <!-- loading-indicator div结束 -->
+    </div>
+
+    <!-- script标签：引入外部JavaScript文件 -->
+    <!-- src="app.js"：JavaScript文件的路径 -->
+    <!-- 这个脚本会在页面加载完成后执行，初始化应用的所有功能 -->
+    <script src="login-modal.js"></script>
+    <script src="app.js" onerror="console.error('❌ app.js 加载失败！请检查文件是否存在和网络连接。')"></script>
+    <!-- 调试脚本：检查 app.js 是否加载成功 -->
+    <script>
+        // 立即检查 app.js 是否加载
+        console.log('=== 检查 app.js 加载状态 ===');
+        console.log('AppState:', typeof AppState);
+        console.log('elements:', typeof elements);
+        console.log('initApp:', typeof initApp);
+        console.log('handleSendMessage:', typeof handleSendMessage);
+        
+        // 等待一小段时间，再次检查
+        setTimeout(function() {
+            console.log('=== 延迟检查 app.js 加载状态 ===');
+            if (typeof AppState === 'undefined') {
+                console.error('❌ app.js 未正确加载！AppState 未定义');
+                console.error('请检查：');
+                console.error('1. 打开 Network 标签，查看 app.js 的加载状态');
+                console.error('2. 检查 Console 标签，查看是否有语法错误');
+                console.error('3. 确认 app.js 文件路径正确');
+            } else {
+                console.log('✅ app.js 已成功加载');
+                console.log('AppState:', AppState);
+                console.log('elements:', elements);
+            }
+        }, 500);
+    </script>
+<!-- body标签结束 -->
+</body>
+<!-- html标签结束 -->
+</html>

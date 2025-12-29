@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: 程序/web
+      dockerfile: Dockerfile
+    container_name: lingji-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}
+      - APP_ID=${APP_ID}
+    volumes:
+      - ./程序/web/documents:/app/documents
+      - ./程序/web/vector_storage:/app/vector_storage
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    image: nginx:alpine
+    container_name: lingji-frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./程序/frontend:/usr/share/nginx/html:ro
+    restart: unless-stopped
+    depends_on:
+      - backend
+
