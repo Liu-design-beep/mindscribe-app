@@ -127,6 +127,39 @@ def arabic_to_chinese(num: int) -> str:
             return chinese_nums[tens] + '十' + chinese_nums[ones]
 
 
+def get_chapter_list(full_content: str) -> str:
+    """
+    获取文档中所有章节的列表
+    
+    Args:
+        full_content: 完整的文档内容
+    
+    Returns:
+        章节列表字符串
+    """
+    # 按行分割文档
+    lines = full_content.split('\n')
+    
+    # 查找所有章节标题（## 第 X 章）
+    chapters = []
+    for line in lines:
+        line = line.strip()
+        # 匹配 "## 第 X 章" 格式
+        match = re.match(r'^##\s+(第[\u4e00-\u9fa5\d]+章)[\uff1a:\s]*(.*)', line)
+        if match:
+            chapter_num = match.group(1)  # "第一章"
+            chapter_title = match.group(2).strip() if match.group(2) else ""
+            if chapter_title:
+                chapters.append(f"- {chapter_num}：{chapter_title}")
+            else:
+                chapters.append(f"- {chapter_num}")
+    
+    if not chapters:
+        return "此文档没有章节结构。"
+    
+    return "\n".join(chapters)
+
+
 def chinese_to_arabic(chinese_num: str) -> Optional[int]:
     """
     将中文数字转换为阿拉伯数字（1-99）

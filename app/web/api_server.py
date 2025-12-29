@@ -23,7 +23,7 @@ if current_dir not in sys.path:
 from smart_clip_llm import SmartClipLLM
 from document_manager import DocumentManager
 from config import API_KEY, APP_ID
-from chapter_extractor import extract_chapter_content  # 新增：章节提取功能
+from chapter_extractor import extract_chapter_content, get_chapter_list  # 新增：章节提取功能
 
 from dashscope import Application
 
@@ -2313,10 +2313,15 @@ async def chat(request: ChatRequest):
         
         elif intent == "SUMMARY":
             # 文档总结功能
+            # 调试：输出完整的 intent_data
+            print(f"[SUMMARY] 完整的 intent_data: {intent_data}")
+            
             doc_title = intent_data.get("doc_title") or app_instance.doc_manager.active_doc_title
             summary_scope = intent_data.get("summary_scope", "full")  # 新增：获取总结范围
             target_chapter = intent_data.get("target_chapter")  # 新增：获取目标章节
             print(f"[SUMMARY] 开始总结文档: {doc_title}, 范围: {summary_scope}, 目标章节: {target_chapter}")
+            print(f"[SUMMARY] summary_scope 类型: {type(summary_scope)}, 值: '{summary_scope}'")
+            print(f"[SUMMARY] target_chapter 类型: {type(target_chapter)}, 值: '{target_chapter}'")
             
             # 调试信息：检查文档是否存在于文档列表中
             all_docs = list(app_instance.doc_manager.documents.keys())
@@ -2597,13 +2602,27 @@ async def chat(request: ChatRequest):
                         content_to_summarize = chapter_content
                         summary_prompt = f"请总结以下'{target_chapter}'的内容，要求简洁明了，控制在200字以内：\n\n{content_to_summarize}"
                     else:
-                        print(f"[SUMMARY] 未找到章节 '{target_chapter}'，回退到全文总结")
-                        content_to_summarize = full_content
-                        summary_prompt = f"请总结以下文档内容，要求简洁明了，控制在200字以内：\n\n{content_to_summarize}"
+                        print(f"[SUMMARY] 未找到章节 '{target_chapter}'")
+                        # 获取文档中所有章节列表
+                        chapter_list = get_chapter_list(full_content)
+                        
+                        # 返回友好的错误提示
+                        if "此文档没有章节结构" in chapter_list:
+                            # 文档完全没有章节
+                            error_message = f"抱歉，《{doc_title}》没有章节结构。\n\n您可以说「总结一下」来查看全文总结。"
+                        else:
+                            # 文档有章节，但没有找到指定章节
+                            error_message = f"抱歉，我在《{doc_title}》中没有找到「{target_chapter}」。\n\n📋 文档包含以下章节：\n{chapter_list}\n\n您可以尝试：\n1. 查询上述章节之一\n2. 说「总结一下」查看全文总结"
+                        
+                        return {
+                            "response_type": "text",
+                            "content": error_message,
+                            "message_style": "warning"
+                        }
                 else:
                     # 全文总结
                     content_to_summarize = full_content
-                    summary_prompt = f"请总结以下文档内容，要求简洁明了，控制在200字以内：\n\n{content_to_summarize}"
+                    summary_prompt = f"请总结以下文档内容，要求简洁明了，控制在20字以内：\n\n{content_to_summarize}"
                 
                 # 调用 LLM 生成总结
                 try:
