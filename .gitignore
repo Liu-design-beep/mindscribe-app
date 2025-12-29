@@ -7,8 +7,8 @@ __pycache__/
 
 # 本地配置文件（包含敏感信息）
 config_local.py
-程序/config_local.py
-程序/web/config_local.py
+app/config_local.py
+app/web/config_local.py
 
 # 环境变量文件
 .env
@@ -18,7 +18,7 @@ config_local.py
 .venv
 env/
 venv/
-程序/web/venv/
+app/web/venv/
 
 # IDE
 .vscode/
@@ -120,9 +120,9 @@ vite.config.ts.timestamp-*
 .serverless/
 
 # 文档数据（可选，根据需要取消注释）
-# 程序/documents/
-# 程序/web/documents/
-# 程序/web/vector_storage/
+# app/documents/
+# app/web/documents/
+# app/web/vector_storage/
 
 # 包含敏感信息的文件
 推送命令.txt

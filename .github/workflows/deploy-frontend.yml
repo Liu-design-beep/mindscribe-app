@@ -6,7 +6,7 @@ on:
       - main
       - master
     paths:
-      - '程序/frontend/**'
+      - 'app/frontend/**'
       - '.github/workflows/deploy-frontend.yml'
       - 'build-frontend.sh'
   workflow_dispatch:

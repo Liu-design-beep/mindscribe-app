@@ -11,7 +11,7 @@ mkdir -p "$DIST_DIR"
 
 # 复制前端文件到构建目录
 echo "复制前端文件..."
-cp -r 程序/frontend/* "$DIST_DIR/"
+cp -r app/frontend/* "$DIST_DIR/"
 
 # 检查是否有需要处理的文件
 if [ ! -f "$DIST_DIR/index.html" ]; then

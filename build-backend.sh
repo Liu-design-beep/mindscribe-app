@@ -6,7 +6,7 @@ set -e
 echo "开始构建后端..."
 
 # 进入后端目录
-cd 程序/web || exit 1
+cd app/web || exit 1
 
 # 检查 Python 版本
 echo "检查 Python 版本..."

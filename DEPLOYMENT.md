@@ -34,8 +34,8 @@
    - **Name**: `lingji-backend`（或你喜欢的名称）
    - **Environment**: `Python 3`
    - **Build Command**: `chmod +x build-backend.sh && ./build-backend.sh`
-   - **Start Command**: `cd 程序/web && python api_server.py`
-   - **Root Directory**: `程序/web`
+   - **Start Command**: `python api_server.py`
+   - **Root Directory**: `app/web`
 
 ### 4. GitHub Secrets 配置
 
@@ -100,7 +100,7 @@ chmod +x build-frontend.sh
 
 ```bash
 # 进入后端目录
-cd 程序/web
+cd app/web
 
 # 安装依赖
 pip install -r requirements.txt
@@ -134,14 +134,14 @@ docker-compose down
 #### 启动后端
 
 ```bash
-cd 程序/web
+cd app/web
 python api_server.py
 ```
 
 #### 启动前端
 
 ```bash
-cd 程序/frontend
+cd app/frontend
 python -m http.server 8080
 ```
 
@@ -149,7 +149,7 @@ python -m http.server 8080
 
 部署后，需要更新前端代码中的 API 地址：
 
-1. 编辑 `程序/frontend/app.js`
+1. 编辑 `app/frontend/app.js`
 2. 找到 `API_CONFIG.baseURL`
 3. 将其更新为 Render 后端 URL（例如：`https://your-backend.onrender.com`）
 
@@ -161,7 +161,7 @@ python -m http.server 8080
 
 1. **构建失败**
    - 检查 `build-frontend.sh` 是否有执行权限
-   - 检查 `程序/frontend/` 目录是否存在
+   - 检查 `app/frontend/` 目录是否存在
    - 查看 GitHub Actions 日志
 
 2. **API 连接失败**
@@ -193,9 +193,9 @@ python -m http.server 8080
 ### 后端部署文件
 
 - `.github/workflows/deploy-backend.yml`: GitHub Actions 工作流，触发 Render 部署
-- `程序/web/Procfile`: Render 启动命令配置
-- `程序/web/runtime.txt`: Python 版本指定
-- `程序/web/requirements.txt`: Python 依赖列表
+- `app/web/Procfile`: Render 启动命令配置
+- `app/web/runtime.txt`: Python 版本指定
+- `app/web/requirements.txt`: Python 依赖列表
 - `build-backend.sh`: 后端构建脚本，安装依赖
 
 ### 通用文件
@@ -230,4 +230,5 @@ python -m http.server 8080
 - [Cloudflare Pages 文档](https://developers.cloudflare.com/pages/)
 - [Render 文档](https://render.com/docs)
 - [GitHub Actions 文档](https://docs.github.com/en/actions)
+
 
