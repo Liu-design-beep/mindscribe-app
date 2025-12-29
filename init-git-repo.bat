@@ -137,8 +137,8 @@ echo    git config --global user.name "Your Name"
 echo    git config --global user.email "your.email@example.com"
 echo.
 echo 2. 请确保已配置 GitHub 认证：
-echo    - 使用 Personal Access Token (推荐)
-echo    - 或使用 SSH 密钥
+echo    使用 Personal Access Token (推荐)
+echo    或使用 SSH 密钥
 echo.
 echo 3. 推送命令：
 echo    git push -u origin main
@@ -170,7 +170,7 @@ if /i "%push_confirm%"=="Y" (
 ) else (
     echo.
     echo 已跳过推送步骤
-    echo 您可以稍后手动执行: git push -u origin main
+    echo 您可以稍后手动执行推送命令
 )
 
 echo.

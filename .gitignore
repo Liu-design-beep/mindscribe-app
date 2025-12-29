@@ -123,3 +123,10 @@ vite.config.ts.timestamp-*
 # 程序/documents/
 # 程序/web/documents/
 # 程序/web/vector_storage/
+
+# 包含敏感信息的文件
+推送命令.txt
+*Token*.txt
+*token*.txt
+*密码*.txt
+*password*.txt

@@ -1,0 +1,14 @@
+在 CMD 中执行以下命令：
+
+1. 进入项目目录：
+cd /d "I:\简历\展示整理12.13\灵辑\程序 (2)"
+
+2. 推送代码：
+git push -u origin main
+
+3. 输入认证信息：
+   Username: Liu-design-beep
+   Password: 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
+
+注意：推送完成后，请立即撤销这个 Token 并生成新的！
+
