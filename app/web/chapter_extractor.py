@@ -18,26 +18,40 @@ def extract_chapter_content(full_content: str, target_chapter: str) -> Optional[
     Returns:
         章节内容字符串，如果未找到则返回 None
     """
-    # 转换章节编号（支持"第三章"、"第3章"等格式）
+    # 转换章节编号
     chapter_number = extract_chapter_number(target_chapter)
     if not chapter_number:
         print(f"[章节提取] 无法识别章节编号: {target_chapter}")
         return None
     
-    # 构建正则表达式，匹配章节标题
-    # 支持多种格式：
-    # - ## 第三章 标题
-    # - ## 第3章 标题
-    # - ## 第三章：标题
-    patterns = [
-        rf"^##\s+第{chapter_number}章[：:\s]",  # 中文数字
-        rf"^##\s+第{chapter_number}章[：:\s]",  # 阿拉伯数字
-    ]
+    print(f"[章节提取] 识别到的基础章节编号: {chapter_number}")
     
-    # 如果是中文数字，也支持阿拉伯数字
-    arabic_number = chinese_to_arabic(chapter_number)
-    if arabic_number:
-        patterns.append(rf"^##\s+第{arabic_number}章[：:\s]")
+    # 准备中文和阿拉伯数字两种形式
+    chinese_num = None
+    arabic_num = None
+    
+    if chapter_number.isdigit():
+        arabic_num = int(chapter_number)
+        chinese_num = arabic_to_chinese(arabic_num)
+    else:
+        chinese_num = chapter_number
+        arabic_num = chinese_to_arabic(chinese_num)
+        
+    print(f"[章节提取] 中文编号: {chinese_num}, 阿拉伯编号: {arabic_num}")
+    
+    # 构建正则表达式，匹配章节标题
+    patterns = []
+    
+    if chinese_num:
+        # 匹配 "## 第三章" 或 "## 第三章 标题" 或 "## 第三章：标题"
+        # 注意：([：:\s]|$) 表示后面可以是冒号、空格，或者是行尾
+        patterns.append(rf"^\s*##\s+第{chinese_num}章([：:\s]|$)")
+        patterns.append(rf"^\s*##\s+{chinese_num}[\.、\s]")
+        
+    if arabic_num is not None:
+        # 匹配 "## 第3章" 或 "## 第3章 标题"
+        patterns.append(rf"^\s*##\s+第{arabic_num}章([：:\s]|$)")
+        patterns.append(rf"^\s*##\s+{arabic_num}[\.、\s]")
     
     # 按行分割文档
     lines = full_content.split('\n')
@@ -80,20 +94,29 @@ def extract_chapter_number(chapter_str: str) -> Optional[str]:
     从章节字符串中提取章节编号
     
     Args:
-        chapter_str: 章节字符串，如"第三章"、"第3章"等
+        chapter_str: 章节字符串，如"第三章"、"第3章"、"3"等
     
     Returns:
-        章节编号（中文数字），如"三"、"一"等
+        章节编号（可能是中文数字或阿拉伯数字字符串）
     """
-    # 匹配"第X章"格式
+    if not chapter_str:
+        return None
+        
+    chapter_str = str(chapter_str).strip()
+    
+    # 1. 匹配"第X章"格式
     match = re.search(r'第([一二三四五六七八九十百千万\d]+)章', chapter_str)
     if match:
-        number = match.group(1)
-        # 如果是阿拉伯数字，转换为中文数字
-        if number.isdigit():
-            return arabic_to_chinese(int(number))
-        else:
-            return number
+        return match.group(1)
+        
+    # 2. 匹配纯数字
+    if chapter_str.isdigit():
+        return chapter_str
+        
+    # 3. 匹配纯中文数字（简单判断）
+    if all(c in '零一二三四五六七八九十百千万' for c in chapter_str):
+        return chapter_str
+        
     return None
 
 

@@ -1878,7 +1878,11 @@ async def chat(request: ChatRequest):
         
         elif intent == "DELETE_CONTENT" and confirmation_needed:
             # 需要确认的删除操作
-            doc_title = intent_data.get("doc_title") or app_instance.doc_manager.active_doc_title
+            doc_title = intent_data.get("doc_title")
+            # 修复：如果doc_title是占位符"{active_doc}"，则使用当前活动文档
+            if not doc_title or doc_title == "{active_doc}":
+                doc_title = app_instance.doc_manager.active_doc_title
+                print(f"[SUMMARY] 检测到doc_title为占位符或空，已替换为当前活动文档: {doc_title}")
             
             # 判断是否是试用模式（通过session_id判断）
             is_trial_mode = session_id and session_id.startswith('trial_')
@@ -1903,7 +1907,11 @@ async def chat(request: ChatRequest):
         
         elif intent == "DELETE_CONTENT":
             # 直接删除（不需要确认的情况，理论上不应该发生，但保留作为兜底）
-            doc_title = intent_data.get("doc_title") or app_instance.doc_manager.active_doc_title
+            doc_title = intent_data.get("doc_title")
+            # 修复：如果doc_title是占位符"{active_doc}"，则使用当前活动文档
+            if not doc_title or doc_title == "{active_doc}":
+                doc_title = app_instance.doc_manager.active_doc_title
+                print(f"[SUMMARY] 检测到doc_title为占位符或空，已替换为当前活动文档: {doc_title}")
             
             # 注意：修改权限设计已取消，不再检查修改权限
             
@@ -2389,7 +2397,11 @@ async def chat(request: ChatRequest):
         
         elif intent == "DISPLAY_DOC":
             # 显示文档内容
-            doc_title = intent_data.get("doc_title") or app_instance.doc_manager.active_doc_title
+            doc_title = intent_data.get("doc_title")
+            # 修复：如果doc_title是占位符"{active_doc}"，则使用当前活动文档
+            if not doc_title or doc_title == "{active_doc}":
+                doc_title = app_instance.doc_manager.active_doc_title
+                print(f"[SUMMARY] 检测到doc_title为占位符或空，已替换为当前活动文档: {doc_title}")
             
             # 如果使用 Cloudflare 存储，从云端加载
             if USE_CLOUDFLARE and CLOUDFLARE_AVAILABLE and CLOUDFLARE_KV:
@@ -2490,7 +2502,11 @@ async def chat(request: ChatRequest):
             # 调试：输出完整的 intent_data
             print(f"[SUMMARY] 完整的 intent_data: {intent_data}")
             
-            doc_title = intent_data.get("doc_title") or app_instance.doc_manager.active_doc_title
+            doc_title = intent_data.get("doc_title")
+            # 修复：如果doc_title是占位符"{active_doc}"，则使用当前活动文档
+            if not doc_title or doc_title == "{active_doc}":
+                doc_title = app_instance.doc_manager.active_doc_title
+                print(f"[SUMMARY] 检测到doc_title为占位符或空，已替换为当前活动文档: {doc_title}")
             summary_scope = intent_data.get("summary_scope", "full")  # 新增：获取总结范围
             target_chapter = intent_data.get("target_chapter")  # 新增：获取目标章节
             print(f"[SUMMARY] 开始总结文档: {doc_title}, 范围: {summary_scope}, 目标章节: {target_chapter}")
@@ -2768,8 +2784,10 @@ async def chat(request: ChatRequest):
                 full_content = '\n'.join(doc_content) if isinstance(doc_content, list) else str(doc_content)
                 
                 # 新增：章节提取逻辑
-                if summary_scope == "chapter" and target_chapter:
+                # 只要有 target_chapter，就优先尝试按章节总结，不管 summary_scope 是什么
+                if target_chapter and str(target_chapter).strip():
                     print(f"[SUMMARY] 提取章节内容: {target_chapter}")
+                    print(f"[SUMMARY] target_chapter repr: {repr(target_chapter)}")
                     chapter_content = extract_chapter_content(full_content, target_chapter)
                     if chapter_content:
                         print(f"[SUMMARY] 成功提取章节内容，长度: {len(chapter_content)} 字符")
@@ -2796,7 +2814,7 @@ async def chat(request: ChatRequest):
                 else:
                     # 全文总结
                     content_to_summarize = full_content
-                    summary_prompt = f"请总结以下文档内容，要求简洁明了，控制在20字以内：\n\n{content_to_summarize}"
+                    summary_prompt = f"请总结以下文档内容，要求简洁明了，控制在200字以内：\n\n{content_to_summarize}"
                 
                 # 调用 LLM 生成总结
                 try:
