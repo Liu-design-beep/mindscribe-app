@@ -33,21 +33,3 @@ class SmartClipLLM:
         self.is_running = True
         # 待确认的操作（用于二次确认机制）
         self.pending_action = None
-
-
-            print(f"[SmartClipLLM] ✅ LLM配置已加载")
-            api_key_preview = self.client_config.get('api_key', '')[:8] + "..." if self.client_config.get('api_key') else "未设置"
-            app_id_preview = self.client_config.get('app_id', '')[:8] + "..." if self.client_config.get('app_id') else "未设置"
-            print(f"[SmartClipLLM] API_KEY: {api_key_preview}")
-            print(f"[SmartClipLLM] APP_ID: {app_id_preview}")
-        
-        self.intent_recognizer = LLMIntentRecognizer(self.doc_manager, self.client_config)
-        # 重置对话历史，确保每次启动时都是干净的状态
-        # 这可以避免之前对话历史中的错误格式（如双大括号）影响后续的回复
-        self.intent_recognizer.reset_conversation()
-        self.is_running = True
-        # 待确认的操作（用于二次确认机制）
-        self.pending_action = None
-
-
-
