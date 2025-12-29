@@ -178,7 +178,7 @@ const API_CONFIG = {
     // 这是后端服务器运行的地址，前端会向这个地址发送请求
     // 本地开发：使用 http://localhost:8001
     // 生产环境：使用 https://mindscribe-api-8zop.onrender.com
-    baseURL: 'http://localhost:8001',  // 本地开发地址
+    baseURL: 'https://mindscribe-backend-nr7q.onrender.com',  // 生产环境地址
     endpoints: {
         chat: '/api/chat',  // 聊天接口的路径
         documents: '/api/documents'  // 文档列表接口的路径
