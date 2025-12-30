@@ -59,15 +59,17 @@ class D1DocumentManager:
             is_empty_or_old = (
                 not existing_content or 
                 len(existing_content) < 10 or  # 如果内容少于10行，认为是旧版本
-                "产品概述" not in str(existing_content)  # 如果缺少新内容标识
+                "产品概述" not in str(existing_content) or  # 如果缺少新内容标识
+                "混沌缓冲区" not in str(existing_content)  # 如果缺少最新的混沌缓冲区章节，强制更新
             )
             
             if self.intro_doc_title not in self.documents or is_empty_or_old:
+                print(f"[D1DocumentManager] 检测到介绍文档需要更新 (is_empty_or_old={is_empty_or_old})")
                 from web.new_intro_content import INTRO_CONTENT_FULL
                 intro_content = INTRO_CONTENT_FULL
-            self.documents[self.intro_doc_title] = intro_content
-            await self.storage.save_document(self.intro_doc_title, intro_content, "dev")
-            await self.storage.save_metadata({"active_doc_title": self.intro_doc_title}, "dev")
+                self.documents[self.intro_doc_title] = intro_content
+                await self.storage.save_document(self.intro_doc_title, intro_content, "dev")
+                await self.storage.save_metadata({"active_doc_title": self.intro_doc_title}, "dev")
         
         # 如果是开发者模式，确保有更新记录日志
         if self.doc_type == "dev" and self.update_log_title not in self.documents:
