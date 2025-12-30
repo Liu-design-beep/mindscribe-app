@@ -1,93 +1,88 @@
 # MindScribe "Fragment-to-Knowledge" (F2K) 评测体系
 
-**版本**：1.0
+**版本**：1.2
 **日期**：2025-12-30
-**核心痛点**：零碎笔记记录（Fragmented Note-taking）
+**适用场景**：非结构化短文本（碎片笔记）的自动化整理与检索
 
 ---
 
-## 一、 核心理念
+## 一、 背景与目标
 
-传统的 RAG 评测（如 RAGAS）主要关注问答的准确性，而 MindScribe 作为一款智能笔记应用，其核心价值在于**帮助用户管理无序的思维碎片**。
+MindScribe 系统的核心技术挑战在于处理**高频、低结构化、语义离散**的用户输入（即“碎片笔记”）。传统的 RAG 评测框架（如 RAGAS）侧重于端到端的问答准确性（QA Accuracy），难以有效评估系统在**信息架构重组（Information Re-architecture）**和**模糊检索（Fuzzy Retrieval）**方面的性能。
 
-因此，我们的评测体系不应只问“AI 答对了吗？”，而应问：**“AI 把碎片整理好了吗？”** 和 **“AI 帮我找到那个碎片了吗？”**
-
-我们将这套体系命名为 **F2K (Fragment-to-Knowledge)**，旨在衡量系统将“无序碎片”转化为“有序知识”的能力。
+本框架（F2K）旨在建立一套针对**非结构化数据治理能力**的量化评估标准，重点考察系统在**数据写入阶段的结构化能力**和**数据读取阶段的召回能力**。
 
 ---
 
-## 二、 AI 层面评测 (The "System" Metrics)
+## 二、 评测维度架构
 
-这一层面的评测关注系统内部的技术指标，分为**写入（整理）**和**读取（检索）**两个维度。
+本体系将评测指标划分为两个技术域（写入域、读取域）和一个用户域。
 
-### 2.1 写入侧：整理能力评测 (The Librarian Metrics)
-*衡量 AI 是否是一个合格的“图书管理员”。*
+### 2.1 写入域：数据结构化能力 (Ingestion & Structuring Metrics)
+*评估系统将非结构化输入转化为结构化知识库的能力。*
 
-| 指标名称 | 定义 | 评测方法 | 目标值 |
+| 指标 (Metric) | 定义 (Definition) | 评测方法 (Methodology) | 目标值 (Target) |
 | :--- | :--- | :--- | :--- |
-| **归类准确率**<br>(Classification Accuracy) | 零散笔记被自动归入正确章节（Topic）的比例。 | 构建包含 100 条典型碎片（数学、灵感、会议）的测试集，人工标注 Ground Truth 章节。 | > 90% |
-| **结构化增益**<br>(Structure Gain) | AI 自动生成的章节标题与用户原始输入的语义概括度对比。 | **LLM-as-a-Judge**：让更强的模型（如 GPT-4）对比 AI 生成的标题和原始笔记，评分哪个更具概括性。 | > 4.0/5 |
-| **去重精准度**<br>(Deduplication Precision) | 成功拦截重复内容且不误杀相似但不同内容的比例。 | 构造“完全重复”、“语义重复”和“相似但不重复”的混合数据集进行测试。 | Precision > 99%<br>Recall > 95% |
-| **碎片融合度**<br>(Fragment Fusion) | 当新笔记是对旧笔记的补充时，AI 是否能将其合并而非简单追加。 | 测试追加场景（如“接着上次的微积分题...”），检查系统是否识别出关联性。 | > 80% |
+| **分类准确率**<br>(Topic Classification Accuracy) | 输入文本被正确映射到预定义或动态生成的语义类别的比例。 | 基于标注数据集（Ground Truth Labels）计算 Accuracy。 | > 90% |
+| **语义概括度**<br>(Semantic Abstraction Score) | 自动生成的标题/标签对原始内容语义覆盖的完整性和准确性。 | **LLM-as-a-Judge**：计算生成标题与原文的语义相似度（Semantic Similarity）及关键信息覆盖率。 | > 0.85 (Cosine Sim) |
+| **去重查准率/查全率**<br>(Deduplication Precision/Recall) | 系统识别重复内容的能力。重点考察对语义重复（Semantic Duplicates）的识别。 | 构造包含精确重复、语义重复和非重复样本的测试集。 | P > 99%, R > 95% |
+| **增量融合成功率**<br>(Incremental Fusion Rate) | 系统识别新输入与现有条目的关联，并执行合并（Merge）而非追加（Append）操作的比例。 | 模拟多轮输入场景，检测知识库最终状态的紧凑度（Compactness）。 | > 80% |
 
-### 2.2 读取侧：检索能力评测 (The Detective Metrics)
-*衡量 AI 是否是一个合格的“侦探”。*
+### 2.2 读取域：检索与召回能力 (Retrieval & Recall Metrics)
+*评估系统在模糊查询条件下的信息召回能力。*
 
-| 指标名称 | 定义 | 评测方法 | 目标值 |
+| 指标 (Metric) | 定义 (Definition) | 评测方法 (Methodology) | 目标值 (Target) |
 | :--- | :--- | :--- | :--- |
-| **模糊线索召回率**<br>(Fuzzy Cue Recall) | 用户仅凭模糊记忆（如“上次那道很难的题”）进行查询时，目标笔记被召回的比例。 | 收集用户真实的模糊查询日志，人工验证召回结果中是否包含目标笔记。 | Top-3 Recall > 85% |
-| **上下文完整性**<br>(Context Integrity) | 召回碎片时，是否保留了理解该碎片所需的必要上下文（如题目对应的解法）。 | **人工评分**：召回内容是否“自包含”（Self-contained），无需跳转即可理解。 | > 90% |
-| **跨碎片聚合力**<br>(Cross-Fragment Aggregation) | 当问题涉及多个分散的碎片时（如“总结这周所有的数学错题”），系统能否一次性找全。 | 构造多跳（Multi-hop）查询测试集。 | > 80% |
-| **幻觉率**<br>(Hallucination Rate) | 总结内容中包含笔记中不存在的信息的比例。 | **Fact-Checking**：对比生成的总结和原始笔记，检测未支撑的声明。 | < 5% |
+| **模糊查询召回率**<br>(Fuzzy Query Recall@K) | 针对非精确关键词（语义描述、时间线索）查询，目标条目出现在 Top-K 结果中的比例。 | 构建 Query-Document 对，包含同义词替换、抽象描述等干扰项。 | Recall@3 > 85% |
+| **上下文完整性**<br>(Context Completeness) | 召回的文本片段是否包含了解析该片段所需的全部依赖信息（如前置条件、定义）。 | **人工/模型评分**：评估召回片段的独立可理解性（Self-containedness）。 | > 90% |
+| **多跳聚合准确率**<br>(Multi-hop Aggregation Accuracy) | 针对涉及多个独立条目的聚合查询，系统正确检索并组合所有相关条目的能力。 | 构建多跳查询测试集，计算检索结果的交并比（IoU）。 | > 80% |
+| **幻觉率**<br>(Hallucination Rate) | 生成内容中包含源文档未提及的事实性错误的比例。 | **NLI (Natural Language Inference)**：检测生成内容是否蕴含于（Entailed by）源文档。 | < 5% |
 
 ---
 
-## 三、 用户层面评测 (The "User" Metrics)
+## 三、 用户域：交互与效能指标 (User Interaction & Efficacy Metrics)
 
-这一层面的评测关注用户的实际体验和行为反馈。
+*评估系统对用户行为模式的影响及实际效能。*
 
-### 3.1 体验指标 (Experience Metrics)
+### 3.1 效能指标 (Efficacy Metrics)
 
-| 指标名称 | 定义 | 数据来源 |
+| 指标 (Metric) | 定义 (Definition) | 数据采集方式 (Data Source) |
 | :--- | :--- | :--- |
-| **感知整洁度**<br>(Perceived Orderliness) | 用户主观感觉自己的笔记库变得更有序的程度。 | **用户问卷 (NPS)**：问题如“使用 MindScribe 后，你觉得找笔记变容易了吗？” |
-| **检索成功时间**<br>(Time-to-Found) | 从用户产生查找意图（开始输入）到找到目标笔记并停止操作的时间。 | **埋点数据**：计算 Session 时长。 |
-| **信任度指数**<br>(Trust Index) | 用户是否愿意将重要且零散的信息（如密码提示、灵感瞬间）交给 AI 记录。 | **行为分析**：高价值/隐私内容的占比。 |
+| **平均检索耗时**<br>(Mean Time to Retrieval, MTTR) | 从用户发起查询到确认找到目标信息的平均操作时长。 | 客户端埋点：Session Duration (Search Start -> Click/Copy)。 |
+| **高价值内容占比**<br>(High-Value Content Ratio) | 知识库中被标记为重要（如收藏、高频访问）的内容占比。 | 行为日志分析。 |
 
-### 3.2 行为指标 (Behavior Metrics)
+### 3.2 行为修正指标 (Behavioral Correction Metrics)
 
-| 指标名称 | 定义 | 业务含义 |
+| 指标 (Metric) | 定义 (Definition) | 业务含义 (Implication) |
 | :--- | :--- | :--- |
-| **“再加工”率**<br>(Refinement Rate) | 用户在 AI 自动归类/生成标题后，手动修改分类或标题的频率。 | **越低越好**。高修改率意味着 AI 的整理不符合用户心智。 |
-| **碎片激活率**<br>(Fragment Activation Rate) | 被记录的零散笔记，在未来 30 天内被再次阅读、引用或总结的比例。 | **核心指标**。如果笔记记了不看，就是“数据垃圾”。高激活率证明 AI 成功让死数据变成了活知识。 |
-| **被动整理依赖度**<br>(Passive Organization Dependency) | 用户直接输入零散内容（不指定章节）的比例。 | **越高越好**。说明用户信任 AI 的整理能力，愿意“偷懒”。 |
+| **人工干预率**<br>(Human Intervention Rate) | 用户对系统自动生成的分类、标题或摘要进行手动修改的比例。 | 反映系统自动化处理的**可接受度**。越低越好。 |
+| **条目激活率**<br>(Item Activation Rate) | 存入系统的条目在特定周期（如30天）内被检索、引用或查看的比例。 | 反映系统构建的知识库的**可用性**。高激活率表明数据未形成“数据孤岛”。 |
+| **非结构化输入占比**<br>(Unstructured Input Ratio) | 用户直接提交原始文本而不进行手动分类/打标的比例。 | 反映用户对系统整理能力的**信任度**。越高越好。 |
 
 ---
 
-## 四、 评测数据集构建计划 (Benchmark Construction)
+## 四、 评测数据集构建 (Benchmark Construction)
 
-为了落地这套体系，我们需要构建专属的测试数据集 **MindScribe-Bench**。
+构建专用数据集 **MindScribe-Bench** 以支持上述指标的自动化计算。
 
-### 4.1 数据集组成 (Golden Fragments)
-构建 100-200 条典型的“零碎笔记”样本，覆盖以下场景：
+### 4.1 数据集构成
+包含 200+ 条经过人工清洗和标注的非结构化文本样本，覆盖：
+*   **STEM 领域**：包含公式、定理的笔记片段。
+*   **非结构化日志**：会议纪要、待办事项、即时通讯记录。
+*   **混合语义**：包含多主题交叉的复杂文本。
 
-1.  **学习场景**：数学错题（含公式）、英语生词、讲座速记。
-2.  **工作场景**：会议纪要片段、待办事项（TODO）、灵感闪念。
-3.  **生活场景**：购物清单、日记片段、账单记录。
-
-### 4.2 标注维度
-对于每一条样本，需要标注：
-*   **Ground Truth Topic**：它应该属于哪个章节？
-*   **Hard Negative Topics**：它最容易被误分到哪个章节？
-*   **Retrieval Queries**：用户可能会怎么问来找这条笔记？（至少包含 1 个模糊查询）
+### 4.2 标注规范
+每条样本需包含：
+*   **Source Text**: 原始输入文本。
+*   **Ground Truth Category**: 标准分类标签。
+*   **Ground Truth Title**: 标准标题摘要。
+*   **Reference Queries**: 3-5 个对应的检索查询词（包含精确、模糊、语义查询）。
+*   **Related Items**: 知识库中已存在的关联条目 ID（用于测试融合能力）。
 
 ---
 
-## 五、 实施路线图
+## 五、 实施计划
 
-1.  **阶段一：基线确立 (Baseline)**
-    *   使用当前的“结构优先”逻辑在 MindScribe-Bench 上跑分，建立基准线。
-2.  **阶段二：A/B 测试**
-    *   上线“智能归类 2.0”，对比“再加工率”的变化。
-3.  **阶段三：长期监测**
-    *   建立自动化评测流水线（CI/CD），每次模型或 Prompt 更新自动运行 AI 层面评测。
+1.  **基线测试 (Baseline)**：基于当前版本（v1.0）在 MindScribe-Bench 上运行全量测试，确立性能基线。
+2.  **迭代验证 (A/B Testing)**：在引入新的 NLP 处理模块（如向量检索、动态聚类）时，对比关键指标（如 Recall@K, Intervention Rate）的变化。
+3.  **持续集成 (CI/CD)**：将自动化评测脚本集成至开发流水线，确保代码变更不导致核心指标退化。
