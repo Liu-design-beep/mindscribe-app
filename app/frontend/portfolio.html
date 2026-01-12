@@ -40,8 +40,20 @@
         }
 
         .card-hover:hover {
-            border-color: rgba(34, 197, 94, 0.5);
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.1);
+            border-color: #fbbf24; /* amber-400 */
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .text-gold {
+            color: #fbbf24; /* amber-400 */
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+        }
+
+        /* Modal Styles */
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(4px);
         }
 
         /* Custom Scrollbar */
@@ -106,6 +118,41 @@
             <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Projects will be injected here by JS -->
             </div>
+
+            <!-- Document Preview Modal -->
+            <div id="doc-modal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4">
+                <div class="bg-zinc-900 border border-zinc-700 rounded-xl w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl">
+                    <div class="flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-950/50 rounded-t-xl">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="file-text" class="text-amber-400"></i>
+                            <h3 id="modal-title" class="font-bold text-zinc-200">Document Preview</h3>
+                        </div>
+                        <button onclick="closeModal()" class="text-zinc-400 hover:text-white hover:bg-zinc-800 p-2 rounded-lg transition-colors">
+                            <i data-lucide="x" class="h-5 w-5"></i>
+                        </button>
+                    </div>
+                    <div class="flex-grow bg-zinc-950 relative overflow-hidden">
+                        <iframe id="doc-frame" class="w-full h-full border-0" src=""></iframe>
+                        <div id="doc-loading" class="absolute inset-0 flex items-center justify-center bg-zinc-900 text-amber-400">
+                            <div class="flex flex-col items-center gap-3">
+                                <i data-lucide="loader-2" class="h-8 w-8 animate-spin"></i>
+                                <span>LOADING_DOCUMENT...</span>
+                            </div>
+                        </div>
+                        <div id="doc-error" class="hidden absolute inset-0 flex items-center justify-center bg-zinc-900 text-red-400 p-8 text-center">
+                            <div class="max-w-md">
+                                <i data-lucide="alert-triangle" class="h-12 w-12 mx-auto mb-4 opacity-50"></i>
+                                <h4 class="text-lg font-bold mb-2">PREVIEW_UNAVAILABLE</h4>
+                                <p class="text-zinc-500 mb-6">This document format cannot be previewed directly in the browser.</p>
+                                <a id="doc-download-btn" href="#" target="_blank" class="inline-flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-4 py-2 rounded border border-zinc-700 transition-colors">
+                                    <i data-lucide="download"></i>
+                                    Download File
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
 
         <!-- Footer -->
@@ -128,7 +175,8 @@
                 icon: 'anchor',
                 tags: ['Hardware', 'Embedded', 'Control'],
                 doc: '/portfolio-assets/salvage_ship_design.doc',
-                video: null
+                video: '/portfolio-assets/salvage_ship_demo.mp4',
+                image: null
             },
             {
                 id: 'smart-alarm',
@@ -137,7 +185,8 @@
                 icon: 'clock',
                 tags: ['IoT', 'Embedded', 'Product Design'],
                 doc: '/portfolio-assets/smart_alarm_clock_report.docx',
-                video: '/portfolio-assets/smart_alarm_clock_demo.mp4'
+                video: '/portfolio-assets/smart_alarm_clock_demo.mp4',
+                image: null
             },
             {
                 id: 'unity-game',
@@ -146,7 +195,8 @@
                 icon: 'gamepad-2',
                 tags: ['Unity', 'C#', 'Game Design'],
                 doc: '/portfolio-assets/unity_game_design.pdf',
-                video: null
+                video: null,
+                image: '/portfolio-assets/unity_game_cover.png'
             },
             {
                 id: 'candy-robot',
@@ -155,7 +205,8 @@
                 icon: 'bot',
                 tags: ['Robotics', 'Computer Vision', 'Automation'],
                 doc: '/portfolio-assets/candy_sorting_robot.pdf',
-                video: null
+                video: null,
+                image: '/portfolio-assets/candy_robot_cover.png'
             },
             {
                 id: 'robot-dog',
@@ -164,7 +215,8 @@
                 icon: 'bot',
                 tags: ['Robotics', 'Motion Control', 'Demo'],
                 doc: null,
-                video: '/portfolio-assets/robot_dog_demo.mp4'
+                video: '/portfolio-assets/robot_dog_demo.mp4',
+                image: null
             },
             {
                 id: 'hsr-beam',
@@ -173,7 +225,8 @@
                 icon: 'wifi',
                 tags: ['Signal Processing', 'Communication', 'Algorithm'],
                 doc: '/portfolio-assets/hsr_beam_control.docx',
-                video: null
+                video: null,
+                image: '/portfolio-assets/hsr_beam_cover.png'
             },
             {
                 id: '5axis-robot',
@@ -182,7 +235,8 @@
                 icon: 'cpu',
                 tags: ['Robotics', 'Kinematics', 'Mechanical Design'],
                 doc: '/portfolio-assets/5axis_robot_design.docx',
-                video: '/portfolio-assets/5axis_robot_demo.mp4'
+                video: '/portfolio-assets/5axis_robot_demo.mp4',
+                image: null
             },
             {
                 id: 'control-sim',
@@ -191,7 +245,8 @@
                 icon: 'activity',
                 tags: ['Simulation', 'Matlab/Simulink', 'Control Theory'],
                 doc: '/portfolio-assets/control_simulation_analysis.docx',
-                video: null
+                video: null,
+                image: '/portfolio-assets/control_sim_cover.png'
             }
         ];
 
@@ -199,13 +254,26 @@
         const grid = document.getElementById('projects-grid');
         projects.forEach(project => {
             const card = document.createElement('div');
-            card.className = 'bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden card-hover transition-all duration-300 flex flex-col';
+            card.className = 'bg-zinc-900/80 border border-zinc-800 rounded-xl overflow-hidden card-hover transition-all duration-300 flex flex-col group';
             
             let mediaContent = '';
             if (project.video) {
                 mediaContent = `
-                    <div class="mt-4 rounded-md overflow-hidden border border-zinc-800 bg-black aspect-video relative">
+                    <div class="mt-4 rounded-md overflow-hidden border border-zinc-800 bg-black aspect-video relative group-hover:border-amber-500/30 transition-colors">
                         <video src="${project.video}" controls class="w-full h-full object-cover"></video>
+                    </div>
+                `;
+            } else if (project.image) {
+                mediaContent = `
+                    <div class="mt-4 rounded-md overflow-hidden border border-zinc-800 bg-black aspect-video relative group-hover:border-amber-500/30 transition-colors">
+                        <img src="${project.image}" alt="${project.title}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500">
+                    </div>
+                `;
+            } else {
+                // Fallback for no media
+                mediaContent = `
+                    <div class="mt-4 rounded-md overflow-hidden border border-zinc-800 bg-zinc-950 aspect-video relative flex items-center justify-center">
+                        <i data-lucide="image-off" class="h-8 w-8 text-zinc-700"></i>
                     </div>
                 `;
             }
@@ -213,37 +281,39 @@
             let actionButton = '';
             if (project.doc) {
                 actionButton = `
-                    <a href="${project.doc}" target="_blank" class="flex-1 flex items-center justify-center gap-2 bg-transparent border border-zinc-700 hover:bg-zinc-800 hover:text-green-400 text-zinc-300 py-2 rounded transition-colors text-sm font-medium">
-                        <i data-lucide="file-text" class="h-4 w-4"></i>
-                        View Doc
-                    </a>
+                    <button onclick="openDoc('${project.doc}', '${project.title}')" class="flex-1 flex items-center justify-center gap-2 bg-zinc-900 border border-zinc-700 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 text-zinc-300 py-2.5 rounded transition-all text-sm font-bold tracking-wide">
+                        <i data-lucide="eye" class="h-4 w-4"></i>
+                        PREVIEW_DOC
+                    </button>
                 `;
-            } else if (project.video) {
+            } else {
                 actionButton = `
-                    <button disabled class="flex-1 flex items-center justify-center gap-2 bg-transparent border border-zinc-800 text-zinc-600 py-2 rounded cursor-not-allowed text-sm font-medium">
-                        <i data-lucide="file-text" class="h-4 w-4"></i>
-                        No Doc
+                    <button disabled class="flex-1 flex items-center justify-center gap-2 bg-transparent border border-zinc-800 text-zinc-600 py-2.5 rounded cursor-not-allowed text-sm font-medium">
+                        <i data-lucide="file-x" class="h-4 w-4"></i>
+                        NO_DATA
                     </button>
                 `;
             }
 
             const tagsHtml = project.tags.slice(0, 2).map(tag => 
-                `<span class="text-[10px] border border-zinc-700 text-zinc-400 px-2 py-0.5 rounded-full">${tag}</span>`
+                `<span class="text-[10px] border border-zinc-700 text-zinc-400 px-2 py-0.5 rounded-full bg-zinc-900/50">${tag}</span>`
             ).join('');
 
             card.innerHTML = `
-                <div class="p-6 flex-grow">
+                <div class="p-6 flex-grow flex flex-col">
                     <div class="flex justify-between items-start mb-4">
-                        <div class="p-2 bg-zinc-800 rounded-lg text-green-400">
+                        <div class="p-2 bg-zinc-800/50 rounded-lg text-amber-400 border border-zinc-700/50">
                             <i data-lucide="${project.icon}" class="h-6 w-6"></i>
                         </div>
                         <div class="flex gap-1 flex-wrap justify-end">
                             ${tagsHtml}
                         </div>
                     </div>
-                    <h3 class="text-xl font-bold text-zinc-100 mb-2 group-hover:text-green-400">${project.title}</h3>
-                    <p class="text-zinc-400 text-sm leading-relaxed h-20 overflow-hidden">${project.description}</p>
-                    ${mediaContent}
+                    <h3 class="text-xl font-bold text-zinc-100 mb-2 group-hover:text-gold transition-colors tracking-tight">${project.title}</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed h-16 overflow-hidden mb-2">${project.description}</p>
+                    <div class="mt-auto">
+                        ${mediaContent}
+                    </div>
                 </div>
                 <div class="p-6 pt-0 mt-auto flex gap-2">
                     ${actionButton}
@@ -284,6 +354,65 @@
                 mainContent.classList.add('animate-in', 'fade-in', 'duration-700');
             }, 800);
         }, 4000);
+
+        // Modal Logic
+        const modal = document.getElementById('doc-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const docFrame = document.getElementById('doc-frame');
+        const docLoading = document.getElementById('doc-loading');
+        const docError = document.getElementById('doc-error');
+        const downloadBtn = document.getElementById('doc-download-btn');
+
+        window.openDoc = function(url, title) {
+            modalTitle.textContent = title;
+            modal.classList.remove('hidden');
+            docLoading.style.display = 'flex';
+            docError.classList.add('hidden');
+            docFrame.classList.add('hidden');
+            
+            // Check file extension
+            const ext = url.split('.').pop().toLowerCase();
+            const isViewable = ['pdf', 'txt', 'jpg', 'png', 'jpeg'].includes(ext);
+            
+            // Google Docs Viewer for Office files
+            let viewerUrl = url;
+            if (['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'].includes(ext)) {
+                // Use absolute URL for Google Docs Viewer
+                const absoluteUrl = window.location.origin + url;
+                viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(absoluteUrl)}`;
+            } else if (!isViewable) {
+                // Fallback for unknown types
+                docLoading.style.display = 'none';
+                docError.classList.remove('hidden');
+                downloadBtn.href = url;
+                return;
+            }
+
+            docFrame.src = viewerUrl;
+            
+            docFrame.onload = function() {
+                docLoading.style.display = 'none';
+                docFrame.classList.remove('hidden');
+            };
+            
+            // Fallback timeout
+            setTimeout(() => {
+                if (docLoading.style.display !== 'none') {
+                    docLoading.style.display = 'none';
+                    docFrame.classList.remove('hidden');
+                }
+            }, 3000);
+        };
+
+        window.closeModal = function() {
+            modal.classList.add('hidden');
+            docFrame.src = '';
+        };
+
+        // Close on backdrop click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
 
     </script>
 </body>
