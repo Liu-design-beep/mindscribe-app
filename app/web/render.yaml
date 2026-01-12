@@ -3,9 +3,9 @@ services:
   - type: web
     name: smart-clip-api
     env: python
-    rootDir: app/web
-    buildCommand: pip install -r requirements.txt
-    startCommand: python api_server.py
+    rootDir: .
+    buildCommand: pip install -r app/web/requirements.txt
+    startCommand: cd app/web && python api_server.py
     envVars:
       - key: DASHSCOPE_API_KEY
         sync: false  # 需要在 Render 控制台手动设置
@@ -13,5 +13,3 @@ services:
         sync: false  # 需要在 Render 控制台手动设置
       - key: PORT
         value: 8000
-
-
