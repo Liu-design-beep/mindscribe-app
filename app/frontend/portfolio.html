@@ -443,18 +443,6 @@
                     docError.classList.remove('hidden');
                 };
             }
-        };   docFrame.onload = function() {
-                docLoading.style.display = 'none';
-                docFrame.classList.remove('hidden');
-            };
-            
-            // Fallback timeout
-            setTimeout(() => {
-                if (docLoading.style.display !== 'none') {
-                    docLoading.style.display = 'none';
-                    docFrame.classList.remove('hidden');
-                }
-            }, 3000);
         };
 
         window.closeModal = function() {
