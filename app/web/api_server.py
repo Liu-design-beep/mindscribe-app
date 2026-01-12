@@ -5,6 +5,8 @@
 import os
 import re
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, Dict, Any, List
@@ -63,6 +65,13 @@ app = FastAPI(
     description="智能笔记助手后端API",
     version="1.0.0"
 )
+
+# 挂载静态文件目录
+# 确保 app/static 目录存在
+static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static")
+if not os.path.exists(static_dir):
+    os.makedirs(static_dir)
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # ============================================
 # CORS 配置（允许前端跨域请求）
@@ -288,6 +297,14 @@ async def root():
             "documents": "/api/documents"
         }
     }
+
+@app.get("/portfolio.html")
+async def portfolio_page():
+    """返回作品集页面"""
+    file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend", "portfolio.html")
+    if os.path.exists(file_path):
+        return FileResponse(file_path)
+    return {"error": "Portfolio page not found"}
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
@@ -2902,6 +2919,8 @@ async def get_documents(
                         documents.append("更新记录日志")
                     if "系统提示词文档" not in documents:
                         documents.append("系统提示词文档")
+                    if "RAG架构设计文档" not in documents:
+                        documents.append("RAG架构设计文档")
                 
                 print(f"[文档列表] D1数据库返回文档: {documents}")
                 return DocumentsResponse(documents=documents)
@@ -2958,6 +2977,8 @@ async def get_documents(
                         documents.append("更新记录日志")
                     if "系统提示词文档" not in documents:
                         documents.append("系统提示词文档")
+                    if "RAG架构设计文档" not in documents:
+                        documents.append("RAG架构设计文档")
                 
                 print(f"[文档列表] Cloudflare KV返回文档: {documents}")
                 return DocumentsResponse(documents=documents)
