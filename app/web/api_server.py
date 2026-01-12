@@ -79,6 +79,30 @@ if not os.path.exists(portfolio_dir):
     os.makedirs(portfolio_dir)
 app.mount("/portfolio-assets", StaticFiles(directory=portfolio_dir), name="portfolio_assets")
 
+# 双重保险：手动路由服务 portfolio 资源，以防 StaticFiles 挂载有问题
+@app.get("/portfolio-assets/{filename}")
+async def serve_portfolio_asset(filename: str):
+    """手动服务 portfolio 资源文件"""
+    file_path = os.path.join(portfolio_dir, filename)
+    if not os.path.exists(file_path):
+        # 尝试在上一级目录查找（容错）
+        file_path = os.path.join(static_dir, filename)
+        if not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail="File not found")
+    
+    # 确定 MIME 类型
+    media_type = "application/octet-stream"
+    if filename.endswith(".mp4"):
+        media_type = "video/mp4"
+    elif filename.endswith(".pdf"):
+        media_type = "application/pdf"
+    elif filename.endswith(".doc"):
+        media_type = "application/msword"
+    elif filename.endswith(".docx"):
+        media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        
+    return FileResponse(file_path, media_type=media_type)
+
 # ============================================
 # CORS 配置（允许前端跨域请求）
 # ============================================
