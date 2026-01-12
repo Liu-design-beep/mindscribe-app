@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINDSCR_BE // CREATOR_ARCHIVES</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #09090b; /* zinc-950 */
+            color: #e4e4e7; /* zinc-200 */
+        }
+
+        .terminal-cursor::after {
+            content: '_';
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .glitch-effect {
+            animation: glitch 0.2s cubic-bezier(.25, .46, .45, .94) both infinite;
+            color: #22c55e;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) }
+            60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) }
+            100% { transform: translate(0) }
+        }
+
+        .card-hover:hover {
+            border-color: #fbbf24; /* amber-400 */
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .text-gold {
+            color: #fbbf24; /* amber-400 */
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+        }
+        
+        /* Force gold color on titles */
+        .project-title {
+            color: #fbbf24 !important;
+            text-shadow: 0 0 5px rgba(251, 191, 36, 0.2);
+        }
+
+        /* Modal Styles */
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3f3f46;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 bg-black z-50 flex flex-col justify-center items-center p-8 text-green-500">
+        <div class="w-full max-w-2xl">
+            <div class="mb-4 flex items-center gap-2">
+                <i data-lucide="terminal" class="h-6 w-6"></i>
+                <span class="text-xl font-bold">MINDSCR_BE DEV_CONSOLE v2.0</span>
+            </div>
+            <div class="bg-zinc-900 border border-green-500/30 p-6 rounded-lg shadow-[0_0_20px_rgba(34,197,94,0.2)] min-h-[300px] font-mono text-sm md:text-base">
+                <div id="terminal-logs"></div>
+                <div class="terminal-cursor mt-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content (Hidden initially) -->
+    <div id="main-content" class="hidden min-h-screen flex flex-col">
+        
+        <!-- Header -->
+        <header class="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur sticky top-0 z-40">
+            <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-2 text-green-500">
+                    <i data-lucide="terminal" class="h-5 w-5"></i>
+                    <span class="font-bold tracking-wider">CREATOR_ARCHIVES</span>
+                </div>
+                <button onclick="window.history.back()" class="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors px-4 py-2 rounded hover:bg-zinc-900">
+                    <span>[ 返回开发者模式 ]</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="container mx-auto px-4 py-12 flex-grow">
+            <div class="mb-12 text-center">
+                <h1 class="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-green-400 to-emerald-600 bg-clip-text text-transparent">
+                    PROJECT_MANIFEST
+                </h1>
+                <p class="text-zinc-400 max-w-2xl mx-auto font-mono">
+                    // A collection of hardware, software, and robotic systems designed and engineered by the creator.
+                </p>
+            </div>
+
+            <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Projects will be injected here by JS -->
+            </div>
+
+            <!-- Document Preview Modal -->
+            <div id="doc-modal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4">
+                <div class="bg-zinc-900 border border-zinc-700 rounded-xl w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl">
+                    <div class="flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-950/50 rounded-t-xl">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="file-text" class="text-amber-400"></i>
+                            <h3 id="modal-title" class="font-bold text-zinc-200">Document Preview</h3>
+                        </div>
+                        <button onclick="closeModal()" class="text-zinc-400 hover:text-white hover:bg-zinc-800 p-2 rounded-lg transition-colors">
+                            <i data-lucide="x" class="h-5 w-5"></i>
+                        </button>
+                    </div>
+                    <div class="flex-grow bg-zinc-950 relative overflow-hidden">
+                        <iframe id="doc-frame" class="w-full h-full border-0" src=""></iframe>
+                        <div id="doc-loading" class="absolute inset-0 flex items-center justify-center bg-zinc-900 text-amber-400">
+                            <div class="flex flex-col items-center gap-3">
+                                <i data-lucide="loader-2" class="h-8 w-8 animate-spin"></i>
+                                <span>LOADING_DOCUMENT...</span>
+                            </div>
+                        </div>
+                        <div id="doc-error" class="hidden absolute inset-0 flex items-center justify-center bg-zinc-900 text-red-400 p-8 text-center">
+                            <div class="max-w-md">
+                                <i data-lucide="alert-triangle" class="h-12 w-12 mx-auto mb-4 opacity-50"></i>
+                                <h4 class="text-lg font-bold mb-2">PREVIEW_UNAVAILABLE</h4>
+                                <p class="text-zinc-500 mb-6">This document format cannot be previewed directly in the browser.</p>
+                                <!-- Download button removed as requested -->
+                            </div>
+                        </div>
+                        <!-- Download button removed as requested -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="border-t border-zinc-800 mt-20 py-8 text-center text-zinc-500 font-mono text-sm">
+            <p>SYSTEM_STATUS: ONLINE | SECURE_CONNECTION_ESTABLISHED</p>
+            <p class="mt-2">© 2026 MINDSCR_BE LABS</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Project Data
+        const projects = [
+            {
+                id: 'salvage-ship',
+                title: '打捞船软硬件设计',
+                description: '针对水下作业环境设计的综合打捞系统，包含船体结构、动力系统及控制软件设计。',
+                icon: 'anchor',
+                tags: ['Hardware', 'Embedded', 'Control'],
+                doc: '/static/portfolio/salvage_ship_design.doc',
+                video: '/static/portfolio/salvage_ship_demo.mp4',
+                image: null
+            },
+            {
+                id: 'smart-alarm',
+                title: '智能闹钟软硬件设计',
+                description: '基于用户行为分析的智能唤醒系统，集成环境监测与睡眠周期追踪功能。',
+                icon: 'clock',
+                tags: ['IoT', 'Embedded', 'Product Design'],
+                doc: '/static/portfolio/smart_alarm_clock_report.docx',
+                video: '/static/portfolio/smart_alarm_clock_demo.mp4',
+                image: null
+            },
+            {
+                id: 'unity-game',
+                title: 'Unity 游戏设计：校务小能手',
+                description: '基于 Unity 引擎开发的校园模拟经营游戏，包含完整的游戏机制设计与关卡逻辑。',
+                icon: 'gamepad-2',
+                tags: ['Unity', 'C#', 'Game Design'],
+                doc: '/static/portfolio/unity_game_design.pdf',
+                video: null,
+                image: '/static/portfolio/unity_game_cover.png'
+            },
+            {
+                id: 'candy-robot',
+                title: '糖豆分拣机器人',
+                description: '利用机器视觉识别颜色并进行自动分拣的机器人系统，实现高精度快速分拣。',
+                icon: 'bot',
+                tags: ['Robotics', 'Computer Vision', 'Automation'],
+                doc: '/static/portfolio/candy_sorting_robot.pdf',
+                video: null,
+                image: '/static/portfolio/candy_robot_cover.png'
+            },
+            {
+                id: 'robot-dog',
+                title: '机器狗展示',
+                description: '四足机器人运动控制算法演示，展示了在复杂地形下的平衡与移动能力。',
+                icon: 'bot',
+                tags: ['Robotics', 'Motion Control', 'Demo'],
+                doc: null,
+                video: '/static/portfolio/robot_dog_demo.mp4',
+                image: null
+            },
+            {
+                id: 'hsr-beam',
+                title: '高铁信号波束控制',
+                description: '针对高速铁路通信场景的波束成形与信号控制算法研究，提升通信稳定性。',
+                icon: 'wifi',
+                tags: ['Signal Processing', 'Communication', 'Algorithm'],
+                doc: '/static/portfolio/hsr_beam_control.docx',
+                video: null,
+                image: '/static/portfolio/hsr_beam_cover.png'
+            },
+            {
+                id: '5axis-robot',
+                title: '五轴并联多连杆机器人',
+                description: '高自由度并联机械臂设计，适用于精密装配与复杂轨迹追踪任务。',
+                icon: 'cpu',
+                tags: ['Robotics', 'Kinematics', 'Mechanical Design'],
+                doc: '/static/portfolio/5axis_robot_design.docx',
+                video: '/static/portfolio/5axis_robot_demo.mp4',
+                image: null
+            },
+            {
+                id: 'control-sim',
+                title: '控制仿真分析',
+                description: '复杂系统的数学建模与控制策略仿真分析，验证控制算法的有效性与鲁棒性。',
+                icon: 'activity',
+                tags: ['Simulation', 'Matlab/Simulink', 'Control Theory'],
+                doc: '/static/portfolio/control_simulation_analysis.docx',
+                video: null,
+                image: '/static/portfolio/control_sim_cover.png'
+            }
+        ];
+
+        // Render Projects
+        const grid = document.getElementById('projects-grid');
+        projects.forEach(project => {
+            const card = document.createElement('div');
+            card.className = 'bg-zinc-900/80 border border-zinc-800 rounded-xl overflow-hidden card-hover transition-all duration-300 flex flex-col group';
+            
+            let mediaContent = '';
+            if (project.video) {
+                mediaContent = `
+                    <div class="mt-4 rounded-md overflow-hidden border border-zinc-800 bg-black aspect-video relative group-hover:border-amber-500/30 transition-colors">
+                        <video 
+                            src="${project.video}" 
+                            controls 
+                            class="w-full h-full object-cover"
+                            onerror="this.parentElement.innerHTML = \`<div class='w-full h-full flex flex-col items-center justify-center bg-red-900/20 border border-red-800 p-4 text-center'><i data-lucide='alert-circle' class='text-red-500 mb-2'></i><span class='text-red-400 font-bold text-sm'>Video Load Failed</span><span class='text-red-300/70 text-xs mt-1 break-all'>${project.video}</span></div>\`; lucide.createIcons();">
+                        </video>
+                    </div>
+                `;
+            } else if (project.image) {
+                mediaContent = `
+                    <div class="mt-4 rounded-md overflow-hidden border border-zinc-800 bg-black aspect-video relative group-hover:border-amber-500/30 transition-colors">
+                        <img 
+                            src="${project.image}" 
+                            alt="${project.title}" 
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+                            onerror="this.parentElement.innerHTML = \`<div class='w-full h-full flex flex-col items-center justify-center bg-red-900/20 border border-red-800 p-4 text-center'><i data-lucide='image-off' class='text-red-500 mb-2'></i><span class='text-red-400 font-bold text-sm'>Image Not Found</span><span class='text-red-300/70 text-xs mt-1 break-all'>${project.image}</span></div>\`; lucide.createIcons();">
+                    </div>
+                `;
+            } else {
+                // Fallback for no media
+                mediaContent = `
+                    <div class="mt-4 rounded-md overflow-hidden border border-zinc-800 bg-zinc-950 aspect-video relative flex items-center justify-center">
+                        <i data-lucide="image-off" class="h-8 w-8 text-zinc-700"></i>
+                    </div>
+                `;
+            }
+
+            let actionButton = '';
+            if (project.doc) {
+                actionButton = `
+                    <button onclick="openDoc('${project.doc}', '${project.title}')" class="flex-1 flex items-center justify-center gap-2 bg-zinc-900 border border-zinc-700 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-400 text-zinc-300 py-2.5 rounded transition-all text-sm font-bold tracking-wide">
+                        <i data-lucide="eye" class="h-4 w-4"></i>
+                        PREVIEW_DOC
+                    </button>
+                `;
+            } else {
+                actionButton = `
+                    <button disabled class="flex-1 flex items-center justify-center gap-2 bg-transparent border border-zinc-800 text-zinc-600 py-2.5 rounded cursor-not-allowed text-sm font-medium">
+                        <i data-lucide="file-x" class="h-4 w-4"></i>
+                        NO_DATA
+                    </button>
+                `;
+            }
+
+            const tagsHtml = project.tags.slice(0, 2).map(tag => 
+                `<span class="text-[10px] border border-zinc-700 text-zinc-400 px-2 py-0.5 rounded-full bg-zinc-900/50">${tag}</span>`
+            ).join('');
+
+            card.innerHTML = `
+                <div class="p-6 flex-grow flex flex-col">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-zinc-800/50 rounded-lg text-amber-400 border border-zinc-700/50">
+                            <i data-lucide="${project.icon}" class="h-6 w-6"></i>
+                        </div>
+                        <div class="flex gap-1 flex-wrap justify-end">
+                            ${tagsHtml}
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold project-title mb-2 tracking-tight">${project.title}</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed h-16 overflow-hidden mb-2">${project.description}</p>
+                    <div class="mt-auto">
+                        ${mediaContent}
+                    </div>
+                </div>
+                <div class="p-6 pt-0 mt-auto flex gap-2">
+                    ${actionButton}
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+        lucide.createIcons(); // Re-run for dynamic content
+
+        // Animation Logic
+        const logsContainer = document.getElementById('terminal-logs');
+        const loadingScreen = document.getElementById('loading-screen');
+        const mainContent = document.getElementById('main-content');
+        
+        const sequence = [
+            { text: '> INITIALIZING SECURE CONNECTION...', delay: 500 },
+            { text: '> ACCESSING CREATOR ARCHIVES...', delay: 1200 },
+            { text: '> DECRYPTING PROJECT FILES...', delay: 2000 },
+            { text: '> LOADING ASSETS: [####################] 100%', delay: 2800 },
+            { text: '> SYSTEM READY.', delay: 3500 }
+        ];
+
+        let currentTime = 0;
+        sequence.forEach(({ text, delay }) => {
+            setTimeout(() => {
+                const p = document.createElement('div');
+                p.className = 'mb-2 animate-in fade-in slide-in-from-left-2 duration-300';
+                p.textContent = text;
+                logsContainer.appendChild(p);
+            }, delay);
+        });
+
+        setTimeout(() => {
+            loadingScreen.classList.add('glitch-effect');
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                mainContent.classList.remove('hidden');
+                mainContent.classList.add('animate-in', 'fade-in', 'duration-700');
+            }, 800);
+        }, 4000);
+
+        // Modal Logic
+        const modal = document.getElementById('doc-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const docFrame = document.getElementById('doc-frame');
+        const docLoading = document.getElementById('doc-loading');
+        const docError = document.getElementById('doc-error');
+        // Download buttons removed
+        // const downloadBtn = document.getElementById('doc-download-btn');
+        // const modalDownloadBtn = document.getElementById('modal-download-btn');
+
+        window.openDoc = function(url, title) {
+            modalTitle.textContent = title;
+            modal.classList.remove('hidden');
+            docLoading.style.display = 'flex';
+            docError.classList.add('hidden');
+            docFrame.classList.add('hidden');
+            
+            // Debug: Check if file exists before trying to load
+            fetch(url, { method: 'HEAD' })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status} ${response.statusText}`);
+                    }
+                    // File exists, proceed with loading
+                    loadDocument(url);
+                })
+                .catch(error => {
+                    // File check failed
+                    console.error('Document load error:', error);
+                    docLoading.style.display = 'none';
+                    docError.classList.remove('hidden');
+                    
+                    // Show detailed debug info
+                    const errorContainer = docError.querySelector('.max-w-md');
+                    errorContainer.innerHTML = `
+                        <i data-lucide="alert-triangle" class="h-12 w-12 mx-auto mb-4 text-red-500"></i>
+                        <h4 class="text-lg font-bold mb-2 text-red-400">Asset Not Found</h4>
+                        <div class="bg-zinc-950 p-4 rounded-lg border border-red-900/50 text-left mb-4 overflow-x-auto">
+                            <p class="text-xs text-zinc-500 mb-1">ERROR DETAILS:</p>
+                            <p class="text-sm text-red-300 font-mono mb-2">${error.message}</p>
+                            <p class="text-xs text-zinc-500 mb-1">REQUESTED URL:</p>
+                            <p class="text-sm text-zinc-300 font-mono break-all">${window.location.origin + url}</p>
+                        </div>
+                        <p class="text-zinc-500 text-sm">The file could not be found on the server. Please check if the file exists in the <code>app/static/portfolio/</code> directory.</p>
+                    `;
+                    lucide.createIcons();
+                });
+            
+            function loadDocument(validUrl) {
+                // Check file extension
+                const ext = validUrl.split('.').pop().toLowerCase();
+                const isViewable = ['pdf', 'txt', 'jpg', 'png', 'jpeg'].includes(ext);
+                
+                // Google Docs Viewer for Office files
+                let viewerUrl = validUrl;
+                if (!isViewable) {
+                    // Use Microsoft Office Online Viewer
+                    viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(window.location.origin + validUrl)}`;
+                }
+
+                // Load iframe
+                docFrame.src = viewerUrl;
+                
+                docFrame.onload = function() {
+                    docLoading.style.display = 'none';
+                    docFrame.classList.remove('hidden');
+                };
+
+                docFrame.onerror = function() {
+                    docLoading.style.display = 'none';
+                    docError.classList.remove('hidden');
+                };
+            }
+        };
+
+        window.closeModal = function() {
+            modal.classList.add('hidden');
+            docFrame.src = '';
+        };
+
+        // Close on backdrop click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,541 @@
+/* 登录/试用选择模态框样式 */
+
+.login-trial-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease-in;
+    visibility: visible;
+    opacity: 1;
+}
+
+.login-trial-modal.hidden {
+    /* 注意：如果元素有内联样式 display: flex !important，内联样式优先级更高 */
+    display: none;
+    visibility: hidden;
+    opacity: 0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* 模态框容器（包含介绍窗口和登录窗口） */
+.login-trial-modal .modal-container {
+    display: grid;
+    grid-template-columns: 600px 1fr 600px;
+    gap: 30px;
+    align-items: stretch; /* 改为stretch，使左右窗口高度一致 */
+    justify-items: center;
+    max-width: 1400px;
+    width: 95%;
+    animation: slideUp 0.4s ease-out;
+    position: relative;
+    margin: 0 auto;
+}
+
+/* 左侧介绍窗口 */
+.intro-panel {
+    grid-column: 1;
+    width: 600px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* 改为100%，使高度与右侧窗口一致 */
+    overflow: visible;
+    z-index: 1;
+}
+
+/* 当屏幕宽度小于1400px时，调整布局 */
+@media (max-width: 1400px) {
+    .login-trial-modal .modal-container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .intro-panel {
+        grid-column: 1;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .login-trial-modal .modal-content {
+        grid-column: 1;
+        width: 90%;
+        max-width: 600px;
+    }
+}
+
+.intro-header {
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 15px;
+}
+
+.intro-header .cover-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 15px;
+    display: block;
+    object-fit: contain;
+}
+
+.intro-header h2 {
+    color: #333333;
+    font-size: 28px;
+    margin: 0;
+    font-weight: 700;
+}
+
+.intro-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    justify-content: flex-start; /* 内容从顶部开始排列 */
+}
+
+.intro-section {
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.intro-section h3 {
+    color: #333333;
+    font-size: 18px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.intro-section p {
+    color: #666666;
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 6px 0;
+}
+
+.intro-section ul {
+    color: #666666;
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 6px 0;
+    padding-left: 20px;
+}
+
+.intro-section li {
+    margin: 4px 0;
+}
+
+.intro-section strong {
+    color: #333333;
+    font-weight: 600;
+}
+
+.login-trial-modal .modal-content {
+    grid-column: 2;
+    background: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.4s ease-out;
+    width: 600px;
+    max-width: 600px;
+    position: relative;
+    z-index: 2;
+    height: 100%; /* 改为100%，使高度与左侧窗口一致 */
+    display: flex;
+    flex-direction: column;
+    justify-self: center;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    text-align: center;
+    margin-bottom: 30px;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.modal-header h2 {
+    color: #333333;
+    font-size: 32px;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.modal-header .subtitle {
+    color: #666666;
+    font-size: 16px;
+}
+
+.modal-body {
+    display: flex;
+    gap: 20px;
+    flex-direction: column;
+    flex: 1; /* 添加flex: 1，使内容区域填充剩余空间 */
+    justify-content: center; /* 垂直居中内容 */
+}
+
+.option-card {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.option-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.option-card:hover::before {
+    left: 100%;
+}
+
+.option-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.option-icon {
+    font-size: 48px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.option-card h3 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.option-card p {
+    color: #666;
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.trial-warning {
+    margin-top: 15px;
+    padding: 12px;
+    background: rgba(255, 243, 205, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 193, 7, 0.4);
+    border-radius: 12px;
+    color: #856404;
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.option-card:active {
+    transform: translateY(-2px);
+}
+
+/* 响应式设计 */
+@media (max-width: 1400px) {
+    .intro-panel {
+        position: relative;
+        left: auto;
+        top: auto;
+        transform: none;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto 30px;
+    }
+    
+    .login-trial-modal .modal-container {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media (max-width: 1024px) {
+    .intro-panel {
+        max-height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-trial-modal .modal-container {
+        width: 95%;
+        gap: 20px;
+    }
+    
+    .intro-panel,
+    .login-trial-modal .modal-content {
+        padding: 30px 20px;
+    }
+    
+    .option-card {
+        padding: 20px;
+    }
+    
+    .modal-header h2,
+    .intro-header h2 {
+        font-size: 24px;
+    }
+    
+    .intro-section h3 {
+        font-size: 18px;
+    }
+}
+
+/* ================================ */
+/* 试用密码验证弹窗样式 */
+/* ================================ */
+
+.trial-password-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10001;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.trial-password-modal.hidden {
+    display: none !important;
+}
+
+.trial-password-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.trial-password-content {
+    position: relative;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    animation: slideUp 0.4s ease-out;
+    border: 2px solid rgba(74, 144, 226, 0.3);
+}
+
+.trial-password-icon-container {
+    margin-bottom: 20px;
+}
+
+.trial-password-icon {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    animation: slideHorizontal 3s ease-in-out infinite;
+}
+
+.trial-password-icon-fallback {
+    font-size: 80px;
+    animation: slideHorizontal 3s ease-in-out infinite;
+}
+
+@keyframes slideHorizontal {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(20px);
+    }
+}
+
+/* 保留原有的 bounce 动画，以防其他地方使用 */
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.trial-password-title {
+    color: #333333;
+    font-size: 28px;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.trial-password-subtitle {
+    color: #666666;
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+
+.trial-password-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.trial-password-input {
+    flex: 1;
+    padding: 15px 20px;
+    font-size: 16px;
+    border: 2px solid rgba(74, 144, 226, 0.3);
+    border-radius: 12px;
+    outline: none;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.trial-password-input:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.1);
+    background: #ffffff;
+}
+
+.trial-password-submit {
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+}
+
+.trial-password-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+}
+
+.trial-password-submit:active {
+    transform: translateY(0);
+}
+
+.trial-password-error {
+    color: #dc3545;
+    font-size: 14px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(220, 53, 69, 0.1);
+    border-radius: 8px;
+    animation: shake 0.5s ease-in-out;
+}
+
+.trial-password-error.hidden {
+    display: none;
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-10px);
+    }
+    75% {
+        transform: translateX(10px);
+    }
+}
+
+.trial-password-cancel {
+    padding: 12px 24px;
+    font-size: 14px;
+    background: transparent;
+    color: #666666;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.trial-password-cancel:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #333333;
+}
+
+/* 响应式设计 - 密码弹窗 */
+@media (max-width: 768px) {
+    .trial-password-content {
+        padding: 30px 20px;
+        max-width: 90%;
+    }
+    
+    .trial-password-icon {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .trial-password-title {
+        font-size: 24px;
+    }
+    
+    .trial-password-input-group {
+        flex-direction: column;
+    }
+}

@@ -68,7 +68,7 @@ app = FastAPI(
 
 # 挂载静态文件目录
 # 确保 app/static 目录存在
-static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static")
+static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
 if not os.path.exists(static_dir):
     os.makedirs(static_dir)
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
@@ -310,7 +310,7 @@ async def root():
 @app.get("/portfolio.html")
 async def portfolio_page():
     """返回作品集页面"""
-    file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend", "portfolio.html")
+    file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend", "portfolio.html")
     if os.path.exists(file_path):
         return FileResponse(file_path)
     return {"error": "Portfolio page not found"}
