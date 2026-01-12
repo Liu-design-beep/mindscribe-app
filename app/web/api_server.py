@@ -73,11 +73,13 @@ if not os.path.exists(static_dir):
     os.makedirs(static_dir)
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
-# 专门挂载 portfolio 资源目录，确保资源可访问
+# 专门挂载 portfolio 资源目录
+# 注意：我们不再使用 StaticFiles 自动挂载，而是使用下面的手动路由来处理 /portfolio-assets/ 请求
+# 这样可以确保我们可以从多个可能的路径中搜索文件，解决 Render 部署时的路径问题
 portfolio_dir = os.path.join(static_dir, "portfolio")
 if not os.path.exists(portfolio_dir):
     os.makedirs(portfolio_dir)
-app.mount("/portfolio-assets", StaticFiles(directory=portfolio_dir), name="portfolio_assets")
+# app.mount("/portfolio-assets", StaticFiles(directory=portfolio_dir), name="portfolio_assets")
 
 # 双重保险：手动路由服务 portfolio 资源，以防 StaticFiles 挂载有问题
 @app.get("/portfolio-assets/{filename}")
