@@ -82,24 +82,42 @@ app.mount("/portfolio-assets", StaticFiles(directory=portfolio_dir), name="portf
 # 双重保险：手动路由服务 portfolio 资源，以防 StaticFiles 挂载有问题
 @app.get("/portfolio-assets/{filename}")
 async def serve_portfolio_asset(filename: str):
-    """手动服务 portfolio 资源文件"""
-    file_path = os.path.join(portfolio_dir, filename)
-    if not os.path.exists(file_path):
-        # 尝试在上一级目录查找（容错）
-        file_path = os.path.join(static_dir, filename)
-        if not os.path.exists(file_path):
-            raise HTTPException(status_code=404, detail="File not found")
+    """手动服务 portfolio 资源文件，支持多路径搜索"""
+    
+    # 定义可能的搜索路径
+    possible_paths = [
+        os.path.join(portfolio_dir, filename),
+        os.path.join(static_dir, filename),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "portfolio", filename),
+        os.path.join(os.getcwd(), "app", "static", "portfolio", filename),
+        os.path.join(os.getcwd(), "static", "portfolio", filename),
+    ]
+    
+    file_path = None
+    for path in possible_paths:
+        if os.path.exists(path):
+            file_path = path
+            break
+            
+    if not file_path:
+        print(f"[ERROR] Portfolio asset not found: {filename}. Searched in: {possible_paths}")
+        raise HTTPException(status_code=404, detail=f"File not found: {filename}")
     
     # 确定 MIME 类型
     media_type = "application/octet-stream"
-    if filename.endswith(".mp4"):
+    lower_filename = filename.lower()
+    if lower_filename.endswith(".mp4"):
         media_type = "video/mp4"
-    elif filename.endswith(".pdf"):
+    elif lower_filename.endswith(".pdf"):
         media_type = "application/pdf"
-    elif filename.endswith(".doc"):
+    elif lower_filename.endswith(".doc"):
         media_type = "application/msword"
-    elif filename.endswith(".docx"):
+    elif lower_filename.endswith(".docx"):
         media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    elif lower_filename.endswith(".png"):
+        media_type = "image/png"
+    elif lower_filename.endswith(".jpg") or lower_filename.endswith(".jpeg"):
+        media_type = "image/jpeg"
         
     return FileResponse(file_path, media_type=media_type)
 
