@@ -73,55 +73,14 @@ if not os.path.exists(static_dir):
     os.makedirs(static_dir)
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
-# 专门挂载 portfolio 资源目录
-# 注意：我们不再使用 StaticFiles 自动挂载，而是使用下面的手动路由来处理 /portfolio-assets/ 请求
-# 这样可以确保我们可以从多个可能的路径中搜索文件，解决 Render 部署时的路径问题
+# 确保 portfolio 目录存在
 portfolio_dir = os.path.join(static_dir, "portfolio")
 if not os.path.exists(portfolio_dir):
     os.makedirs(portfolio_dir)
-# app.mount("/portfolio-assets", StaticFiles(directory=portfolio_dir), name="portfolio_assets")
 
-# 双重保险：手动路由服务 portfolio 资源，以防 StaticFiles 挂载有问题
-@app.get("/portfolio-assets/{filename}")
-async def serve_portfolio_asset(filename: str):
-    """手动服务 portfolio 资源文件，支持多路径搜索"""
-    
-    # 定义可能的搜索路径
-    possible_paths = [
-        os.path.join(portfolio_dir, filename),
-        os.path.join(static_dir, filename),
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "portfolio", filename),
-        os.path.join(os.getcwd(), "app", "static", "portfolio", filename),
-        os.path.join(os.getcwd(), "static", "portfolio", filename),
-    ]
-    
-    file_path = None
-    for path in possible_paths:
-        if os.path.exists(path):
-            file_path = path
-            break
-            
-    if not file_path:
-        print(f"[ERROR] Portfolio asset not found: {filename}. Searched in: {possible_paths}")
-        raise HTTPException(status_code=404, detail=f"File not found: {filename}")
-    
-    # 确定 MIME 类型
-    media_type = "application/octet-stream"
-    lower_filename = filename.lower()
-    if lower_filename.endswith(".mp4"):
-        media_type = "video/mp4"
-    elif lower_filename.endswith(".pdf"):
-        media_type = "application/pdf"
-    elif lower_filename.endswith(".doc"):
-        media_type = "application/msword"
-    elif lower_filename.endswith(".docx"):
-        media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    elif lower_filename.endswith(".png"):
-        media_type = "image/png"
-    elif lower_filename.endswith(".jpg") or lower_filename.endswith(".jpeg"):
-        media_type = "image/jpeg"
-        
-    return FileResponse(file_path, media_type=media_type)
+# 注意：我们已经挂载了 /static 到 static_dir
+# 所以前端应该直接使用 /static/portfolio/filename 来访问资源
+# 不需要额外的 /portfolio-assets 挂载或手动路由
 
 # ============================================
 # CORS 配置（允许前端跨域请求）
