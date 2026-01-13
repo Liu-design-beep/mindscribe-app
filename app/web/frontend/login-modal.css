@@ -539,3 +539,84 @@
         flex-direction: column;
     }
 }
+
+/* ================================ */
+/* 开发者作品集按钮样式 (黑金风格) */
+/* ================================ */
+
+.portfolio-btn-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.portfolio-btn-black-gold {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+    color: #d4af37; /* 金色文字 */
+    text-decoration: none;
+    border: 1px solid #d4af37;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 悬停效果 */
+.portfolio-btn-black-gold:hover {
+    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(212, 175, 55, 0.3); /* 金色阴影 */
+    color: #fff; /* 悬停时文字变白 */
+    border-color: #f0e68c;
+}
+
+/* 点击效果 */
+.portfolio-btn-black-gold:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* 图标样式 */
+.portfolio-icon {
+    font-size: 16px;
+}
+
+/* 闪烁动画效果 */
+.portfolio-btn-black-gold::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(45deg);
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    0% {
+        left: -100%;
+        top: -100%;
+    }
+    20% {
+        left: 100%;
+        top: 100%;
+    }
+    100% {
+        left: 100%;
+        top: 100%;
+    }
+}
