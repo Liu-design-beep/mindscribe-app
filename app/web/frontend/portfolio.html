@@ -95,9 +95,31 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #3f3f46;
         }
+
+        /* Content Protection */
+        body {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        img, video {
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+            pointer-events: none; /* Disable interaction with images */
+        }
+
+        /* Allow pointer events on specific interactive elements if needed */
+        a img, button img, .card-hover img {
+            pointer-events: auto;
+        }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;" onkeydown="return disableShortcuts(event);">
 
     <!-- Loading Screen -->
     <div id="loading-screen" class="fixed inset-0 bg-black z-50 flex flex-col justify-center items-center p-8 text-green-500">
@@ -231,16 +253,6 @@
         // Project Data
         const projects = [
             {
-                id: 'solidworks-portfolio',
-                title: 'Solidwork部分作品展示',
-                description: '基于SolidWorks的复杂机械结构与零部件三维建模展示，包含船体结构设计、曲面建模及装配体设计，体现了在工业设计与机械工程领域的专业建模能力。',
-                icon: 'box',
-                tags: ['SolidWorks', '3D Modeling', 'Mechanical Design'],
-                doc: 'static/portfolio/solidworks_portfolio.docx',
-                video: null,
-                image: 'static/portfolio/solidworks_cover.png'
-            },
-            {
                 id: 'mindscribe',
                 title: '智能笔记助手：灵辑',
                 description: '基于大语言模型的智能笔记管理助手，支持自然语言交互、多文档管理与云端同步。采用前后端分离架构（Cloudflare + Render），实现高效的信息整理与检索。',
@@ -275,10 +287,10 @@
                 title: 'Unity 游戏设计：校务小能手',
                 description: '通过多维度成长体系（等级、积分、勋章）和渐进式关卡设计（从文件整理到危机处理），让用户在沉浸式的办公场景中掌握校务工作技能，同时支持数据驱动的企业培训和学习进度追踪。',
                 icon: 'gamepad-2',
-                tags: ['Unity', 'C#', 'Game Design'],
-                doc: '/static/portfolio/unity_game_design.pdf',
-                video: null,
-                image: '/static/portfolio/unity_game_cover.png'
+                tags: ['Unity', 'C#', 'Game Design', 'Gamification'],
+                doc: '/static/portfolio/unity_game_design.docx',
+                video: '/static/portfolio/unity_game_demo.mp4',
+                image: null
             },
             {
                 id: 'candy-robot',
@@ -317,6 +329,30 @@
                 icon: 'cpu',
                 tags: ['Robotics', 'Kinematics', 'Mechanical Design'],
                 doc: '/static/portfolio/5axis_robot_design.docx',
+                video: '/static/portfolio/5axis_robot_demo.mp4',
+                image: null
+            },
+            {
+                id: 'solidworks-portfolio',
+                title: 'Solidwork部分作品展示',
+                description: '基于SolidWorks的复杂机械结构与零部件三维建模展示，包含船体结构设计、曲面建模及装配体设计，体现了在工业设计与机械工程领域的专业建模能力。',
+                icon: 'box',
+                tags: ['SolidWorks', '3D Modeling', 'Mechanical Design'],
+                doc: 'static/portfolio/solidworks_portfolio.docx',
+                video: null,
+                image: 'static/portfolio/solidworks_cover.png'
+            }
+        ];
+
+        // Disable keyboard shortcuts
+        function disableShortcuts(e) {
+            // Prevent Ctrl+S, Ctrl+P, Ctrl+U, F12
+            if ((e.ctrlKey && (e.key === 's' || e.key === 'p' || e.key === 'u')) || e.key === 'F12') {
+                e.preventDefault();
+                return false;
+            }
+            return true;
+        }
                 video: '/static/portfolio/5axis_robot_demo.mp4',
                 image: null
             },
