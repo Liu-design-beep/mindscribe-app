@@ -75,6 +75,12 @@
             backdrop-filter: blur(4px);
         }
 
+        /* Hide Video Volume Controls */
+        video::-webkit-media-controls-volume-slider,
+        video::-webkit-media-controls-mute-button {
+            display: none !important;
+        }
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
@@ -124,9 +130,10 @@
                     <span class="font-bold tracking-wider">CREATOR_ARCHIVES</span>
                 </div>
                 
-                <!-- Centered Shield Icon -->
-                <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <!-- Centered Shield Icon and Signature -->
+                <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center gap-3">
                     <img src="header-shield.png" alt="Shield" class="h-10 w-10 object-contain">
+                    <img src="header-signature.png" alt="Signature" class="h-8 object-contain opacity-90">
                 </div>
 
                 <a href="index.html" class="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors px-4 py-2 rounded hover:bg-zinc-900 no-underline">
