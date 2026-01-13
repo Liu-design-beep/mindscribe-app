@@ -1,32 +1,28 @@
 #!/bin/bash
-# 前端构建脚本 - 用于 Cloudflare Pages 部署
 
-set -e
+# 确保输出目录存在
+# Cloudflare 配置的输出目录是 app/frontend
+mkdir -p app/frontend
+mkdir -p app/frontend/static
 
-echo "开始构建前端..."
-
-# 创建构建输出目录
-DIST_DIR="dist"
-mkdir -p "$DIST_DIR"
-
-# 复制前端文件到构建目录
-echo "复制前端文件..."
-cp -r app/frontend/* "$DIST_DIR/"
-
-# 检查是否有需要处理的文件
-if [ ! -f "$DIST_DIR/index.html" ]; then
-    echo "错误: 未找到 index.html 文件"
-    exit 1
+# 复制前端文件 (HTML, CSS, JS)
+# 从 app/web/frontend 复制到 app/frontend
+echo "Copying frontend files..."
+if [ -d "app/web/frontend" ]; then
+    cp -r app/web/frontend/* app/frontend/
+else
+    echo "Warning: app/web/frontend directory not found!"
 fi
 
-# 如果前端代码中有硬编码的 API URL，可以在这里进行替换
-# 例如：将 localhost:8000 替换为环境变量中的后端 URL
-if [ -n "$VITE_API_URL" ]; then
-    echo "替换 API URL 为: $VITE_API_URL"
-    find "$DIST_DIR" -type f \( -name "*.js" -o -name "*.html" \) -exec sed -i "s|http://localhost:8000|$VITE_API_URL|g" {} +
+# 复制静态资源 (图片, 视频)
+# 从 app/web/static 复制到 app/frontend/static
+# 这样前端代码中的 /static/portfolio/... 路径就能正确匹配到 app/frontend/static/portfolio/...
+echo "Copying static assets..."
+if [ -d "app/web/static" ]; then
+    cp -r app/web/static/* app/frontend/static/
+else
+    echo "Warning: app/web/static directory not found!"
 fi
 
-echo "前端构建完成！"
-echo "构建输出目录: $DIST_DIR"
-ls -la "$DIST_DIR"
-
+echo "Build complete! Contents of app/frontend:"
+ls -R app/frontend
