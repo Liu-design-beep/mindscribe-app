@@ -39,17 +39,17 @@
             100% { transform: translate(0) }
         }
 
-        .animate-spin-fast {
-            animation: spin 0.5s linear infinite;
+        .animate-heartbeat {
+            animation: heartbeat 1.5s ease-in-out infinite;
         }
 
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.15); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.15); }
+            70% { transform: scale(1); }
+            100% { transform: scale(1); }
         }
 
         .card-hover:hover {
@@ -98,7 +98,7 @@
         <div class="w-full max-w-2xl">
             <!-- Spinning Icon Container (Centered) -->
             <div class="flex justify-center mb-8">
-                <img src="loading-icon.png" alt="Loading" class="w-24 h-24 animate-spin-fast">
+                <img src="loading-icon.png" alt="Loading" class="w-24 h-24 animate-heartbeat">
             </div>
             
             <!-- Original Layout Restored -->
