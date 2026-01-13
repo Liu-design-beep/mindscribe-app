@@ -570,11 +570,11 @@
 
 /* 悬停效果 */
 .portfolio-btn-black-gold:hover {
-    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+    background: linear-gradient(135deg, #2a2a2a 0%, #000000 100%); /* 悬停时背景稍微变亮 */
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(212, 175, 55, 0.3); /* 金色阴影 */
-    color: #fff; /* 悬停时文字变白 */
-    border-color: #f0e68c;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.6); /* 增强金色光晕 */
+    color: #fff;
+    border-color: #fff; /* 边框变白 */
 }
 
 /* 点击效果 */
@@ -599,21 +599,17 @@
     background: linear-gradient(
         to right,
         rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.4) 50%, /* 增加不透明度，使流光更亮 */
         rgba(255, 255, 255, 0) 100%
     );
     transform: rotate(45deg);
-    animation: shine 3s infinite;
+    animation: shine 2s linear infinite; /* 缩短时间并改为线性，使其更连贯 */
 }
 
 @keyframes shine {
     0% {
         left: -100%;
         top: -100%;
-    }
-    20% {
-        left: 100%;
-        top: 100%;
     }
     100% {
         left: 100%;
