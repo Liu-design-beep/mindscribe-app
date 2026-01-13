@@ -217,7 +217,9 @@
                     </div>
                     <div class="flex-grow bg-zinc-950 relative overflow-hidden">
                         <iframe id="doc-frame" class="w-full h-full border-0" src=""></iframe>
-                        <div id="doc-loading" class="absolute inset-0 flex items-center justify-center bg-zinc-900 text-amber-400">
+                        <!-- Transparent Overlay to Block Right Click -->
+                        <div class="absolute inset-0 z-10 bg-transparent" oncontextmenu="return false;"></div>
+                        <div id="doc-loading" class="absolute inset-0 flex items-center justify-center bg-zinc-900 text-amber-400 z-20">
                             <div class="flex flex-col items-center gap-3">
                                 <i data-lucide="loader-2" class="h-8 w-8 animate-spin"></i>
                                 <span>LOADING_DOCUMENT...</span>
@@ -333,6 +335,16 @@
                 image: null
             },
             {
+                id: 'control-sim',
+                title: '控制仿真分析',
+                description: '基于直流电机动态模型，通过P、PI、PID等递进式控制器设计与Matlab/Simulink仿真验证，实现高精度速度控制，并采用Routh稳定性分析和Bode频域特性评估控制算法的有效性与鲁棒性。',
+                icon: 'activity',
+                tags: ['Simulation', 'Matlab/Simulink', 'Control Theory'],
+                doc: '/static/portfolio/control_simulation_analysis.docx',
+                video: null,
+                image: '/static/portfolio/control_sim_cover.png'
+            },
+            {
                 id: 'solidworks-portfolio',
                 title: 'Solidwork部分作品展示',
                 description: '基于SolidWorks的复杂机械结构与零部件三维建模展示，包含船体结构设计、曲面建模及装配体设计，体现了在工业设计与机械工程领域的专业建模能力。',
@@ -353,20 +365,6 @@
             }
             return true;
         }
-                video: '/static/portfolio/5axis_robot_demo.mp4',
-                image: null
-            },
-            {
-                id: 'control-sim',
-                title: '控制仿真分析',
-                description: '基于直流电机动态模型，通过P、PI、PID等递进式控制器设计与Matlab/Simulink仿真验证，实现高精度速度控制，并采用Routh稳定性分析和Bode频域特性评估控制算法的有效性与鲁棒性。',
-                icon: 'activity',
-                tags: ['Simulation', 'Matlab/Simulink', 'Control Theory'],
-                doc: '/static/portfolio/control_simulation_analysis.docx',
-                video: null,
-                image: '/static/portfolio/control_sim_cover.png'
-            }
-        ];
 
         // Render Projects
         const grid = document.getElementById('projects-grid');
@@ -539,9 +537,13 @@
                 
                 // Google Docs Viewer for Office files
                 let viewerUrl = validUrl;
-                if (!isViewable) {
+                if (ext === 'pdf') {
+                    // Add parameters to hide PDF toolbar and navigation
+                    viewerUrl += '#toolbar=0&navpanes=0&scrollbar=0';
+                } else if (!isViewable) {
                     // Use Microsoft Office Online Viewer
-                    viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(window.location.origin + validUrl)}`;
+                    // Note: Office Viewer does not support hiding download button via URL parameters
+                    viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(window.location.origin + validUrl)}&wdStartOn=1&wdEmbedCode=0`;
                 }
 
                 // Load iframe
