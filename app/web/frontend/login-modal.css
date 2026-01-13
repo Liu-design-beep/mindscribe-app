@@ -616,3 +616,11 @@
         top: 100%;
     }
 }
+
+/* 新增图标图片样式 */
+.portfolio-icon-img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    vertical-align: middle;
+}
