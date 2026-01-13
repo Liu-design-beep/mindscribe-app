@@ -381,6 +381,18 @@ export default {
         headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
       });
     } else {
+      // 尝试从静态资源获取 (Cloudflare Pages 特性)
+      if (env.ASSETS) {
+        try {
+          const assetResponse = await env.ASSETS.fetch(request);
+          if (assetResponse.status !== 404) {
+            return assetResponse;
+          }
+        } catch (e) {
+          console.error("Error fetching asset:", e);
+        }
+      }
+      
       return new Response('Not Found', { status: 404, headers: CORS_HEADERS });
     }
   },
