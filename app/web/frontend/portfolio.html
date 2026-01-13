@@ -304,7 +304,9 @@
                         <video 
                             src="${project.video}" 
                             controls 
+                            muted
                             class="w-full h-full object-cover"
+                            onvolumechange="if(!this.muted) { this.muted = true; alert('AUDIO_OUTPUT_DISABLED: System policy enforces silent mode.'); }"
                             onerror="this.parentElement.innerHTML = \`<div class='w-full h-full flex flex-col items-center justify-center bg-red-900/20 border border-red-800 p-4 text-center'><i data-lucide='alert-circle' class='text-red-500 mb-2'></i><span class='text-red-400 font-bold text-sm'>Video Load Failed</span><span class='text-red-300/70 text-xs mt-1 break-all'>${project.video}</span></div>\`; lucide.createIcons();">
                         </video>
                     </div>
