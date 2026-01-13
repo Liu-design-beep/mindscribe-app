@@ -118,11 +118,17 @@
         
         <!-- Header -->
         <header class="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur sticky top-0 z-40">
-            <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="container mx-auto px-4 h-16 flex items-center justify-between relative">
                 <div class="flex items-center gap-2 text-green-500">
                     <i data-lucide="terminal" class="h-5 w-5"></i>
                     <span class="font-bold tracking-wider">CREATOR_ARCHIVES</span>
                 </div>
+                
+                <!-- Centered Shield Icon -->
+                <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <img src="header-shield.png" alt="Shield" class="h-10 w-10 object-contain">
+                </div>
+
                 <a href="index.html" class="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors px-4 py-2 rounded hover:bg-zinc-900 no-underline">
                     <span>[ 返回登录界面 ]</span>
                 </a>
