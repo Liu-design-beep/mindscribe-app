@@ -114,7 +114,7 @@
         }
 
         /* Allow pointer events on specific interactive elements if needed */
-        a img, button img, .card-hover img {
+        a img, button img, .card-hover img, video {
             pointer-events: auto;
         }
     </style>
@@ -379,6 +379,7 @@
                         <video 
                             src="${project.video}" 
                             controls 
+                            controlsList="nodownload"
                             muted
                             class="w-full h-full object-cover"
                             onvolumechange="if(!this.muted) { this.muted = true; alert('AUDIO_OUTPUT_DISABLED: System policy enforces silent mode.'); }"
