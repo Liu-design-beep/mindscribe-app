@@ -1,0 +1,7 @@
+{
+  "name": "mindscribe-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "./build_static.sh"
+  }
+}
