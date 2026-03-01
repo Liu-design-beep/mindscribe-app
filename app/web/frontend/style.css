@@ -5110,7 +5110,7 @@ body.dns-collapsed .notify-stack {
     /* 默认隐藏，只在收起状态下显示 */
     display: none;
     position: absolute;
-    top: 16px;
+    top: 72px; /* 头像按鈕占用顶部，展开按鈕下移至头像下方 */
     left: 50%;
     transform: translateX(-50%);
     width: 32px;
