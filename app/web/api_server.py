@@ -121,11 +121,13 @@ class SessionManager:
         new_session_id = f"demo_{uuid.uuid4().hex[:16]}"
         print(f"[会话管理] 创建新的演示会话: {new_session_id}")
         
-        # 创建 SmartClipLLM 实例（启用演示模式）
-        app_instance = SmartClipLLM(demo_mode=True)
+        # 创建 SmartClipLLM 实例（启用演示模式，传入 session_id 激活 RAG）
+        app_instance = SmartClipLLM(demo_mode=True, session_id=new_session_id)
+        # 确保 intent_recognizer 也拿到正确的 session_id
+        app_instance.update_session_id(new_session_id)
         self.sessions[new_session_id] = app_instance
         
-        print(f"[会话管理] 演示会话创建完成，文档已初始化")
+        print(f"[会话管理] 演示会话创建完成，文档已初始化，RAG session_id={new_session_id[:16]}...")
         
         return new_session_id, self.sessions[new_session_id]
     
