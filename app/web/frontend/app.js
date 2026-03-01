@@ -3657,10 +3657,21 @@ function hideFeedbackSuccessPanel() {
 function updateSessionIdDisplay(sessionId) {
     const sessionIdValueElement = document.getElementById('session-id-value');
     if (sessionIdValueElement && sessionId) {
-        // 只显示 session_id 的前 8 位
+        // 只显示 session_id 的前 12 位
         const shortSessionId = sessionId.substring(0, 12);
         sessionIdValueElement.textContent = shortSessionId;
         console.log(`[Session] 更新界面显示: ${shortSessionId}`);
+    }
+    // 同步更新头像 tooltip 的用户名
+    const avatarName = document.getElementById('avatar-tooltip-name');
+    if (avatarName && sessionId) {
+        const storedMode = localStorage.getItem('is_trial_mode');
+        const isTrialMode = storedMode !== 'false';
+        if (isTrialMode) {
+            avatarName.textContent = '试用用户 #' + sessionId.substring(0, 6);
+        } else {
+            avatarName.textContent = '用户 #' + sessionId.substring(0, 6);
+        }
     }
 }
 

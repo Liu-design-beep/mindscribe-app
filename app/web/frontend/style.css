@@ -1802,6 +1802,86 @@ body.dns-collapsed .notify-stack {
     padding: 0 var(--spacing-sm);
 }
 
+/* 头像按鈕（图标栏最顶部） */
+.left-sidebar-avatar-wrapper {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.left-sidebar-avatar-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.left-sidebar-avatar-btn:hover {
+    border-color: rgba(255, 255, 255, 0.95);
+    transform: scale(1.08);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    image-rendering: pixelated; /* 保持像素风格清晰 */
+}
+
+/* 头像悬停提示框 */
+.avatar-tooltip {
+    position: absolute;
+    left: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(30, 20, 60, 0.92);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 8px 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    z-index: 2000;
+}
+
+.left-sidebar-avatar-wrapper:hover .avatar-tooltip {
+    opacity: 1;
+}
+
+.avatar-tooltip-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.avatar-tooltip-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.avatar-tooltip-status {
+    font-size: 11px;
+    color: rgba(180, 220, 255, 0.8);
+}
+
 /* 左侧侧边栏按钮包装器（用于定位提示框） */
 .left-sidebar-btn-wrapper {
     position: relative;

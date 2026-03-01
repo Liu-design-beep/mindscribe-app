@@ -188,6 +188,19 @@
 
     <!-- 左侧功能侧边栏（铃铛、设置和开发者模式按鈕） -->
     <aside id="left-sidebar" class="left-sidebar">
+        <!-- 头像按鈕（最顶部） -->
+        <div class="left-sidebar-avatar-wrapper" id="avatar-btn-wrapper">
+            <button id="avatar-btn" class="left-sidebar-avatar-btn" aria-label="当前用户">
+                <img src="avatar.jpg" alt="用户头像" class="avatar-img" />
+            </button>
+            <div class="avatar-tooltip" id="avatar-tooltip">
+                <div class="avatar-tooltip-content">
+                    <span class="avatar-tooltip-name" id="avatar-tooltip-name">试用用户</span>
+                    <span class="avatar-tooltip-status">已登录</span>
+                </div>
+            </div>
+        </div>
+
         <!-- 收起状态下显示的展开按鈕（固定在图标栏顶部） -->
         <button id="dns-expand-btn" class="dns-expand-btn" aria-label="展开侧边栏" title="展开侧边栏">
             <span>&#x276F;</span>
@@ -701,14 +714,7 @@
                 </div>
             </div>
             
-            <!-- 中间：文档控制按鈕 -->
-            <div class="toolbar-center">
-                <!-- 查看文档按鈕 -->
-                <button id="view-doc-btn" class="toolbar-btn-with-text" aria-label="查看文档">
-                    <span class="toolbar-icon">👁️</span>
-                    <span class="toolbar-text">查看文档</span>
-                </button>
-            </div>
+
             
             <!-- 右侧：其他功能按钮 -->
             <div class="toolbar-right">
