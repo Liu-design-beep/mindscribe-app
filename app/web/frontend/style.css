@@ -4767,7 +4767,68 @@ kbd {
 
 
 /* ============================================
-   当前文档显示标签（分享按钮右侧）
+   工具栏内当前文档合并胶囊
+   ============================================ */
+.doc-inline-capsule {
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    background: rgba(99, 102, 241, 0.07);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 16px;
+    overflow: hidden;
+    gap: 0;
+    transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.doc-inline-capsule:hover {
+    background: rgba(99, 102, 241, 0.12);
+    border-color: rgba(99, 102, 241, 0.32);
+}
+
+.doc-inline-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 0 6px 0 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.doc-inline-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary-color);
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 4px;
+}
+
+.doc-inline-view-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: rgba(99, 102, 241, 0.15);
+    border: none;
+    border-left: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 0 16px 16px 0;
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+    padding: 0;
+    transition: background var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.doc-inline-view-btn:hover {
+    background: rgba(99, 102, 241, 0.28);
+}
+
+/* ============================================
+   当前文档显示标签（分享按鈕右侧）
    ============================================ */
 .current-doc-badge {
     position: static; /* 由父容器 doc-badge-group 定位 */
