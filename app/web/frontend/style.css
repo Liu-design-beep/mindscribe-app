@@ -1782,17 +1782,16 @@ body.dns-collapsed .notify-stack {
     left: 0;
     width: 60px;
     height: calc(100vh - var(--header-height));
-    /* 图标栏：深紫色渐变，与文档侧边栏形成明显层次对比 */
-    background: linear-gradient(180deg, rgba(99, 102, 241, 0.12) 0%, rgba(79, 70, 229, 0.08) 100%);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-right: 1px solid rgba(99, 102, 241, 0.18);
+    /* 图标栏：深紫色实色背景，与文档侧边栏形成强烈颜色对比 */
+    background: linear-gradient(180deg, #4f46e5 0%, #3730a3 100%);
+    border-right: none;
     z-index: 950;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     padding-bottom: var(--spacing-lg);
-    box-shadow: none;
+    /* 向右侧投射明显阴影，产生上浮分割效果 */
+    box-shadow: 4px 0 20px rgba(79, 70, 229, 0.35), 2px 0 8px rgba(0, 0, 0, 0.15);
 }
 
 .left-sidebar-bottom {
@@ -1812,10 +1811,11 @@ body.dns-collapsed .notify-stack {
 }
 
 .left-sidebar-btn {
-    width: 40px;
+     width: 40px;
     height: 40px;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid var(--border-color);
+    /* 深色背景下使用半透明白色 */
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: 50%;
     cursor: pointer;
     display: flex;
@@ -1823,12 +1823,11 @@ body.dns-collapsed .notify-stack {
     justify-content: center;
     transition: all var(--transition-fast);
     position: relative;
-    color: var(--text-primary);
+    color: rgba(255, 255, 255, 0.9);
     font-size: 18px;
     padding: 0;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
-
 /* 左侧侧边栏按钮上的通知徽章 */
 .left-sidebar-btn .notification-badge {
     position: absolute;
@@ -1848,9 +1847,9 @@ body.dns-collapsed .notify-stack {
 
 .left-sidebar-btn:hover {
     transform: scale(1.1);
-    box-shadow: var(--shadow-md);
-    background: rgba(255, 255, 255, 1);
-    border-color: var(--primary-color);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    background: rgba(255, 255, 255, 0.32);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 .left-sidebar-btn:active {
@@ -4754,11 +4753,9 @@ kbd {
     left: 60px; /* 紧贴左侧图标栏右侧 */
     width: var(--dns-width);
     height: calc(100vh - var(--header-height));
-    /* 文档侧边栏：白色系，与图标栏的深紫色形成明显对比 */
-    background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-right: 1px solid rgba(0, 0, 0, 0.08);
+    /* 文档侧边栏：浅灰色背景，与深紫色图标栏形成明显颜色对比 */
+    background: #f1f2f6;
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
     z-index: 940;
     display: flex;
     flex-direction: column;
