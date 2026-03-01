@@ -4476,8 +4476,9 @@ kbd {
    ============================================ */
 .mobile-note-prompt {
     position: fixed;
-    top: calc(var(--header-height) + 16px); /* 紧贴顶部导航栏下方 */
-    right: var(--spacing-lg); /* 右上角 */
+    top: 50%; /* 垂直居中 */
+    right: var(--spacing-lg); /* 右侧 */
+    transform: translateY(-50%);
     width: 300px;
     background: rgba(255, 255, 255, 0.97);
     backdrop-filter: blur(20px);
@@ -4487,8 +4488,6 @@ kbd {
     box-shadow: var(--shadow-lg);
     z-index: 1500; /* 高于普通面板，低于模态框 */
     opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
     overflow: hidden;
     animation: mobileNoteSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -4496,11 +4495,11 @@ kbd {
 @keyframes mobileNoteSlideIn {
     from {
         opacity: 0;
-        transform: translateY(-12px);
+        transform: translateY(-50%) translateX(20px);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(-50%) translateX(0);
     }
 }
 
@@ -4510,7 +4509,7 @@ kbd {
 
 .mobile-note-prompt.fading {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-50%) translateX(20px);
     transition: opacity 0.5s ease-out, transform 0.5s ease-out;
 }
 
