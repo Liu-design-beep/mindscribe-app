@@ -93,6 +93,11 @@ function initElements() {
     // 当前文档显示标签（分享按鈕右侧）
     elements.currentDocBadgeName = document.getElementById('current-doc-badge-name');
     
+    // 知识图谱系统入口
+    elements.knowledgeGraphBtn = document.getElementById('knowledge-graph-btn');
+    elements.knowledgeGraphPanel = document.getElementById('knowledge-graph-panel');
+    elements.closeKnowledgeGraphBtn = document.getElementById('close-knowledge-graph-btn');
+    
     // 设置按鈕（左侧侧边栏）
     elements.settingsBtn = document.getElementById('settings-btn');
     elements.updateNotificationBtnLeft = document.getElementById('update-notification-btn-left');
@@ -2362,10 +2367,49 @@ function initEventListeners() {
         elements.sidebarOverlay.addEventListener('click', closeSidebar);
     }
     
+    // 知识图谱系统按鈕点击事件
+    if (elements.knowledgeGraphBtn) {
+        elements.knowledgeGraphBtn.addEventListener('click', openKnowledgeGraphPanel);
+    }
+    if (elements.closeKnowledgeGraphBtn) {
+        elements.closeKnowledgeGraphBtn.addEventListener('click', closeKnowledgeGraphPanel);
+    }
+    // 监听 iframe 内部发出的关闭消息
+    window.addEventListener('message', (event) => {
+        if (event.data === 'closeKnowledgeGraph') {
+            closeKnowledgeGraphPanel();
+        }
+    });
+
     // 标记已绑定
     eventListenersBound = true;
     window.eventListenersBound = true;
     console.log('[初始化] 所有事件监听器绑定完成');
+}
+
+// ============================================
+// 知识图谱系统面板管理
+// ============================================
+
+/**
+ * 打开知识图谱系统全屏面板
+ */
+function openKnowledgeGraphPanel() {
+    if (!elements.knowledgeGraphPanel) return;
+    elements.knowledgeGraphPanel.classList.remove('hidden');
+    // 确保 iframe 已加载（首次打开时延迟设置 src 避免预加载）
+    const iframe = document.getElementById('knowledge-graph-iframe');
+    if (iframe && !iframe.src) {
+        iframe.src = 'knowledge-graph.html';
+    }
+}
+
+/**
+ * 关闭知识图谱系统全屏面板
+ */
+function closeKnowledgeGraphPanel() {
+    if (!elements.knowledgeGraphPanel) return;
+    elements.knowledgeGraphPanel.classList.add('hidden');
 }
 
 // ============================================

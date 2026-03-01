@@ -189,7 +189,20 @@
     <!-- 左侧功能侧边栏（铃铛、设置和开发者模式按钮） -->
     <aside id="left-sidebar" class="left-sidebar">
         <div class="left-sidebar-bottom">
-            <!-- 知识库广场按钮 -->
+            <!-- 知识图谱系统入口按鈕（知识库广场上方） -->
+            <div class="left-sidebar-btn-wrapper" id="knowledge-graph-btn-wrapper">
+                <button id="knowledge-graph-btn" class="left-sidebar-btn" aria-label="知识图谱系统">
+                    <span style="font-size:20px;line-height:1;">&#x1F333;</span>
+                </button>
+                <!-- 知识图谱系统提示框 -->
+                <div class="left-sidebar-tooltip">
+                    <div class="tooltip-content">
+                        <span class="tooltip-text">知识图谱系统</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 知识库广场按鈕 -->
             <div class="left-sidebar-btn-wrapper">
                 <button id="knowledge-base-btn" class="left-sidebar-btn" aria-label="知识库广场">
                     <img src="灯泡logo.png" alt="知识库广场" class="knowledge-base-icon-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
@@ -302,6 +315,23 @@
     <!-- id="sidebar-overlay"：唯一标识符，JavaScript通过这个id控制遮罩层的显示/隐藏 -->
     <!-- class="sidebar-overlay"：CSS类名，用于遮罩层样式（半透明黑色背景） -->
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- 知识图谱系统全屏面板 -->
+    <div id="knowledge-graph-panel" class="knowledge-graph-panel hidden">
+        <div class="knowledge-graph-panel-header">
+            <span class="knowledge-graph-panel-title">🌳 知识图谱系统</span>
+            <button id="close-knowledge-graph-btn" class="knowledge-graph-close-btn" aria-label="关闭">×</button>
+        </div>
+        <div class="knowledge-graph-panel-body">
+            <iframe
+                id="knowledge-graph-iframe"
+                class="knowledge-graph-iframe"
+                src="knowledge-graph.html"
+                frameborder="0"
+                allowfullscreen
+            ></iframe>
+        </div>
+    </div>
 
     <!-- 试用模式提示窗口（左侧独立窗口，5秒后自动消失） -->
     <div id="trial-status-panel" class="trial-status-panel hidden">

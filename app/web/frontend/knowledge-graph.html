@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>知识图谱系统 · 灵辑</title>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <style>
+    /* ── CSS 变量 ── */
+    :root {
+      --color-primary: #6366f1;
+      --color-primary-light: #818cf8;
+      --color-bg: #f8f9fb;
+      --color-bg-card: #ffffff;
+      --color-bg-sidebar: #ffffff;
+      --color-bg-hover: #eef0f4;
+      --color-text: #1a1d23;
+      --color-text-secondary: #6b7280;
+      --color-text-muted: #9ca3af;
+      --color-border: #e5e7eb;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+      --sidebar-width: 260px;
+      --header-height: 52px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .app-header {
+      height: var(--header-height);
+      background: var(--color-bg-card);
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 12px;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+    }
+    .header-logo {
+      font-size: 22px;
+    }
+    .header-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+    .header-subtitle {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-left: 4px;
+    }
+    .header-close-btn {
+      margin-left: auto;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: transparent;
+      cursor: pointer;
+      font-size: 18px;
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .header-close-btn:hover {
+      background: var(--color-bg-hover);
+      color: var(--color-text);
+    }
+
+    /* ── Layout ── */
+    .app-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .app-sidebar {
+      width: var(--sidebar-width);
+      background: var(--color-bg-sidebar);
+      border-right: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .sidebar-section {
+      padding: 16px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .sidebar-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+
+    /* Sample 数据集选择 */
+    .dataset-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .dataset-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      cursor: pointer;
+      transition: all 0.15s;
+      background: var(--color-bg-card);
+    }
+    .dataset-item:hover {
+      background: var(--color-bg-hover);
+      border-color: var(--color-primary-light);
+    }
+    .dataset-item.active {
+      background: rgba(99, 102, 241, 0.08);
+      border-color: var(--color-primary);
+    }
+    .dataset-icon { font-size: 20px; }
+    .dataset-info { flex: 1; min-width: 0; }
+    .dataset-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+    .dataset-desc {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      margin-top: 2px;
+    }
+    .dataset-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--color-primary);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* 图谱统计 */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .stat-card {
+      background: var(--color-bg);
+      border-radius: var(--radius-md);
+      padding: 10px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      margin-top: 2px;
+    }
+
+    /* 节点详情 */
+    .node-detail-panel {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+    }
+    .node-detail-empty {
+      color: var(--color-text-muted);
+      font-size: 13px;
+      text-align: center;
+      margin-top: 20px;
+    }
+    .node-detail-name {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .node-detail-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .node-detail-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--color-border);
+      color: var(--color-text-secondary);
+    }
+    .node-detail-row:last-child { border-bottom: none; }
+    .node-detail-key {
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    /* 关联边列表 */
+    .edge-list-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      margin: 12px 0 6px;
+    }
+    .edge-item {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      background: var(--color-bg);
+      margin-bottom: 4px;
+      color: var(--color-text-secondary);
+    }
+    .edge-item strong { color: var(--color-text); }
+
+    /* ── Graph Canvas ── */
+    .graph-main {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: var(--color-bg);
+    }
+    .graph-main svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ── Graph Elements (SVG) ── */
+    .graph-edge line {
+      stroke: #b0b8c8;
+      stroke-opacity: 0.6;
+      stroke-width: 1.5px;
+    }
+    .graph-edge line.highlighted {
+      stroke: var(--color-primary);
+      stroke-opacity: 1;
+      stroke-width: 2.5px;
+    }
+    .graph-edge-label {
+      font-size: 10px;
+      fill: var(--color-text-muted);
+      pointer-events: none;
+      text-anchor: middle;
+    }
+    .node-hit-area {
+      fill: transparent;
+      stroke: none;
+      pointer-events: all;
+      cursor: grab;
+    }
+    .node-circle {
+      stroke: #fff;
+      stroke-width: 2px;
+      cursor: grab;
+      pointer-events: none;
+      transition: filter 0.15s;
+    }
+    .graph-node:hover .node-circle {
+      filter: brightness(1.15);
+    }
+    .node-circle.selected {
+      stroke: var(--color-primary);
+      stroke-width: 3px;
+      filter: brightness(1.1);
+    }
+    .graph-node-label {
+      font-size: 11px;
+      fill: var(--color-text);
+      pointer-events: none;
+      text-anchor: middle;
+      dominant-baseline: central;
+      user-select: none;
+    }
+
+    /* ── Controls ── */
+    .graph-controls {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 10;
+    }
+    .controls-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .controls-divider {
+      height: 1px;
+      background: var(--color-border);
+      margin: 4px 0;
+    }
+    .graph-controls button {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-sm);
+      font-size: 15px;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .graph-controls button:hover {
+      background: var(--color-bg-hover);
+      color: var(--color-text);
+    }
+    .graph-controls button.active {
+      background: var(--color-primary) !important;
+      color: #fff !important;
+      border-color: var(--color-primary) !important;
+    }
+
+    /* ── Legend ── */
+    .graph-legend {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      box-shadow: var(--shadow-sm);
+      z-index: 10;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .graph-legend-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .graph-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 2px 0;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+    .graph-legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── Node Tooltip ── */
+    .node-tooltip {
+      position: absolute;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      box-shadow: var(--shadow-lg);
+      z-index: 100;
+      min-width: 180px;
+      max-width: 260px;
+      pointer-events: none;
+      display: none;
+    }
+    .node-tooltip.visible { display: block; }
+    .node-tooltip h4 {
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    .node-tooltip .type-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .node-tooltip .prop-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 2px 0;
+      color: var(--color-text-secondary);
+    }
+    .node-tooltip .prop-key {
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    /* ── Empty State ── */
+    .graph-empty {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: var(--color-text-muted);
+      pointer-events: none;
+    }
+    .graph-empty-icon { font-size: 48px; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="app-header">
+  <span class="header-logo">🌳</span>
+  <span class="header-title">知识图谱系统</span>
+  <span class="header-subtitle">· GraphRAG Sample 演示</span>
+  <button class="header-close-btn" id="close-btn" title="关闭" onclick="window.parent.postMessage('closeKnowledgeGraph', '*')">✕</button>
+</header>
+
+<!-- Body -->
+<div class="app-body">
+
+  <!-- Sidebar -->
+  <aside class="app-sidebar">
+
+    <!-- Dataset Selector -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Sample 数据集</div>
+      <div class="dataset-list" id="dataset-list">
+        <div class="dataset-item active" data-id="scientists" onclick="loadDataset('scientists')">
+          <span class="dataset-icon">🔬</span>
+          <div class="dataset-info">
+            <div class="dataset-name">科学家关系图</div>
+            <div class="dataset-desc">物理学·化学·生物学</div>
+          </div>
+          <span class="dataset-badge">15节点</span>
+        </div>
+        <div class="dataset-item" data-id="hongloumeng" onclick="loadDataset('hongloumeng')">
+          <span class="dataset-icon">📖</span>
+          <div class="dataset-info">
+            <div class="dataset-name">红楼梦人物关系</div>
+            <div class="dataset-desc">贾府·金陵十二钗</div>
+          </div>
+          <span class="dataset-badge">38节点</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">图谱统计</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-nodes">0</div>
+          <div class="stat-label">节点</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-edges">0</div>
+          <div class="stat-label">关系</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-types">0</div>
+          <div class="stat-label">类型</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-density">0</div>
+          <div class="stat-label">密度</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Node Detail -->
+    <div class="node-detail-panel" id="node-detail-panel">
+      <div class="node-detail-empty" id="node-detail-empty">
+        点击图谱中的节点<br>查看详细信息
+      </div>
+      <div id="node-detail-content" style="display:none;"></div>
+    </div>
+
+  </aside>
+
+  <!-- Graph Canvas -->
+  <main class="graph-main" id="graph-main">
+    <svg id="graph-svg">
+      <g id="graph-group"></g>
+    </svg>
+
+    <!-- Controls -->
+    <div class="graph-controls">
+      <div class="controls-group">
+        <button onclick="zoomIn()" title="放大">＋</button>
+        <button onclick="zoomOut()" title="缩小">－</button>
+        <button onclick="resetZoom()" title="重置视图">⌂</button>
+        <button onclick="fitToView()" title="适配视图">⊞</button>
+      </div>
+      <div class="controls-divider"></div>
+      <div class="controls-group" id="layout-btns">
+        <button class="active" data-layout="force" onclick="setLayout('force')" title="力导向布局">力</button>
+        <button data-layout="circular" onclick="setLayout('circular')" title="环形布局">○</button>
+        <button data-layout="grid" onclick="setLayout('grid')" title="网格布局">田</button>
+        <button data-layout="concentric" onclick="setLayout('concentric')" title="同心圆布局">◎</button>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="graph-legend" id="graph-legend" style="display:none;">
+      <div class="graph-legend-title">节点类型</div>
+      <div id="legend-items"></div>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="node-tooltip" id="node-tooltip">
+      <h4 id="tt-label"></h4>
+      <span class="type-badge" id="tt-type"></span>
+      <div class="prop-row">
+        <span class="prop-key">连接数</span>
+        <span id="tt-degree"></span>
+      </div>
+      <div id="tt-props"></div>
+    </div>
+
+    <!-- Empty -->
+    <div class="graph-empty" id="graph-empty" style="display:none;">
+      <div class="graph-empty-icon">📊</div>
+      <p>暂无图谱数据</p>
+    </div>
+  </main>
+
+</div>
+
+<script>
+// ── Sample 数据 ──────────────────────────────────────────────────────────────
+const DATASETS = {
+  scientists: {
+    nodes: [
+      { label: "爱因斯坦", type: "人物", properties: { birth: "1879", field: "物理学" } },
+      { label: "牛顿", type: "人物", properties: { birth: "1643", field: "物理学" } },
+      { label: "居里夫人", type: "人物", properties: { birth: "1867", field: "化学/物理" } },
+      { label: "达尔文", type: "人物", properties: { birth: "1809", field: "生物学" } },
+      { label: "相对论", type: "理论", properties: { year: "1905" } },
+      { label: "万有引力", type: "理论", properties: { year: "1687" } },
+      { label: "放射性", type: "概念", properties: { year: "1898" } },
+      { label: "进化论", type: "理论", properties: { year: "1859" } },
+      { label: "诺贝尔物理学奖", type: "奖项" },
+      { label: "诺贝尔化学奖", type: "奖项" },
+      { label: "物理学", type: "学科" },
+      { label: "生物学", type: "学科" },
+      { label: "普林斯顿大学", type: "机构" },
+      { label: "剑桥大学", type: "机构" },
+      { label: "巴黎大学", type: "机构" }
+    ],
+    edges: [
+      { source: "爱因斯坦", target: "相对论", label: "提出" },
+      { source: "爱因斯坦", target: "诺贝尔物理学奖", label: "获得" },
+      { source: "爱因斯坦", target: "普林斯顿大学", label: "任职于" },
+      { source: "爱因斯坦", target: "物理学", label: "研究领域" },
+      { source: "牛顿", target: "万有引力", label: "发现" },
+      { source: "牛顿", target: "剑桥大学", label: "任职于" },
+      { source: "牛顿", target: "物理学", label: "研究领域" },
+      { source: "居里夫人", target: "放射性", label: "研究" },
+      { source: "居里夫人", target: "诺贝尔物理学奖", label: "获得" },
+      { source: "居里夫人", target: "诺贝尔化学奖", label: "获得" },
+      { source: "居里夫人", target: "巴黎大学", label: "任职于" },
+      { source: "达尔文", target: "进化论", label: "提出" },
+      { source: "达尔文", target: "生物学", label: "研究领域" },
+      { source: "达尔文", target: "剑桥大学", label: "就读于" },
+      { source: "相对论", target: "物理学", label: "属于" },
+      { source: "万有引力", target: "物理学", label: "属于" },
+      { source: "进化论", target: "生物学", label: "属于" }
+    ]
+  },
+  hongloumeng: {
+    nodes: [
+      { label: "贾母", type: "人物" }, { label: "贾赦", type: "人物" },
+      { label: "贾政", type: "人物" }, { label: "贾敏", type: "人物" },
+      { label: "贾宝玉", type: "人物" }, { label: "贾琏", type: "人物" },
+      { label: "贾珍", type: "人物" }, { label: "贾蓉", type: "人物" },
+      { label: "王夫人", type: "人物" }, { label: "邢夫人", type: "人物" },
+      { label: "王熙凤", type: "人物" }, { label: "李纨", type: "人物" },
+      { label: "林如海", type: "人物" }, { label: "林黛玉", type: "人物" },
+      { label: "薛姨妈", type: "人物" }, { label: "薛蟠", type: "人物" },
+      { label: "薛宝钗", type: "人物" }, { label: "袭人", type: "人物" },
+      { label: "晴雯", type: "人物" }, { label: "麝月", type: "人物" },
+      { label: "紫鹃", type: "人物" }, { label: "莺儿", type: "人物" },
+      { label: "平儿", type: "人物" }, { label: "史湘云", type: "人物" },
+      { label: "贾探春", type: "人物" }, { label: "贾迎春", type: "人物" },
+      { label: "贾惜春", type: "人物" }, { label: "妙玉", type: "人物" },
+      { label: "秦可卿", type: "人物" }, { label: "尤二姐", type: "人物" },
+      { label: "尤三姐", type: "人物" },
+      { label: "史家", type: "组织" }, { label: "贾府", type: "组织" },
+      { label: "宁国府", type: "组织" },
+      { label: "大观园", type: "地点" },
+      { label: "封建礼教", type: "概念" }, { label: "四大家族", type: "概念" },
+      { label: "贾珠", type: "人物" }
+    ],
+    edges: [
+      { source: "贾母", target: "史家", label: "出身于" },
+      { source: "贾母", target: "贾赦", label: "母亲" },
+      { source: "贾母", target: "贾政", label: "母亲" },
+      { source: "贾母", target: "贾敏", label: "母亲" },
+      { source: "贾母", target: "贾宝玉", label: "祖母" },
+      { source: "贾赦", target: "贾琏", label: "父亲" },
+      { source: "贾赦", target: "邢夫人", label: "丈夫" },
+      { source: "贾政", target: "贾宝玉", label: "父亲" },
+      { source: "贾政", target: "王夫人", label: "丈夫" },
+      { source: "贾政", target: "贾探春", label: "父亲" },
+      { source: "贾敏", target: "林黛玉", label: "母亲" },
+      { source: "贾宝玉", target: "王夫人", label: "儿子" },
+      { source: "贾宝玉", target: "林黛玉", label: "情感纠葛" },
+      { source: "贾宝玉", target: "薛宝钗", label: "有婚约" },
+      { source: "贾宝玉", target: "袭人", label: "主仆" },
+      { source: "贾宝玉", target: "晴雯", label: "主仆" },
+      { source: "贾宝玉", target: "麝月", label: "主仆" },
+      { source: "贾琏", target: "王熙凤", label: "丈夫" },
+      { source: "贾琏", target: "平儿", label: "主仆" },
+      { source: "贾珍", target: "贾蓉", label: "父亲" },
+      { source: "贾珍", target: "贾惜春", label: "哥哥" },
+      { source: "贾珍", target: "尤二姐", label: "霸占" },
+      { source: "贾珍", target: "尤三姐", label: "霸占" },
+      { source: "贾蓉", target: "秦可卿", label: "丈夫" },
+      { source: "王夫人", target: "薛姨妈", label: "姐妹" },
+      { source: "王熙凤", target: "尤二姐", label: "逼死" },
+      { source: "王熙凤", target: "贾府", label: "实际管理者" },
+      { source: "李纨", target: "贾珠", label: "妻子" },
+      { source: "林如海", target: "林黛玉", label: "父亲" },
+      { source: "林黛玉", target: "紫鹃", label: "主仆" },
+      { source: "薛姨妈", target: "薛蟠", label: "母亲" },
+      { source: "薛姨妈", target: "薛宝钗", label: "母亲" },
+      { source: "薛蟠", target: "薛宝钗", label: "姐姐" },
+      { source: "薛宝钗", target: "莺儿", label: "主仆" },
+      { source: "贾探春", target: "贾府", label: "成员" },
+      { source: "贾迎春", target: "贾赦", label: "女儿" },
+      { source: "贾迎春", target: "邢夫人", label: "女儿" },
+      { source: "贾琏", target: "尤二姐", label: "霸占" },
+      { source: "尤三姐", target: "尤二姐", label: "姐妹" },
+      { source: "贾府", target: "四大家族", label: "属于" },
+      { source: "贾府", target: "大观园", label: "包含" }
+    ]
+  }
+}
+
+// ── 颜色系统 ──────────────────────────────────────────────────────────────────
+const TYPE_COLORS = [
+  '#4f6df5', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6',
+  '#ec4899', '#06b6d4', '#f97316', '#14b8a6', '#6366f1',
+  '#a855f7', '#e11d48', '#0891b2', '#ca8a04', '#059669'
+]
+const typeColorMap = new Map()
+let colorIndex = 0
+
+function getColorForType(type) {
+  const key = (type || 'default').toLowerCase()
+  if (!typeColorMap.has(key)) {
+    typeColorMap.set(key, TYPE_COLORS[colorIndex % TYPE_COLORS.length])
+    colorIndex++
+  }
+  return typeColorMap.get(key)
+}
+
+function resetColors() {
+  typeColorMap.clear()
+  colorIndex = 0
+}
+
+function getNodeRadius(degree) {
+  return Math.max(7, Math.min(22, 7 + Math.sqrt(degree || 0) * 2.2))
+}
+
+// ── 图谱状态 ──────────────────────────────────────────────────────────────────
+let graphNodes = []
+let graphLinks = []
+let simulation = null
+let zoomBehavior = null
+let currentLayout = 'force'
+let selectedNodeId = null
+let currentDatasetId = 'scientists'
+
+const svgEl = document.getElementById('graph-svg')
+const gEl = document.getElementById('graph-group')
+const containerEl = document.getElementById('graph-main')
+
+// ── 初始化 Zoom ───────────────────────────────────────────────────────────────
+function initZoom() {
+  zoomBehavior = d3.zoom()
+    .scaleExtent([0.05, 10])
+    .on('zoom', (event) => {
+      d3.select(gEl).attr('transform', event.transform)
+    })
+  d3.select(svgEl)
+    .call(zoomBehavior)
+    .on('dblclick.zoom', null)
+    .on('click.bg', (event) => {
+      if (event.target === svgEl) {
+        selectedNodeId = null
+        updateNodeSelection()
+        showNodeDetail(null)
+      }
+    })
+}
+
+// ── 加载数据集 ────────────────────────────────────────────────────────────────
+function loadDataset(id) {
+  currentDatasetId = id
+  selectedNodeId = null
+  resetColors()
+
+  // 更新 sidebar 选中状态
+  document.querySelectorAll('.dataset-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.id === id)
+  })
+
+  const data = DATASETS[id]
+  buildGraph(data)
+}
+
+function buildGraph(data) {
+  // 计算度数
+  const degreeMap = new Map()
+  data.nodes.forEach(n => degreeMap.set(n.label, 0))
+  data.edges.forEach(e => {
+    degreeMap.set(e.source, (degreeMap.get(e.source) || 0) + 1)
+    degreeMap.set(e.target, (degreeMap.get(e.target) || 0) + 1)
+  })
+
+  const rect = containerEl.getBoundingClientRect()
+  const W = rect.width || 800
+  const H = rect.height || 600
+
+  graphNodes = data.nodes.map(n => ({
+    id: n.label,
+    label: n.label,
+    type: n.type || '未知',
+    properties: n.properties || {},
+    degree: degreeMap.get(n.label) || 0,
+    color: getColorForType(n.type),
+    radius: getNodeRadius(degreeMap.get(n.label) || 0),
+    x: W / 2 + (Math.random() - 0.5) * 300,
+    y: H / 2 + (Math.random() - 0.5) * 300
+  }))
+
+  graphLinks = data.edges.map((e, i) => ({
+    id: `e${i}`,
+    source: e.source,
+    target: e.target,
+    label: e.label || ''
+  }))
+
+  updateStats()
+  renderGraph()
+  updateLegend()
+
+  if (currentLayout === 'force') {
+    runForceLayout()
+  } else {
+    applyStaticLayout(currentLayout)
+    ticked()
+    setTimeout(fitToView, 100)
+  }
+}
+
+// ── 统计信息 ──────────────────────────────────────────────────────────────────
+function updateStats() {
+  const typeSet = new Set(graphNodes.map(n => n.type))
+  const density = graphNodes.length > 1
+    ? (graphLinks.length / (graphNodes.length * (graphNodes.length - 1) / 2)).toFixed(2)
+    : '0'
+  document.getElementById('stat-nodes').textContent = graphNodes.length
+  document.getElementById('stat-edges').textContent = graphLinks.length
+  document.getElementById('stat-types').textContent = typeSet.size
+  document.getElementById('stat-density').textContent = density
+}
+
+// ── 图例 ──────────────────────────────────────────────────────────────────────
+function updateLegend() {
+  const typeSet = new Set(graphNodes.map(n => n.type))
+  const legendEl = document.getElementById('graph-legend')
+  const itemsEl = document.getElementById('legend-items')
+  if (typeSet.size === 0) { legendEl.style.display = 'none'; return }
+  legendEl.style.display = 'block'
+  itemsEl.innerHTML = ''
+  typeSet.forEach(t => {
+    const div = document.createElement('div')
+    div.className = 'graph-legend-item'
+    div.innerHTML = `<span class="graph-legend-dot" style="background:${getColorForType(t)}"></span><span>${t}</span>`
+    itemsEl.appendChild(div)
+  })
+}
+
+// ── 渲染图谱元素 ──────────────────────────────────────────────────────────────
+function renderGraph() {
+  const g = d3.select(gEl)
+
+  // 解析 source/target 为对象引用
+  const nodeMap = new Map(graphNodes.map(n => [n.id, n]))
+  graphLinks.forEach(l => {
+    if (typeof l.source === 'string') l.source = nodeMap.get(l.source) || l.source
+    if (typeof l.target === 'string') l.target = nodeMap.get(l.target) || l.target
+  })
+
+  // Edges
+  const edgeSel = g.selectAll('g.graph-edge').data(graphLinks, d => d.id)
+  edgeSel.exit().remove()
+  const edgeEnter = edgeSel.enter().append('g').attr('class', 'graph-edge')
+  edgeEnter.append('line')
+  edgeEnter.append('text').attr('class', 'graph-edge-label')
+  const edgeMerge = edgeEnter.merge(edgeSel)
+  edgeMerge.select('line').attr('stroke-width', 1.5)
+  edgeMerge.select('text').text(d => d.label)
+
+  // Nodes
+  const nodeSel = g.selectAll('g.graph-node').data(graphNodes, d => d.id)
+  nodeSel.exit().remove()
+  const nodeEnter = nodeSel.enter().append('g').attr('class', 'graph-node')
+  nodeEnter.append('circle').attr('class', 'node-hit-area')
+  nodeEnter.append('circle').attr('class', 'node-circle')
+  nodeEnter.append('text').attr('class', 'graph-node-label')
+
+  const nodeMerge = nodeEnter.merge(nodeSel)
+  nodeMerge.select('.node-hit-area').attr('r', d => d.radius + 10)
+  nodeMerge.select('.node-circle')
+    .attr('r', d => d.radius)
+    .attr('fill', d => d.color)
+  nodeMerge.select('.graph-node-label')
+    .attr('dy', d => d.radius + 14)
+    .text(d => d.label)
+
+  // Drag
+  nodeMerge.call(
+    d3.drag()
+      .on('start', dragStarted)
+      .on('drag', dragged)
+      .on('end', dragEnded)
+  )
+
+  // Events
+  nodeMerge
+    .on('mouseenter', (event, d) => showTooltip(event, d))
+    .on('mousemove', (event) => moveTooltip(event))
+    .on('mouseleave', () => hideTooltip())
+    .on('click', (event, d) => {
+      event.stopPropagation()
+      selectedNodeId = selectedNodeId === d.id ? null : d.id
+      updateNodeSelection()
+      showNodeDetail(selectedNodeId ? d : null)
+    })
+}
+
+// ── Tick ──────────────────────────────────────────────────────────────────────
+function ticked() {
+  const g = d3.select(gEl)
+  g.selectAll('g.graph-node').attr('transform', d => `translate(${d.x},${d.y})`)
+  g.selectAll('g.graph-edge line')
+    .attr('x1', d => (d.source.x ?? d.source))
+    .attr('y1', d => (d.source.y ?? 0))
+    .attr('x2', d => (d.target.x ?? d.target))
+    .attr('y2', d => (d.target.y ?? 0))
+  g.selectAll('g.graph-edge text')
+    .attr('x', d => ((d.source.x ?? 0) + (d.target.x ?? 0)) / 2)
+    .attr('y', d => ((d.source.y ?? 0) + (d.target.y ?? 0)) / 2 - 4)
+}
+
+// ── Force Layout ──────────────────────────────────────────────────────────────
+function runForceLayout() {
+  if (simulation) simulation.stop()
+  const rect = containerEl.getBoundingClientRect()
+  const W = rect.width || 800, H = rect.height || 600
+  simulation = d3.forceSimulation(graphNodes)
+    .force('link', d3.forceLink(graphLinks).id(d => d.id).distance(110))
+    .force('charge', d3.forceManyBody().strength(-220))
+    .force('center', d3.forceCenter(W / 2, H / 2).strength(0.05))
+    .force('collision', d3.forceCollide().radius(d => d.radius + 6))
+    .on('tick', ticked)
+    .on('end', () => setTimeout(fitToView, 100))
+}
+
+// ── Static Layouts ────────────────────────────────────────────────────────────
+function applyStaticLayout(layout) {
+  const rect = containerEl.getBoundingClientRect()
+  const W = rect.width || 800, H = rect.height || 600
+  switch (layout) {
+    case 'circular': layoutCircular(W, H); break
+    case 'grid': layoutGrid(W, H); break
+    case 'concentric': layoutConcentric(W, H); break
+  }
+}
+
+function layoutCircular(W, H) {
+  const cx = W / 2, cy = H / 2, r = Math.min(W, H) * 0.38
+  const sorted = [...graphNodes].sort((a, b) => a.type.localeCompare(b.type))
+  const indexMap = new Map(sorted.map((n, i) => [n.id, i]))
+  graphNodes.forEach(n => {
+    const i = indexMap.get(n.id)
+    const angle = (2 * Math.PI * i) / graphNodes.length - Math.PI / 2
+    n.x = cx + r * Math.cos(angle); n.y = cy + r * Math.sin(angle)
+    n.fx = n.x; n.fy = n.y
+  })
+}
+
+function layoutGrid(W, H) {
+  const cols = Math.ceil(Math.sqrt(graphNodes.length))
+  const rows = Math.ceil(graphNodes.length / cols)
+  const cellW = W / (cols + 1), cellH = H / (rows + 1)
+  const sorted = [...graphNodes].sort((a, b) => a.type.localeCompare(b.type))
+  const indexMap = new Map(sorted.map((n, i) => [n.id, i]))
+  graphNodes.forEach(n => {
+    const i = indexMap.get(n.id)
+    n.x = (i % cols + 1) * cellW; n.y = (Math.floor(i / cols) + 1) * cellH
+    n.fx = n.x; n.fy = n.y
+  })
+}
+
+function layoutConcentric(W, H) {
+  const cx = W / 2, cy = H / 2
+  const sorted = [...graphNodes].sort((a, b) => b.degree - a.degree)
+  if (!sorted.length) return
+  const rings = [[]]
+  let curDeg = sorted[0].degree
+  sorted.forEach(n => {
+    if (n.degree < curDeg && rings[rings.length - 1].length > 0) { rings.push([]); curDeg = n.degree }
+    rings[rings.length - 1].push(n)
+  })
+  if (rings.length === 1 && rings[0].length > 1) {
+    const all = rings[0]; rings[0] = [all[0]]; rings.push(all.slice(1))
+  }
+  const maxR = Math.min(W, H) * 0.38
+  const ringGap = rings.length > 1 ? maxR / rings.length : maxR
+  rings.forEach((ring, ri) => {
+    const r = ri === 0 && ring.length === 1 ? 0 : ringGap * (ri + 0.5)
+    ring.forEach((n, i) => {
+      const angle = (2 * Math.PI * i) / ring.length - Math.PI / 2
+      n.x = cx + r * Math.cos(angle); n.y = cy + r * Math.sin(angle)
+      n.fx = n.x; n.fy = n.y
+    })
+  })
+}
+
+function animateToPositions() {
+  const g = d3.select(gEl)
+  const t = g.transition().duration(600).ease(d3.easeCubicInOut)
+  g.selectAll('g.graph-node').transition(t).attr('transform', d => `translate(${d.x},${d.y})`)
+  g.selectAll('g.graph-edge line').transition(t)
+    .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+    .attr('x2', d => d.target.x).attr('y2', d => d.target.y)
+  g.selectAll('g.graph-edge text').transition(t)
+    .attr('x', d => (d.source.x + d.target.x) / 2)
+    .attr('y', d => (d.source.y + d.target.y) / 2 - 4)
+}
+
+// ── Drag ──────────────────────────────────────────────────────────────────────
+function dragStarted(event, d) {
+  if (currentLayout === 'force' && simulation) {
+    if (!event.active) simulation.alphaTarget(0.3).restart()
+  }
+  d.fx = d.x; d.fy = d.y
+}
+function dragged(event, d) {
+  d.fx = event.x; d.fy = event.y
+  if (currentLayout !== 'force') { d.x = event.x; d.y = event.y; ticked() }
+}
+function dragEnded(event, d) {
+  if (currentLayout === 'force' && simulation) {
+    if (!event.active) simulation.alphaTarget(0)
+    d.fx = null; d.fy = null
+  }
+}
+
+// ── Layout Switch ─────────────────────────────────────────────────────────────
+function setLayout(layout) {
+  currentLayout = layout
+  if (simulation) { simulation.stop(); simulation = null }
+  document.querySelectorAll('#layout-btns button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.layout === layout)
+  })
+  if (layout === 'force') {
+    graphNodes.forEach(n => { n.fx = null; n.fy = null })
+    runForceLayout()
+  } else {
+    applyStaticLayout(layout)
+    animateToPositions()
+    setTimeout(fitToView, 700)
+  }
+}
+
+// ── Zoom Controls ─────────────────────────────────────────────────────────────
+function zoomIn() { d3.select(svgEl).transition().duration(300).call(zoomBehavior.scaleBy, 1.3) }
+function zoomOut() { d3.select(svgEl).transition().duration(300).call(zoomBehavior.scaleBy, 0.77) }
+function resetZoom() { d3.select(svgEl).transition().duration(500).call(zoomBehavior.transform, d3.zoomIdentity) }
+function fitToView() {
+  if (!graphNodes.length) return
+  const rect = containerEl.getBoundingClientRect()
+  const W = rect.width, H = rect.height
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+  graphNodes.forEach(n => {
+    minX = Math.min(minX, n.x - n.radius); minY = Math.min(minY, n.y - n.radius)
+    maxX = Math.max(maxX, n.x + n.radius); maxY = Math.max(maxY, n.y + n.radius)
+  })
+  const pad = 60, gw = maxX - minX + pad * 2, gh = maxY - minY + pad * 2
+  const scale = Math.min(W / gw, H / gh, 2)
+  const tx = (W - (minX + maxX) * scale) / 2
+  const ty = (H - (minY + maxY) * scale) / 2
+  d3.select(svgEl).transition().duration(500)
+    .call(zoomBehavior.transform, d3.zoomIdentity.translate(tx, ty).scale(scale))
+}
+
+// ── Node Selection ────────────────────────────────────────────────────────────
+function updateNodeSelection() {
+  d3.select(gEl).selectAll('g.graph-node .node-circle')
+    .classed('selected', d => d.id === selectedNodeId)
+}
+
+// ── Tooltip ───────────────────────────────────────────────────────────────────
+const tooltipEl = document.getElementById('node-tooltip')
+function showTooltip(event, d) {
+  document.getElementById('tt-label').textContent = d.label
+  const typeBadge = document.getElementById('tt-type')
+  typeBadge.textContent = d.type
+  typeBadge.style.background = d.color
+  document.getElementById('tt-degree').textContent = d.degree
+  const propsEl = document.getElementById('tt-props')
+  propsEl.innerHTML = ''
+  Object.entries(d.properties || {}).forEach(([k, v]) => {
+    propsEl.innerHTML += `<div class="prop-row"><span class="prop-key">${k}</span><span>${v}</span></div>`
+  })
+  tooltipEl.classList.add('visible')
+  moveTooltip(event)
+}
+function moveTooltip(event) {
+  const rect = containerEl.getBoundingClientRect()
+  let x = event.clientX - rect.left + 16
+  let y = event.clientY - rect.top + 16
+  if (x + 260 > rect.width) x = event.clientX - rect.left - 276
+  if (y + 160 > rect.height) y = event.clientY - rect.top - 160
+  tooltipEl.style.left = x + 'px'
+  tooltipEl.style.top = y + 'px'
+}
+function hideTooltip() { tooltipEl.classList.remove('visible') }
+
+// ── Node Detail Panel ─────────────────────────────────────────────────────────
+function showNodeDetail(node) {
+  const emptyEl = document.getElementById('node-detail-empty')
+  const contentEl = document.getElementById('node-detail-content')
+  if (!node) {
+    emptyEl.style.display = 'block'
+    contentEl.style.display = 'none'
+    return
+  }
+  emptyEl.style.display = 'none'
+  contentEl.style.display = 'block'
+
+  // 找关联边
+  const relatedEdges = graphLinks.filter(l => {
+    const srcId = typeof l.source === 'object' ? l.source.id : l.source
+    const tgtId = typeof l.target === 'object' ? l.target.id : l.target
+    return srcId === node.id || tgtId === node.id
+  })
+
+  let html = `<div class="node-detail-name">${node.label}</div>`
+  html += `<span class="node-detail-badge" style="background:${node.color}">${node.type}</span>`
+  html += `<div class="node-detail-row"><span class="node-detail-key">连接数</span><span>${node.degree}</span></div>`
+  Object.entries(node.properties || {}).forEach(([k, v]) => {
+    html += `<div class="node-detail-row"><span class="node-detail-key">${k}</span><span>${v}</span></div>`
+  })
+  if (relatedEdges.length > 0) {
+    html += `<div class="edge-list-title">关联关系（${relatedEdges.length}条）</div>`
+    relatedEdges.forEach(l => {
+      const srcId = typeof l.source === 'object' ? l.source.id : l.source
+      const tgtId = typeof l.target === 'object' ? l.target.id : l.target
+      const other = srcId === node.id ? tgtId : srcId
+      const dir = srcId === node.id ? '→' : '←'
+      html += `<div class="edge-item"><strong>${node.label}</strong> ${dir} <strong>${other}</strong>：${l.label}</div>`
+    })
+  }
+  contentEl.innerHTML = html
+}
+
+// ── 初始化 ────────────────────────────────────────────────────────────────────
+initZoom()
+loadDataset('scientists')
+</script>
+</body>
+</html>

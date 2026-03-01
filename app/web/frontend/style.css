@@ -4656,3 +4656,81 @@ kbd {
     white-space: nowrap;
     max-width: 120px;
 }
+
+/* ============================================
+   知识图谱系统全屏面板
+   ============================================ */
+.knowledge-graph-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9000;
+    display: flex;
+    flex-direction: column;
+    background: #f8f9fb;
+    animation: kgPanelIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.knowledge-graph-panel.hidden {
+    display: none;
+}
+
+@keyframes kgPanelIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.knowledge-graph-panel-header {
+    display: flex;
+    align-items: center;
+    height: 52px;
+    padding: 0 20px;
+    background: rgba(255, 255, 255, 0.97);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+    gap: 10px;
+}
+
+.knowledge-graph-panel-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary-color);
+    flex: 1;
+}
+
+.knowledge-graph-close-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background: transparent;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    line-height: 1;
+}
+
+.knowledge-graph-close-btn:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-primary);
+}
+
+.knowledge-graph-panel-body {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.knowledge-graph-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
