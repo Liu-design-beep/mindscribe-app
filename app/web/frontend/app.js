@@ -3371,44 +3371,63 @@ function updateTrialStatusBubble() {
     const trialPanel = document.getElementById('trial-status-panel');
     const trialIndicator = document.getElementById('trial-mode-indicator');
     const trialCloseBtn = document.getElementById('trial-status-close');
-    
+    const trialToggleBtn = document.getElementById('trial-status-toggle');
+    const trialCountdownBadge = document.getElementById('trial-status-countdown');
+    const trialTimerNum = document.getElementById('trial-status-timer-num');
+    const trialHeader = trialPanel ? trialPanel.querySelector('.trial-status-header') : null;
+
     // 检查是否为试用模式
     const storedMode = localStorage.getItem('is_trial_mode');
     const isTrialMode = storedMode !== 'false';
-    
+
     if (isTrialMode) {
-        // 显示左侧试用状态面板（3秒后自动消失）
+        // 显示试用状态面板
         if (trialPanel) {
             trialPanel.classList.remove('hidden');
             trialPanel.classList.remove('fading');
-            
-            // 绑定关闭按钮事件（如果还没有绑定）
+            trialPanel.classList.remove('collapsed');
+
+            // 「知道了」关闭按钮
             if (trialCloseBtn && !trialCloseBtn.hasAttribute('data-listener-attached')) {
                 trialCloseBtn.setAttribute('data-listener-attached', 'true');
                 trialCloseBtn.addEventListener('click', () => {
-                    if (trialPanel) {
-                        trialPanel.classList.add('fading');
-                        setTimeout(() => {
-                            if (trialPanel) {
-                                trialPanel.classList.add('hidden');
-                            }
-                        }, 500); // 等待淡出动画完成
-                    }
+                    dismissTrialPanel(trialPanel);
                 });
             }
-            
-            // 3秒后自动消失
-            setTimeout(() => {
-                if (trialPanel && !trialPanel.classList.contains('hidden')) {
-                    trialPanel.classList.add('fading');
-                    setTimeout(() => {
-                        if (trialPanel) {
-                            trialPanel.classList.add('hidden');
-                        }
-                    }, 500); // 等待淡出动画完成
+
+            // 标题栏点击折叠/展开
+            if (trialHeader && !trialHeader.hasAttribute('data-listener-attached')) {
+                trialHeader.setAttribute('data-listener-attached', 'true');
+                trialHeader.addEventListener('click', (e) => {
+                    // 避免「知道了」按钮冒泡触发折叠
+                    if (e.target.closest('.trial-status-know-btn')) return;
+                    trialPanel.classList.toggle('collapsed');
+                });
+            }
+
+            // 20 秒倒计时
+            let remaining = 20;
+            const updateBadge = () => {
+                if (trialCountdownBadge) trialCountdownBadge.textContent = remaining;
+                if (trialTimerNum) trialTimerNum.textContent = remaining;
+            };
+            updateBadge();
+
+            const countdownInterval = setInterval(() => {
+                remaining -= 1;
+                updateBadge();
+                if (remaining <= 0) {
+                    clearInterval(countdownInterval);
+                    if (trialPanel && !trialPanel.classList.contains('hidden')) {
+                        dismissTrialPanel(trialPanel);
+                    }
                 }
-            }, 3000); // 3秒后开始淡出
+            }, 1000);
+
+            // 将 interval 存到面板上，以便手动关闭时清除
+            trialPanel._countdownInterval = countdownInterval;
         }
+
         // 显示右侧试用模式标识（固定显示）
         if (trialIndicator) {
             trialIndicator.classList.remove('hidden');
@@ -3418,12 +3437,28 @@ function updateTrialStatusBubble() {
         if (trialPanel) {
             trialPanel.classList.add('hidden');
             trialPanel.classList.remove('fading');
+            if (trialPanel._countdownInterval) {
+                clearInterval(trialPanel._countdownInterval);
+            }
         }
         // 隐藏右侧试用模式标识
         if (trialIndicator) {
             trialIndicator.classList.add('hidden');
         }
     }
+}
+
+/** 淡出并隐藏试用提示面板，同时清除倒计时 */
+function dismissTrialPanel(panel) {
+    if (!panel) return;
+    if (panel._countdownInterval) {
+        clearInterval(panel._countdownInterval);
+    }
+    panel.classList.add('fading');
+    setTimeout(() => {
+        panel.classList.add('hidden');
+        panel.classList.remove('fading');
+    }, 500);
 }
 
 // ============================================

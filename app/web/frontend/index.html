@@ -390,12 +390,24 @@
         </div>
     </div>
 
-    <!-- 试用模式提示窗口（左侧独立窗口，5秒后自动消失） -->
+    <!-- 试用模式提示窗口（20秒倒计时，与思考反馈面板风格一致） -->
     <div id="trial-status-panel" class="trial-status-panel hidden">
-        <div class="trial-status-content">
-            <span class="trial-status-icon">⚠️</span>
-            <span class="trial-status-message">退出网页会把记录全部删除，需要进行登录才具备云端存储功能</span>
-            <button id="trial-status-close" class="trial-status-close" aria-label="关闭">×</button>
+        <div class="trial-status-header">
+            <div class="trial-status-title">
+                <span class="trial-status-icon">⚠️</span>
+                <span class="trial-status-title-text">试用模式提示</span>
+                <span class="trial-status-countdown-badge" id="trial-status-countdown">20</span>
+            </div>
+            <button id="trial-status-toggle" class="trial-status-toggle" aria-label="展开/收起">
+                <span class="trial-toggle-icon">▼</span>
+            </button>
+        </div>
+        <div class="trial-status-body" id="trial-status-body">
+            <p class="trial-status-message">退出网页会把记录全部删除，需要进行登录才具备云端存储功能。</p>
+            <div class="trial-status-footer">
+                <span class="trial-status-timer">将在 <span id="trial-status-timer-num">20</span> 秒后自动关闭</span>
+                <button id="trial-status-close" class="trial-status-know-btn" aria-label="知道了">知道了</button>
+            </div>
         </div>
     </div>
 

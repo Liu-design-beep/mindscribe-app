@@ -968,18 +968,20 @@ body {
 }
 
 /* 试用模式提示窗口（左侧独立窗口，5秒后自动消失） */
+/* 试用模式提示窗口（与思考反馈面板风格一致，在其正下方） */
 .trial-status-panel {
     position: fixed;
-    top: calc(var(--header-height) + 160px); /* 再往下移一点 */
-    left: calc(60px + var(--spacing-lg)); /* 从左侧侧边栏右侧开始 */
-    width: 300px;
+    /* 思考反馈面板：top = header + spacing-sm，height 最大 400px，所以在其正下方加间距 */
+    top: calc(var(--header-height) + var(--spacing-sm) + 420px);
+    left: calc(60px + 220px + var(--spacing-lg)); /* 与思考反馈面板对齐 */
+    width: 320px;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 193, 7, 0.3);
+    border: 1px solid rgba(255, 193, 7, 0.25);
     border-radius: 12px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    z-index: 1000; /* 与AI反馈面板同一层级 */
+    z-index: 100;
     transition: all var(--transition-normal);
     overflow: hidden;
     opacity: 1;
@@ -992,62 +994,120 @@ body {
 
 .trial-status-panel.fading {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(8px);
     transition: opacity 0.5s ease-out, transform 0.5s ease-out;
 }
 
-.trial-status-content {
+/* 标题栏（与 ai-feedback-header 一致） */
+.trial-status-header {
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 12px 14px;
-    position: relative;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid rgba(255, 193, 7, 0.15);
+    background: rgba(255, 193, 7, 0.06);
+}
+
+.trial-status-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
 }
 
 .trial-status-icon {
-    font-size: 18px;
-    display: inline-block;
+    font-size: 15px;
     flex-shrink: 0;
-    margin-top: 2px;
+}
+
+.trial-status-title-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.trial-status-countdown-badge {
+    font-size: 11px;
+    font-weight: 700;
+    color: #b45309;
+    background: rgba(255, 193, 7, 0.18);
+    border-radius: 10px;
+    padding: 1px 7px;
+    min-width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.trial-status-toggle {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    color: var(--text-secondary);
+    font-size: 12px;
+    transition: transform 0.2s;
+}
+
+.trial-status-panel.collapsed .trial-toggle-icon {
+    display: inline-block;
+    transform: rotate(-90deg);
+}
+
+.trial-status-panel.collapsed .trial-status-body {
+    display: none;
+}
+
+/* 内容区 */
+.trial-status-body {
+    padding: 12px 14px 10px;
 }
 
 .trial-status-message {
     font-size: 12px;
-    line-height: 1.6;
+    line-height: 1.7;
     color: var(--text-primary);
-    margin: 0;
-    flex: 1;
-    padding-right: 20px; /* 为关闭按钮留出空间 */
+    margin: 0 0 10px;
 }
 
-.trial-status-close {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 20px;
-    height: 20px;
-    background: transparent;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
+.trial-status-footer {
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 18px;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.trial-status-timer {
+    font-size: 11px;
     color: var(--text-secondary);
-    transition: all var(--transition-fast);
+}
+
+.trial-status-know-btn {
+    padding: 4px 14px;
+    background: rgba(255, 193, 7, 0.15);
+    border: 1px solid rgba(255, 193, 7, 0.4);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #92400e;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
     flex-shrink: 0;
-    padding: 0;
-    line-height: 1;
 }
 
-.trial-status-close:hover {
-    background: rgba(0, 0, 0, 0.1);
-    color: var(--text-primary);
+.trial-status-know-btn:hover {
+    background: rgba(255, 193, 7, 0.28);
+    border-color: rgba(255, 193, 7, 0.6);
 }
 
-.trial-status-close:active {
-    transform: scale(0.9);
+.trial-status-know-btn:active {
+    transform: scale(0.97);
 }
 
 /* 面试模式介绍弹窗（左侧，在试用模式弹窗下方） */
