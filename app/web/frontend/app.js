@@ -2403,6 +2403,17 @@ function initEventListeners() {
         });
     }
 
+    // 图标栏上的展开按鈕（收起状态下显示）
+    const dnsExpandBtn = document.getElementById('dns-expand-btn');
+    if (dnsExpandBtn && docNavSidebar) {
+        dnsExpandBtn.addEventListener('click', () => {
+            docNavSidebar.classList.remove('collapsed');
+            document.body.classList.remove('dns-collapsed');
+            if (dnsCollapseIcon) dnsCollapseIcon.innerHTML = '&#x276E;';
+            if (dnsCollapseTip) dnsCollapseTip.textContent = '收起侧边栏';
+        });
+    }
+
     // 新建文档按钮（复用现有 openSidebar 逻辑）
     const newDocBtn = document.getElementById('new-doc-btn');
     if (newDocBtn) {
