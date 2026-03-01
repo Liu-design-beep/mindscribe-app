@@ -4767,64 +4767,31 @@ kbd {
 
 
 /* ============================================
-   工具栏内当前文档合并胶囊
+   查看完整文档独立按钮（粉红色胶囊）
    ============================================ */
-.doc-inline-capsule {
+.view-doc-standalone-btn {
     display: inline-flex;
     align-items: center;
+    gap: 6px;
     height: 32px;
-    background: rgba(99, 102, 241, 0.07);
-    border: 1px solid rgba(99, 102, 241, 0.2);
+    padding: 0 14px;
+    background: rgba(236, 72, 153, 0.12);
+    border: 1px solid rgba(236, 72, 153, 0.3);
     border-radius: 16px;
-    overflow: hidden;
-    gap: 0;
-    transition: background var(--transition-fast), border-color var(--transition-fast);
-}
-
-.doc-inline-capsule:hover {
-    background: rgba(99, 102, 241, 0.12);
-    border-color: rgba(99, 102, 241, 0.32);
-}
-
-.doc-inline-label {
-    font-size: 12px;
-    color: var(--text-secondary);
-    padding: 0 6px 0 12px;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-
-.doc-inline-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--primary-color);
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding-right: 4px;
-}
-
-.doc-inline-view-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    background: rgba(99, 102, 241, 0.15);
-    border: none;
-    border-left: 1px solid rgba(99, 102, 241, 0.2);
-    border-radius: 0 16px 16px 0;
     cursor: pointer;
-    font-size: 15px;
-    line-height: 1;
-    padding: 0;
-    transition: background var(--transition-fast);
-    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: #be185d;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+    box-shadow: 0 1px 4px rgba(236, 72, 153, 0.12);
 }
 
-.doc-inline-view-btn:hover {
-    background: rgba(99, 102, 241, 0.28);
+.view-doc-standalone-btn:hover {
+    background: rgba(236, 72, 153, 0.2);
+    border-color: rgba(236, 72, 153, 0.45);
+    box-shadow: 0 2px 8px rgba(236, 72, 153, 0.2);
 }
 
 /* ============================================
@@ -4878,7 +4845,6 @@ kbd {
     top: var(--spacing-sm);
     /* var(--spacing-md)=16px 左边距 + 笔记共享按鈕宽度约110px + 12px统一间距 */
     left: calc(var(--spacing-md) + 110px + 12px);
-    transform: translateY(6px);
     display: inline-flex;
     align-items: center;
     gap: 8px;

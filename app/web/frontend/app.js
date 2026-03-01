@@ -92,8 +92,7 @@ function initElements() {
     
     // 当前文档显示标签（分享按鈕右侧）
     elements.currentDocBadgeName = document.getElementById('current-doc-badge-name');
-    // 工具栏内当前文档合并胶囊文档名
-    elements.docInlineName = document.getElementById('doc-inline-name');
+
     
     // 知识图谱系统入口
     elements.knowledgeGraphBtn = document.getElementById('knowledge-graph-btn');
@@ -546,10 +545,7 @@ function updateActiveDocTitle(title) {
         elements.currentDocBadgeName.textContent = title;
         elements.currentDocBadgeName.setAttribute('title', title);
     }
-    if (elements.docInlineName) {
-        elements.docInlineName.textContent = title;
-        elements.docInlineName.setAttribute('title', title);
-    }
+
 }
 
 /**
