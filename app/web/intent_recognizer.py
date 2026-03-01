@@ -618,7 +618,14 @@ class LLMIntentRecognizer:
         #     })
         
         # ── RAG：如果向量存储可用，先检索相关笔记片段并注入上下文 ──
+        rag_info = {
+            "enabled": bool(self.vector_store and self.vector_store.enabled),
+            "status": "disabled",   # disabled | searched | empty | error
+            "chunks_found": 0,
+            "error": None
+        }
         if self.vector_store and self.vector_store.enabled and self.session_id:
+            rag_info["status"] = "searching"
             try:
                 import asyncio
                 # recognize() 是同步函数，使用 asyncio.run() 运行异步检索
@@ -650,21 +657,24 @@ class LLMIntentRecognizer:
                 if rag_chunks:
                     context_str = VectorStore.format_context(rag_chunks)
                     print(f"[RAG] ✅ 检索到 {len(rag_chunks)} 个相关片段，注入上下文")
+                    rag_info["status"] = "searched"
+                    rag_info["chunks_found"] = len(rag_chunks)
                     # 将笔记上下文作为 system 消息插入当前轮对话头部
-                    # 注意：每次对话都重新检索，确保上下文最新
                     rag_system_msg = {
                         "role": "system",
                         "content": context_str
                     }
-                    # 如果 messages 第一条是 system，更新它；否则插入头部
                     if self.messages and self.messages[0].get("role") == "system":
                         self.messages[0] = rag_system_msg
                     else:
                         self.messages.insert(0, rag_system_msg)
                 else:
                     print("[RAG] ⚠️ 未检索到相关笔记，使用原始提示词")
+                    rag_info["status"] = "empty"
             except Exception as e:
                 print(f"[RAG] ❌ 检索失败（不影响对话）: {e}")
+                rag_info["status"] = "error"
+                rag_info["error"] = str(e)[:100]
 
         # 将用户输入添加到 messages
         self.messages.append({
@@ -1045,6 +1055,8 @@ class LLMIntentRecognizer:
                 normalized_result["intent_type"] = str(original_intent_type_before_normalize).strip().upper() if original_intent_type_before_normalize else "UNKNOWN"
                 print(f"[意图识别] ✅ 已强制添加intent_type: {normalized_result['intent_type']}")
             
+            # 将 rag_info 附加到返回结果中
+            normalized_result["rag_info"] = rag_info
             return normalized_result
 
         except json.JSONDecodeError as e:

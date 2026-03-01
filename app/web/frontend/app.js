@@ -3298,7 +3298,7 @@ function addAIFeedbackFromResponse(response) {
             return;
         }
         
-        const { response_type, content, intent_info, tools_used } = response;
+        const { response_type, content, intent_info, tools_used, rag_info } = response;
         const doc = AppState.currentDocument || '试用文档';
         
         console.log('[AI反馈] 响应数据:', { response_type, intent_info, tools_used });
@@ -3355,6 +3355,23 @@ function addAIFeedbackFromResponse(response) {
         
         console.log('[AI反馈] 生成的详细反馈消息:', msg);
         addAIFeedback(msg);
+
+        // 显示 RAG 检索状态
+        if (rag_info) {
+            let ragMsg = '';
+            if (!rag_info.enabled) {
+                ragMsg = '🔍 RAG：未启用（无向量存储配置）';
+            } else if (rag_info.status === 'searched' && rag_info.chunks_found > 0) {
+                ragMsg = `🔍 RAG：检索到 ${rag_info.chunks_found} 条相关笔记，已注入上下文`;
+            } else if (rag_info.status === 'empty') {
+                ragMsg = '🔍 RAG：已检索，未找到相关笔记';
+            } else if (rag_info.status === 'error') {
+                ragMsg = `⚠️ RAG：检索失败（${rag_info.error || '未知错误'}）`;
+            } else if (rag_info.status === 'disabled') {
+                ragMsg = '🔍 RAG：已启用，等待检索';
+            }
+            if (ragMsg) addAIFeedback(ragMsg);
+        }
     } catch (error) {
         console.error('[AI反馈] 添加反馈时出错:', error);
         // 不抛出错误，避免中断脚本执行

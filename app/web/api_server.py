@@ -281,6 +281,7 @@ class ChatResponse(BaseModel):
     suggested_doc_title: Optional[str] = None  # 建议的新文档标题（用于CREATE_NEW_DOCUMENT_CONFIRMATION）
     intent_info: Optional[Dict[str, Any]] = None  # 意图识别信息（用于AI反馈面板）
     tools_used: Optional[List[str]] = None  # 调用的工具列表（用于AI反馈面板）
+    rag_info: Optional[Dict[str, Any]] = None  # RAG检索信息（用于思考反馈面板）
     match_confirmation_needed: Optional[bool] = False  # 是否需要文档匹配确认
     match_warning_message: Optional[str] = None  # 文档匹配警告消息
 
@@ -1349,6 +1350,8 @@ async def chat(request: ChatRequest):
                         content=f"✅ 已成功清空文档 '{doc_title}' 的所有内容。",
                         new_session_id=session_id if not request.session_id else None,
                         intent_info=intent_info,
+                        rag_info=_rag_info,
+
                         tools_used=tools_used
                     )
             # 检查是否是明确的取消命令
@@ -1381,6 +1384,9 @@ async def chat(request: ChatRequest):
             print(f"[API] 开始调用LLM识别意图，用户输入: {user_input}")
             print(f"[API] LLM配置状态: api_key={'已设置' if app_instance.intent_recognizer.client_config.get('api_key') else '未设置'}, app_id={'已设置' if app_instance.intent_recognizer.client_config.get('app_id') else '未设置'}")
             intent_data = app_instance.intent_recognizer.recognize(user_input)
+            # 提取 RAG 检索信息，用于前端思考反馈面板
+            _rag_info = intent_data.get('rag_info') if isinstance(intent_data, dict) else None
+
             
             print(f"[API] LLM返回意图: {intent_data.get('intent', 'N/A')}")
             print(f"[API] LLM返回intent_type: {intent_data.get('intent_type', 'N/A')}")
@@ -1519,6 +1525,8 @@ async def chat(request: ChatRequest):
                     dev_mode_enabled=is_dev_mode,
                     edit_mode_enabled=get_edit_mode_enabled(app_instance, cloudflare_manager),
                     intent_info=intent_info,
+                    rag_info=_rag_info,
+
                     tools_used=tools_used
                 )
             
@@ -1619,6 +1627,8 @@ async def chat(request: ChatRequest):
                     dev_mode_enabled=is_dev_mode,
                     edit_mode_enabled=get_edit_mode_enabled(app_instance, cloudflare_manager),
                     intent_info=intent_info,
+                    rag_info=_rag_info,
+
                     tools_used=tools_used
                 )
             
@@ -1683,6 +1693,8 @@ async def chat(request: ChatRequest):
                 edit_mode_enabled=is_edit_mode,
                 message_style=message_style,
                 intent_info=intent_info,
+                rag_info=_rag_info,
+
                 tools_used=tools_used
                 )
         
@@ -1758,6 +1770,8 @@ async def chat(request: ChatRequest):
                 dev_mode_enabled=is_dev_mode,
                 edit_mode_enabled=is_edit_mode,
                 intent_info=intent_info,
+                rag_info=_rag_info,
+
                 tools_used=tools_used
             )
         
@@ -1783,6 +1797,8 @@ async def chat(request: ChatRequest):
                     dev_mode_enabled=is_dev_mode,
                     edit_mode_enabled=get_edit_mode_enabled(app_instance, cloudflare_manager),
                     intent_info=intent_info,
+                    rag_info=_rag_info,
+
                     tools_used=tools_used,
                     message_style=intent_data.get("message_style", "normal")
                 )
@@ -1954,6 +1970,8 @@ async def chat(request: ChatRequest):
                         match_warning_message=match_warning,
                         suggested_doc_title=suggested_doc_name,
                         intent_info=intent_info,
+                        rag_info=_rag_info,
+
                         tools_used=tools_used,
                         edit_mode_enabled=get_edit_mode_enabled(app_instance, cloudflare_manager)
                     )
@@ -2020,6 +2038,8 @@ async def chat(request: ChatRequest):
                 dev_mode_enabled=is_dev_mode,
                 edit_mode_enabled=is_edit_mode,
                 intent_info=intent_info,
+                rag_info=_rag_info,
+
                 tools_used=tools_used
             )
         
@@ -2149,6 +2169,8 @@ async def chat(request: ChatRequest):
                         dev_mode_enabled=is_dev_mode,
                         edit_mode_enabled=is_edit_mode,
                         intent_info=intent_info,
+                        rag_info=_rag_info,
+
                         tools_used=tools_used
                     )
                     
@@ -2291,6 +2313,8 @@ async def chat(request: ChatRequest):
                     new_session_id=session_id if not request.session_id else None,
                     dev_mode_enabled=is_dev_mode,
                     intent_info=intent_info,
+                    rag_info=_rag_info,
+
                     tools_used=tools_used
                 )
             else:
@@ -2304,6 +2328,8 @@ async def chat(request: ChatRequest):
                     new_session_id=session_id if not request.session_id else None,
                     dev_mode_enabled=is_dev_mode,
                     intent_info=intent_info,
+                    rag_info=_rag_info,
+
                     tools_used=tools_used
                 )
         
@@ -2668,6 +2694,8 @@ async def chat(request: ChatRequest):
                             new_session_id=session_id if not request.session_id else None,
                             dev_mode_enabled=is_dev_mode,
                             intent_info=intent_info,
+                            rag_info=_rag_info,
+
                             tools_used=tools_used
                         )
                     else:
@@ -2687,6 +2715,8 @@ async def chat(request: ChatRequest):
                             new_session_id=session_id if not request.session_id else None,
                             dev_mode_enabled=is_dev_mode,
                             intent_info=intent_info,
+                            rag_info=_rag_info,
+
                             tools_used=tools_used
                         )
                 except Exception as e:
@@ -2709,6 +2739,8 @@ async def chat(request: ChatRequest):
                         new_session_id=session_id if not request.session_id else None,
                         dev_mode_enabled=is_dev_mode,
                         intent_info=intent_info,
+                        rag_info=_rag_info,
+
                         tools_used=tools_used
                     )
             else:
@@ -2722,6 +2754,8 @@ async def chat(request: ChatRequest):
                     new_session_id=session_id if not request.session_id else None,
                     dev_mode_enabled=is_dev_mode,
                     intent_info=intent_info,
+                    rag_info=_rag_info,
+
                     tools_used=tools_used
                 )
         
@@ -2736,6 +2770,8 @@ async def chat(request: ChatRequest):
                     content=content,
                     new_session_id=session_id if not request.session_id else None,
                     intent_info=build_intent_info(intent_data, intent),
+                    rag_info=_rag_info,
+
                     tools_used=build_tools_used(intent, is_dev_mode, use_cloudflare=False, use_d1=False)
                 )
             else:
@@ -2746,6 +2782,8 @@ async def chat(request: ChatRequest):
                     content="抱歉，帮助信息暂时无法生成。请检查系统提示词配置，确保HELP意图能够生成帮助内容。",
                     new_session_id=session_id if not request.session_id else None,
                     intent_info=build_intent_info(intent_data, intent),
+                    rag_info=_rag_info,
+
                     tools_used=build_tools_used(intent, is_dev_mode, use_cloudflare=False, use_d1=False),
                     message_style="error"
                 )
@@ -2820,6 +2858,8 @@ async def chat(request: ChatRequest):
                         new_session_id=session_id if not request.session_id else None,
                         message_style="warning",  # 三次无法理解时使用warning样式（黄色）
                         intent_info=intent_info,
+                        rag_info=_rag_info,
+
                         tools_used=tools_used
                     )
                 else:
@@ -2834,6 +2874,8 @@ async def chat(request: ChatRequest):
                         new_session_id=session_id if not request.session_id else None,
                         message_style="error",  # UNKNOWN意图或错误内容强制使用error样式
                         intent_info=intent_info,
+                        rag_info=_rag_info,
+
                         tools_used=tools_used
                     )
             else:
