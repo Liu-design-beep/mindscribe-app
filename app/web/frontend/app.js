@@ -594,6 +594,19 @@ function updateDocumentList(documents) {
         docName.textContent = displayName;
         // 将文档名称添加到列表项中
         item.appendChild(docName);
+
+        // 创建查看文档内容的👁️图标按鈕
+        const viewBtn = document.createElement('button');
+        viewBtn.className = 'doc-view-icon-btn';
+        viewBtn.setAttribute('aria-label', '查看文档内容');
+        viewBtn.innerHTML = '👁️';
+        // 点击图标按鈕时，切换到该文档并弹出查看弹窗
+        viewBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // 防止触发列表项点击
+            switchDocument(doc);
+            showViewDocumentModal();
+        });
+        item.appendChild(viewBtn);
         
         // 为列表项添加点击事件监听器
         item.addEventListener('click', () => {
