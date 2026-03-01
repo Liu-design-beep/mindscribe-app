@@ -619,6 +619,27 @@ function updateDocumentList(documents) {
     
     createDocItem.appendChild(createDocBtn);
     elements.docList.appendChild(createDocItem);
+
+    // 同步更新文档导航侧边栏（dns-doc-list）
+    const dnsDocList = document.getElementById('dns-doc-list');
+    if (dnsDocList) {
+        dnsDocList.innerHTML = '';
+        if (documents && documents.length > 0) {
+            documents.forEach((doc) => {
+                const li = document.createElement('li');
+                li.className = 'dns-doc-item' + (doc === AppState.currentDocument ? ' active' : '');
+                li.textContent = doc.length > 14 ? doc.substring(0, 14) + '…' : doc;
+                li.title = doc;
+                li.addEventListener('click', () => {
+                    switchDocument(doc);
+                    // 更新高亮
+                    dnsDocList.querySelectorAll('.dns-doc-item').forEach(el => el.classList.remove('active'));
+                    li.classList.add('active');
+                });
+                dnsDocList.appendChild(li);
+            });
+        }
+    }
 }
 
 /**
@@ -1817,24 +1838,6 @@ function initEventListeners() {
         });
     }
     
-    // 切换文档按钮点击事件：当用户点击切换文档按钮时
-    if (elements.switchDocBtn) {
-        // 先移除可能存在的旧事件监听器
-        const newSwitchBtn = elements.switchDocBtn.cloneNode(true);
-        elements.switchDocBtn.parentNode.replaceChild(newSwitchBtn, elements.switchDocBtn);
-        elements.switchDocBtn = newSwitchBtn;
-        
-        elements.switchDocBtn.addEventListener('click', (e) => {
-            console.log('[切换文档按钮] 点击事件触发');
-            e.preventDefault();
-            e.stopPropagation();
-            openSidebar();
-        });
-        console.log('[初始化] 切换文档按钮事件已绑定');
-    } else {
-        console.warn('[初始化] 切换文档按钮元素不存在');
-    }
-    
     // 查看文档按钮点击事件：当用户点击查看文档按钮时，弹出模态框显示当前文档的全部内容
     if (elements.viewDocBtn) {
         // 先移除可能存在的旧事件监听器
@@ -2382,6 +2385,32 @@ function initEventListeners() {
     });
 
     // 标记已绑定
+    // 文档侧边栏收放按钮
+    const dnsCollapseBtn = document.getElementById('dns-collapse-btn');
+    const dnsCollapseIcon = document.getElementById('dns-collapse-icon');
+    const dnsCollapseTip = document.getElementById('dns-collapse-tip');
+    const docNavSidebar = document.getElementById('doc-nav-sidebar');
+    if (dnsCollapseBtn && docNavSidebar) {
+        dnsCollapseBtn.addEventListener('click', () => {
+            const isCollapsed = docNavSidebar.classList.toggle('collapsed');
+            document.body.classList.toggle('dns-collapsed', isCollapsed);
+            if (dnsCollapseIcon) {
+                dnsCollapseIcon.innerHTML = isCollapsed ? '&#x276F;' : '&#x276E;';
+            }
+            if (dnsCollapseTip) {
+                dnsCollapseTip.textContent = isCollapsed ? '展开侧边栏' : '收起侧边栏';
+            }
+        });
+    }
+
+    // 新建文档按钮（复用现有 openSidebar 逻辑）
+    const newDocBtn = document.getElementById('new-doc-btn');
+    if (newDocBtn) {
+        newDocBtn.addEventListener('click', () => {
+            openSidebar();
+        });
+    }
+
     eventListenersBound = true;
     window.eventListenersBound = true;
     console.log('[初始化] 所有事件监听器绑定完成');

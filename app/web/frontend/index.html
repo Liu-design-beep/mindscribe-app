@@ -276,6 +276,63 @@
         </div>
     </aside>
 
+    <!-- 文档侧边栏（千问风格，位于左侧图标栏右侧） -->
+    <aside id="doc-nav-sidebar" class="doc-nav-sidebar">
+        <!-- 顶部：新对话 + 临时对话 -->
+        <div class="dns-top-row">
+            <button id="new-doc-btn" class="dns-new-btn" aria-label="新建文档">
+                <span class="dns-new-icon">&#x2795;</span>
+                <span class="dns-new-text">新建文档</span>
+            </button>
+            <div class="dns-icon-btn-wrapper">
+                <button class="dns-icon-btn" id="temp-doc-btn" aria-label="临时文档">
+                    <span class="dns-temp-icon">&#x25A1;</span>
+                </button>
+                <div class="dns-tooltip">临时文档</div>
+            </div>
+        </div>
+
+        <!-- 搜索 + 收起 -->
+        <div class="dns-search-row">
+            <div class="dns-icon-btn-wrapper">
+                <button class="dns-icon-btn" id="dns-search-btn" aria-label="搜索文档">
+                    <span>&#x1F50D;</span>
+                </button>
+                <div class="dns-tooltip">搜索文档</div>
+            </div>
+            <div class="dns-icon-btn-wrapper">
+                <button class="dns-icon-btn" id="dns-collapse-btn" aria-label="收起侧边栏">
+                    <span id="dns-collapse-icon" class="dns-collapse-arrow">&#x276E;</span>
+                </button>
+                <div class="dns-tooltip" id="dns-collapse-tip">收起侧边栏</div>
+            </div>
+        </div>
+
+        <!-- 对话分组 -->
+        <div class="dns-section">
+            <div class="dns-section-header">
+                <span class="dns-section-label">文档分组</span>
+                <div class="dns-icon-btn-wrapper">
+                    <button class="dns-icon-btn dns-add-group-btn" aria-label="新建分组">&#x2B;</button>
+                    <div class="dns-tooltip">新建分组</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 最近文档 -->
+        <div class="dns-section">
+            <div class="dns-section-header">
+                <span class="dns-section-label">最近文档</span>
+                <div class="dns-icon-btn-wrapper">
+                    <button class="dns-icon-btn dns-manage-btn" aria-label="管理文档">&#x2261;</button>
+                    <div class="dns-tooltip">管理文档</div>
+                </div>
+            </div>
+            <!-- 文档列表项由 JS 动态注入 -->
+            <ul class="dns-doc-list" id="dns-doc-list"></ul>
+        </div>
+    </aside>
+
     <!-- HTML注释：侧边栏区域的说明 -->
     <!-- 侧边栏（文档列表） -->
     <!-- aside标签：语义化标签，表示侧边栏内容 -->
@@ -622,14 +679,9 @@
                 </div>
             </div>
             
-            <!-- 中间：文档控制按钮 -->
+            <!-- 中间：文档控制按鈕 -->
             <div class="toolbar-center">
-                <!-- 切换文档按钮 -->
-                <button id="switch-doc-btn" class="toolbar-btn-with-text" aria-label="切换文档">
-                    <span class="toolbar-icon">⇄</span>
-                    <span class="toolbar-text">切换文档</span>
-                </button>
-                <!-- 查看文档按钮 -->
+                <!-- 查看文档按鈕 -->
                 <button id="view-doc-btn" class="toolbar-btn-with-text" aria-label="查看文档">
                     <span class="toolbar-icon">👁️</span>
                     <span class="toolbar-text">查看文档</span>

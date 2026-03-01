@@ -4734,3 +4734,264 @@ kbd {
     border: none;
     display: block;
 }
+
+/* =====================================================
+   文档导航侧边栏（千问风格，位于左侧图标栏右侧）
+   ===================================================== */
+
+:root {
+    --dns-width: 220px;
+    --dns-collapsed-width: 0px;
+}
+
+.doc-nav-sidebar {
+    position: fixed;
+    top: var(--header-height);
+    left: 60px; /* 紧贴左侧图标栏右侧 */
+    width: var(--dns-width);
+    height: calc(100vh - var(--header-height));
+    background: rgba(248, 250, 255, 0.97);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-right: 1px solid var(--border-color);
+    z-index: 940;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 0 16px;
+    overflow: hidden;
+    transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.28s ease;
+    box-sizing: border-box;
+}
+
+.doc-nav-sidebar.collapsed {
+    width: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 顶部新建文档行 */
+.dns-top-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.dns-new-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 12px;
+    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.18);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--primary-color, #6366f1);
+    transition: background 0.18s, border-color 0.18s;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.dns-new-btn:hover {
+    background: rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.35);
+}
+
+.dns-new-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.dns-new-text {
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 搜索 + 收起行 */
+.dns-search-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px 4px;
+}
+
+/* 通用图标按钮 */
+.dns-icon-btn {
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    color: #888;
+    transition: background 0.15s, color 0.15s;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.dns-icon-btn:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary-color, #6366f1);
+}
+
+/* 收起箭头 */
+.dns-collapse-arrow {
+    font-size: 14px;
+    display: inline-block;
+    transition: transform 0.25s ease;
+}
+
+.doc-nav-sidebar.collapsed ~ * .dns-collapse-arrow,
+body.dns-collapsed .dns-collapse-arrow {
+    transform: rotate(180deg);
+}
+
+/* tooltip */
+.dns-icon-btn-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.dns-tooltip {
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 6px);
+    transform: translateX(-50%);
+    background: rgba(30, 30, 40, 0.88);
+    color: #fff;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 9999;
+}
+
+.dns-icon-btn-wrapper:hover .dns-tooltip {
+    opacity: 1;
+}
+
+/* 分区 */
+.dns-section {
+    margin-top: 6px;
+    flex-shrink: 0;
+}
+
+.dns-section:last-child {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.dns-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 10px 4px 14px;
+}
+
+.dns-section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #aaa;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+/* 文档列表 */
+.dns-doc-list {
+    list-style: none;
+    margin: 0;
+    padding: 2px 6px 0;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.dns-doc-list::-webkit-scrollbar {
+    width: 3px;
+}
+.dns-doc-list::-webkit-scrollbar-thumb {
+    background: rgba(99,102,241,0.2);
+    border-radius: 2px;
+}
+
+.dns-doc-item {
+    padding: 7px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #444;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+    margin-bottom: 1px;
+}
+
+.dns-doc-item:hover {
+    background: rgba(99, 102, 241, 0.08);
+    color: var(--primary-color, #6366f1);
+}
+
+.dns-doc-item.active {
+    background: rgba(99, 102, 241, 0.12);
+    color: var(--primary-color, #6366f1);
+    font-weight: 500;
+}
+
+/* 临时文档按钮特殊样式 */
+.dns-temp-icon {
+    font-size: 13px;
+    border: 1.5px dashed currentColor;
+    border-radius: 4px;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+/* =====================================================
+   布局调整：内容区域 & 思考反馈面板右移（新增 220px 侧边栏）
+   ===================================================== */
+
+/* 展开状态：内容区域左侧偏移 = 60px(图标栏) + 220px(文档侧边栏) + 间距 */
+.chat-area {
+    margin-left: max(640px, calc((100% - 800px) / 2 + 245px)) !important;
+}
+
+.input-area {
+    left: max(640px, calc((100% - 800px) / 2 + 245px)) !important;
+}
+
+.ai-feedback-panel {
+    left: calc(60px + 220px + var(--spacing-lg)) !important;
+}
+
+/* 收起状态：恢复原始偏移 */
+body.dns-collapsed .chat-area {
+    margin-left: max(420px, calc((100% - 800px) / 2 + 25px)) !important;
+}
+
+body.dns-collapsed .input-area {
+    left: max(420px, calc((100% - 800px) / 2 + 25px)) !important;
+}
+
+body.dns-collapsed .ai-feedback-panel {
+    left: calc(60px + var(--spacing-lg)) !important;
+}
