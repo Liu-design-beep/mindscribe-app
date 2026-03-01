@@ -90,7 +90,10 @@ function initElements() {
     elements.shareNoteLink = document.getElementById('share-note-link');
     elements.copyShareLinkBtn = document.getElementById('copy-share-link-btn');
     
-    // 设置按钮（左侧侧边栏）
+    // 当前文档显示标签（分享按鈕右侧）
+    elements.currentDocBadgeName = document.getElementById('current-doc-badge-name');
+    
+    // 设置按鈕（左侧侧边栏）
     elements.settingsBtn = document.getElementById('settings-btn');
     elements.updateNotificationBtnLeft = document.getElementById('update-notification-btn-left');
     elements.knowledgeBaseBtn = document.getElementById('knowledge-base-btn');
@@ -530,6 +533,11 @@ function updateActiveDocTitle(title) {
         elements.activeDocTitle.textContent = displayTitle;
         // 添加title属性，鼠标悬停时显示完整标题
         elements.activeDocTitle.setAttribute('title', title);
+    }
+    // 同步更新底部当前文档显示标签
+    if (elements.currentDocBadgeName) {
+        elements.currentDocBadgeName.textContent = title;
+        elements.currentDocBadgeName.setAttribute('title', title);
     }
 }
 
