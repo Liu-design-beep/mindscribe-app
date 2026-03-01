@@ -967,147 +967,235 @@ body {
     margin-bottom: 0;
 }
 
-/* 试用模式提示窗口（左侧独立窗口，5秒后自动消失） */
-/* 试用模式提示窗口（与思考反馈面板风格一致，在其正下方） */
-.trial-status-panel {
+/* ============================================
+   左下角通知消息列表（notify-stack）
+   包含：试用记忆提示（黄色）、手机续写（紫色）
+   ============================================ */
+
+/* 外层容器：固定在内容区左下角 */
+.notify-stack {
     position: fixed;
-    /* 思考反馈面板：top = header + spacing-sm，height 最大 400px，所以在其正下方加间距 */
-    top: calc(var(--header-height) + var(--spacing-sm) + 420px);
-    left: calc(60px + 220px + var(--spacing-lg)); /* 与思考反馈面板对齐 */
-    width: 320px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 193, 7, 0.25);
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    z-index: 100;
-    transition: all var(--transition-normal);
-    overflow: hidden;
-    opacity: 1;
-    transform: translateY(0);
+    /* 左侧 = 60px（图标栏）+ 220px（文档侧边栏）+ 20px（间距） */
+    left: calc(60px + 220px + 20px);
+    bottom: calc(var(--footer-height, 140px) + 24px);
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1050;
+    pointer-events: none; /* 容器不拦截点击，卡片内单独开启 */
 }
 
-.trial-status-panel.hidden {
+/* dns 收起时，左侧只有 60px 图标栏 */
+body.dns-collapsed .notify-stack {
+    left: calc(60px + 20px);
+}
+
+/* 单张卡片基础样式 */
+.notify-card {
+    width: 300px;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 14px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    pointer-events: all; /* 卡片自身可交互 */
+    /* 滑入动画 */
+    animation: notifySlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+@keyframes notifySlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-24px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+.notify-card.hidden {
     display: none;
 }
 
-.trial-status-panel.fading {
+.notify-card.fading {
     opacity: 0;
-    transform: translateY(8px);
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    transform: translateX(-16px) scale(0.97);
 }
 
-/* 标题栏（与 ai-feedback-header 一致） */
-.trial-status-header {
+/* 卡片头部 */
+.notify-card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 14px;
-    cursor: pointer;
-    user-select: none;
-    border-bottom: 1px solid rgba(255, 193, 7, 0.15);
-    background: rgba(255, 193, 7, 0.06);
+    padding: 11px 14px 9px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.trial-status-title {
+.notify-card-title {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
     flex: 1;
     min-width: 0;
 }
 
-.trial-status-icon {
-    font-size: 15px;
+.notify-card-icon {
+    font-size: 16px;
     flex-shrink: 0;
+    line-height: 1;
 }
 
-.trial-status-title-text {
+.notify-card-title-text {
     font-size: 13px;
     font-weight: 600;
     color: var(--text-primary);
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.trial-status-countdown-badge {
-    font-size: 11px;
-    font-weight: 700;
-    color: #b45309;
-    background: rgba(255, 193, 7, 0.18);
-    border-radius: 10px;
-    padding: 1px 7px;
-    min-width: 24px;
-    text-align: center;
+.notify-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     flex-shrink: 0;
 }
 
-.trial-status-toggle {
-    background: transparent;
+/* 倒计时徽章 */
+.notify-card-countdown {
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 2px 8px;
+    min-width: 26px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* 关闭按钮 */
+.notify-card-close {
+    width: 22px;
+    height: 22px;
+    background: rgba(0, 0, 0, 0.05);
     border: none;
+    border-radius: 50%;
     cursor: pointer;
-    padding: 0;
     display: flex;
     align-items: center;
+    justify-content: center;
+    font-size: 14px;
     color: var(--text-secondary);
-    font-size: 12px;
-    transition: transform 0.2s;
+    line-height: 1;
+    transition: background 0.15s, color 0.15s;
+    padding: 0;
+    flex-shrink: 0;
 }
 
-.trial-status-panel.collapsed .trial-toggle-icon {
-    display: inline-block;
-    transform: rotate(-90deg);
+.notify-card-close:hover {
+    background: rgba(0, 0, 0, 0.12);
+    color: var(--text-primary);
 }
 
-.trial-status-panel.collapsed .trial-status-body {
-    display: none;
+/* 卡片内容区 */
+.notify-card-body {
+    padding: 10px 14px 12px;
 }
 
-/* 内容区 */
-.trial-status-body {
-    padding: 12px 14px 10px;
-}
-
-.trial-status-message {
-    font-size: 12px;
-    line-height: 1.7;
+.notify-card-message {
+    font-size: 12.5px;
+    line-height: 1.65;
     color: var(--text-primary);
     margin: 0 0 10px;
 }
 
-.trial-status-footer {
+/* 操作按钮行 */
+.notify-card-actions {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
     gap: 8px;
+    justify-content: flex-end;
+    margin-bottom: 10px;
 }
 
-.trial-status-timer {
-    font-size: 11px;
-    color: var(--text-secondary);
-}
-
-.trial-status-know-btn {
-    padding: 4px 14px;
-    background: rgba(255, 193, 7, 0.15);
-    border: 1px solid rgba(255, 193, 7, 0.4);
-    border-radius: 20px;
+.notify-card-btn {
+    padding: 5px 16px;
+    border: none;
+    border-radius: 8px;
     font-size: 12px;
     font-weight: 500;
-    color: #92400e;
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
-    white-space: nowrap;
-    flex-shrink: 0;
+    transition: all var(--transition-fast);
+    font-family: inherit;
+    line-height: 1.5;
 }
 
-.trial-status-know-btn:hover {
-    background: rgba(255, 193, 7, 0.28);
-    border-color: rgba(255, 193, 7, 0.6);
+/* 进度条容器 */
+.notify-card-progress {
+    height: 3px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 2px;
+    overflow: hidden;
 }
 
-.trial-status-know-btn:active {
-    transform: scale(0.97);
+.notify-card-progress-bar {
+    height: 100%;
+    border-radius: 2px;
+    width: 100%; /* 初始 100%，由 JS 逐渐缩短 */
+    transition: width 1s linear;
+    transform-origin: left;
+}
+
+/* ---- 黄色主题（试用记忆） ---- */
+.notify-card--yellow {
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.notify-card--yellow .notify-card-header {
+    background: rgba(255, 193, 7, 0.07);
+    border-bottom-color: rgba(245, 158, 11, 0.12);
+}
+
+.notify-card--yellow .notify-card-countdown {
+    color: #92400e;
+    background: rgba(255, 193, 7, 0.2);
+}
+
+.notify-card-progress-bar--yellow {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+/* ---- 紫色主题（手机续写） ---- */
+.notify-card--purple {
+    border: 1px solid rgba(99, 102, 241, 0.28);
+}
+
+.notify-card--purple .notify-card-header {
+    background: rgba(99, 102, 241, 0.06);
+    border-bottom-color: rgba(99, 102, 241, 0.1);
+}
+
+.notify-card--purple .notify-card-countdown {
+    color: #4338ca;
+    background: rgba(99, 102, 241, 0.15);
+}
+
+.notify-card-progress-bar--purple {
+    background: linear-gradient(90deg, #6366f1, #818cf8);
+}
+
+.notify-card-btn--primary {
+    background: var(--primary-color);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.notify-card-btn--primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
 }
 
 /* 面试模式介绍弹窗（左侧，在试用模式弹窗下方） */
@@ -1694,10 +1782,11 @@ body {
     left: 0;
     width: 60px;
     height: calc(100vh - var(--header-height));
-    background: rgba(240, 248, 255, 0.95);
+    /* 图标栏：深紫色渐变，与文档侧边栏形成明显层次对比 */
+    background: linear-gradient(180deg, rgba(99, 102, 241, 0.12) 0%, rgba(79, 70, 229, 0.08) 100%);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border-right: 1px solid var(--border-color);
+    border-right: 1px solid rgba(99, 102, 241, 0.18);
     z-index: 950;
     display: flex;
     flex-direction: column;
@@ -2068,10 +2157,9 @@ body {
     min-height: calc(100vh - var(--header-height));
     max-width: 800px;
     width: 100%;
-    /* 居中显示，但左侧留出空间给侧边栏和灵辑思考反馈面板 */
-    /* 左侧空间：60px(侧边栏) + 20px(间距) + 320px(反馈面板) + 20px(间距) = 420px */
-    /* 与input-area使用相同的计算方式，确保对齐 */
-    margin-left: max(420px, calc((100% - 800px) / 2 + 25px));
+    /* 居中显示，考虑左侧总宽度：60px(图标栏) + 220px(文档侧边栏) + 20px(间距) + 320px(反馈面板) + 20px(间距) = 640px */
+    /* 当屏幕足够宽时，使用视口居中（减去左侧总偏移的一半）；屏幕较窄时保证最小左边距 */
+    margin-left: max(640px, calc(50% - 60px));
     margin-right: auto;
     position: relative;
     box-sizing: border-box;
@@ -2641,9 +2729,8 @@ body {
 .input-area {
     position: fixed;
     bottom: 0;
-    /* 左侧留出空间给侧边栏和灵辑思考反馈面板，与chat-area对齐 */
-    /* 使用与chat-area完全相同的计算方式，确保完全对齐，并右移一点 */
-    left: max(420px, calc((100% - 800px) / 2 + 25px));
+    /* 与 chat-area 使用完全相同的计算方式，确保对齐 */
+    left: max(640px, calc(50% - 60px));
     width: 100%;
     max-width: 800px;
     height: auto;
@@ -4532,149 +4619,6 @@ kbd {
 
 
 /* ============================================
-   续写手机端笔记确认弹窗（右上角，试用模式触发）
-   ============================================ */
-.mobile-note-prompt {
-    position: fixed;
-    top: 50%; /* 垂直居中 */
-    right: var(--spacing-lg); /* 右侧 */
-    transform: translateY(-50%);
-    width: 300px;
-    background: rgba(255, 255, 255, 0.97);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(99, 102, 241, 0.25);
-    border-radius: var(--border-radius-sm);
-    box-shadow: var(--shadow-lg);
-    z-index: 1500; /* 高于普通面板，低于模态框 */
-    opacity: 1;
-    overflow: hidden;
-    animation: mobileNoteSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes mobileNoteSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-50%) translateX(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(-50%) translateX(0);
-    }
-}
-
-.mobile-note-prompt.hidden {
-    display: none;
-}
-
-.mobile-note-prompt.fading {
-    opacity: 0;
-    transform: translateY(-50%) translateX(20px);
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-}
-
-.mobile-note-prompt-content {
-    padding: 16px 18px 14px;
-}
-
-.mobile-note-prompt-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(99, 102, 241, 0.1);
-}
-
-.mobile-note-prompt-icon {
-    font-size: 22px;
-    display: inline-block;
-    flex-shrink: 0;
-}
-
-.mobile-note-prompt-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0;
-    flex: 1;
-    line-height: 1.4;
-}
-
-.mobile-note-prompt-message {
-    font-size: 13px;
-    line-height: 1.65;
-    color: var(--text-secondary);
-    margin: 0 0 10px 0;
-}
-
-.mobile-note-prompt-countdown {
-    margin-bottom: 14px;
-}
-
-.mobile-note-prompt-countdown-text {
-    font-size: 11px;
-    color: var(--text-muted);
-    letter-spacing: 0.2px;
-}
-
-#mobile-note-countdown {
-    font-weight: 600;
-    color: var(--primary-color);
-}
-
-.mobile-note-prompt-footer {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-}
-
-.mobile-note-btn {
-    padding: 7px 18px;
-    border: none;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    font-family: inherit;
-    line-height: 1.4;
-}
-
-.mobile-note-btn-primary {
-    background: var(--primary-color);
-    color: var(--text-light);
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
-}
-
-.mobile-note-btn-primary:hover {
-    background: var(--primary-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-}
-
-.mobile-note-btn-primary:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
-}
-
-.mobile-note-btn-secondary {
-    background: rgba(0, 0, 0, 0.05);
-    color: var(--text-secondary);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.mobile-note-btn-secondary:hover {
-    background: rgba(0, 0, 0, 0.09);
-    color: var(--text-primary);
-    transform: translateY(-1px);
-}
-
-.mobile-note-btn-secondary:active {
-    transform: translateY(0);
-}
-
-/* ============================================
    当前文档显示标签（分享按钮右侧）
    ============================================ */
 .current-doc-badge {
@@ -4810,10 +4754,11 @@ kbd {
     left: 60px; /* 紧贴左侧图标栏右侧 */
     width: var(--dns-width);
     height: calc(100vh - var(--header-height));
-    background: rgba(248, 250, 255, 0.97);
+    /* 文档侧边栏：白色系，与图标栏的深紫色形成明显对比 */
+    background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-right: 1px solid var(--border-color);
+    border-right: 1px solid rgba(0, 0, 0, 0.08);
     z-index: 940;
     display: flex;
     flex-direction: column;
@@ -5045,13 +4990,18 @@ body.dns-collapsed .dns-collapse-arrow {
 
 /* 收起状态：恢复原始偏移 */
 body.dns-collapsed .chat-area {
-    margin-left: max(420px, calc((100% - 800px) / 2 + 25px)) !important;
+    /* 收起文档侧边栏后，左侧只有 60px(图标栏) + 320px(反馈面板) + 20px(间距) = 400px */
+    margin-left: max(420px, calc(50% - 280px)) !important;
 }
 
 body.dns-collapsed .input-area {
-    left: max(420px, calc((100% - 800px) / 2 + 25px)) !important;
+    left: max(420px, calc(50% - 280px)) !important;
 }
 
 body.dns-collapsed .ai-feedback-panel {
     left: calc(60px + var(--spacing-lg)) !important;
+}
+/* 收起状态：notify-stack 左侧只有 60px 图标栏 */
+body.dns-collapsed .notify-stack {
+    left: calc(60px + 20px) !important;
 }

@@ -390,46 +390,52 @@
         </div>
     </div>
 
-    <!-- 试用模式提示窗口（20秒倒计时，与思考反馈面板风格一致） -->
-    <div id="trial-status-panel" class="trial-status-panel hidden">
-        <div class="trial-status-header">
-            <div class="trial-status-title">
-                <span class="trial-status-icon">⚠️</span>
-                <span class="trial-status-title-text">试用模式提示</span>
-                <span class="trial-status-countdown-badge" id="trial-status-countdown">20</span>
-            </div>
-            <button id="trial-status-toggle" class="trial-status-toggle" aria-label="展开/收起">
-                <span class="trial-toggle-icon">▼</span>
-            </button>
-        </div>
-        <div class="trial-status-body" id="trial-status-body">
-            <p class="trial-status-message">退出网页会把记录全部删除，需要进行登录才具备云端存储功能。</p>
-            <div class="trial-status-footer">
-                <span class="trial-status-timer">将在 <span id="trial-status-timer-num">20</span> 秒后自动关闭</span>
-                <button id="trial-status-close" class="trial-status-know-btn" aria-label="知道了">知道了</button>
-            </div>
-        </div>
-    </div>
+    <!-- ============================================================
+         左下角通知消息列表容器
+         包含：① 试用记忆提示（黄色）  ② 手机文档续写（紫色）
+         位置：两侧边栏右侧、内容区左下角
+         ============================================================ -->
+    <div id="notify-stack" class="notify-stack">
 
-    <!-- 续写手机端笔记确认弹窗（右上角，进入试用模式后显示，20秒后自动消失） -->
-    <div id="mobile-note-prompt" class="mobile-note-prompt hidden">
-        <div class="mobile-note-prompt-content">
-            <div class="mobile-note-prompt-header">
-                <span class="mobile-note-prompt-icon">📱</span>
-                <h3 class="mobile-note-prompt-title">继续您的手机笔记</h3>
+        <!-- 卡片①：试用模式记忆提示（黄色主题） -->
+        <div id="trial-status-panel" class="notify-card notify-card--yellow hidden">
+            <div class="notify-card-header">
+                <div class="notify-card-title">
+                    <span class="notify-card-icon">⚠️</span>
+                    <span class="notify-card-title-text">试用模式提示</span>
+                </div>
+                <div class="notify-card-meta">
+                    <span class="notify-card-countdown" id="trial-status-countdown">20</span>
+                    <button id="trial-status-close" class="notify-card-close" aria-label="关闭">×</button>
+                </div>
             </div>
-            <p class="mobile-note-prompt-message">检测到您有未完成的手机端笔记，是否继续续写？</p>
-            <div class="mobile-note-prompt-countdown">
-                <span class="mobile-note-prompt-countdown-text">将在 <span id="mobile-note-countdown">20</span> 秒后自动关闭</span>
-            </div>
-            <div class="mobile-note-prompt-footer">
-                <button id="mobile-note-confirm-btn" class="mobile-note-btn mobile-note-btn-primary">确定</button>
-                <button id="mobile-note-cancel-btn" class="mobile-note-btn mobile-note-btn-secondary">取消</button>
+            <div class="notify-card-body">
+                <p class="notify-card-message">退出网页会把记录全部删除，需要进行登录才具备云端存储功能。</p>
             </div>
         </div>
-    </div>
 
-    <!-- 面试模式介绍弹窗（左侧，在试用模式弹窗下方，点击面试模式后显示，5秒后自动消失） -->
+        <!-- 卡片②：续写手机端笔记（紫色主题） -->
+        <div id="mobile-note-prompt" class="notify-card notify-card--purple hidden">
+            <div class="notify-card-header">
+                <div class="notify-card-title">
+                    <span class="notify-card-icon">📱</span>
+                    <span class="notify-card-title-text">继续您的手机笔记</span>
+                </div>
+                <div class="notify-card-meta">
+                    <span class="notify-card-countdown" id="mobile-note-countdown">20</span>
+                    <button id="mobile-note-cancel-btn" class="notify-card-close" aria-label="关闭">×</button>
+                </div>
+            </div>
+            <div class="notify-card-body">
+                <p class="notify-card-message">检测到您有未完成的手机端笔记，是否继续续写？</p>
+                <div class="notify-card-actions">
+                    <button id="mobile-note-confirm-btn" class="notify-card-btn notify-card-btn--primary">确定续写</button>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /notify-stack -->
+    <!-- 面试模式介绍弹窗窗（左侧，在试用模式弹窗下方，点击面试模式后显示，5秒后自动消失） -->
     <div id="interview-mode-info-panel" class="interview-mode-info-panel hidden">
         <div class="interview-mode-info-content">
             <div class="interview-mode-info-header">

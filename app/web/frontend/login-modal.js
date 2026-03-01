@@ -566,109 +566,83 @@ if (document.readyState === 'loading') {
 // 续写手机端笔记确认弹窗
 // ================================
 
-// 倒计时器引用
-let mobileNoteCountdownTimer = null;
-let mobileNoteAutoCloseTimer = null;
-
 /**
- * 显示续写手机端笔记确认弹窗
- * 在试用模式激活后，右上角弹出，20秒后自动关闭
+ * 显示续写手机端笔记确认卡片
+ * 在试用模式激活后，左下角弹出，20秒后自动关闭
  */
 function showMobileNotePrompt() {
-    const prompt = document.getElementById('mobile-note-prompt');
+    const card = document.getElementById('mobile-note-prompt');
     const countdownEl = document.getElementById('mobile-note-countdown');
+    const progressBar = document.getElementById('mobile-progress-bar');
     const confirmBtn = document.getElementById('mobile-note-confirm-btn');
     const cancelBtn = document.getElementById('mobile-note-cancel-btn');
-    
-    if (!prompt) {
-        console.warn('[续写弹窗] 找不到弹窗元素');
+
+    if (!card) {
+        console.warn('[\u7eed\u5199\u5f39\u7a97] \u627e\u4e0d\u5230\u5361\u7247\u5143\u7d20');
         return;
     }
-    
-    // 清除可能存在的旧定时器
-    if (mobileNoteCountdownTimer) {
-        clearInterval(mobileNoteCountdownTimer);
-        mobileNoteCountdownTimer = null;
-    }
-    if (mobileNoteAutoCloseTimer) {
-        clearTimeout(mobileNoteAutoCloseTimer);
-        mobileNoteAutoCloseTimer = null;
-    }
-    
-    // 重置倒计时显示
-    let secondsLeft = 20;
-    if (countdownEl) countdownEl.textContent = secondsLeft;
-    
-    // 显示弹窗
-    prompt.classList.remove('hidden');
-    prompt.classList.remove('fading');
-    console.log('[续写弹窗] 已显示续写手机端笔记弹窗');
-    
-    // 启动倒计时
-    mobileNoteCountdownTimer = setInterval(() => {
-        secondsLeft -= 1;
+
+    // 显示卡片
+    card.classList.remove('hidden');
+    card.classList.remove('fading');
+    console.log('[\u7eed\u5199\u5f39\u7a97] \u5df2\u663e\u793a\u7eed\u5199\u624b\u673a\u7aef\u7b14\u8bb0\u5361\u7247');
+
+    // 使用通用倒计时（如果 app.js 已加\u8f7d）
+    if (typeof startNotifyCountdown === 'function') {
+        startNotifyCountdown(card, countdownEl, progressBar, 20);
+    } else {
+        // fallback：简单倒计时
+        let secondsLeft = 20;
         if (countdownEl) countdownEl.textContent = secondsLeft;
-        if (secondsLeft <= 0) {
-            clearInterval(mobileNoteCountdownTimer);
-            mobileNoteCountdownTimer = null;
-        }
-    }, 1000);
-    
-    // 20秒后自动关闭
-    mobileNoteAutoCloseTimer = setTimeout(() => {
-        hideMobileNotePrompt();
-    }, 20000);
-    
-    // 绑定确定按鈕（如果还没绑定）
+        const t = setInterval(() => {
+            secondsLeft -= 1;
+            if (countdownEl) countdownEl.textContent = secondsLeft;
+            if (secondsLeft <= 0) {
+                clearInterval(t);
+                hideMobileNotePrompt();
+            }
+        }, 1000);
+        card._countdownInterval = t;
+    }
+
+    // 绑定确定按鈕
     if (confirmBtn && !confirmBtn.hasAttribute('data-mobile-listener')) {
         confirmBtn.setAttribute('data-mobile-listener', 'true');
         confirmBtn.addEventListener('click', () => {
-            console.log('[续写弹窗] 用户点击确定');
+            console.log('[\u7eed\u5199\u5f39\u7a97] \u7528\u6237\u70b9\u51fb\u786e\u5b9a');
             hideMobileNotePrompt();
         });
     }
-    
-    // 绑定取消按鈕（如果还没绑定）
+
+    // 绑定\u5173\u95ed\u6309\u9215
     if (cancelBtn && !cancelBtn.hasAttribute('data-mobile-listener')) {
         cancelBtn.setAttribute('data-mobile-listener', 'true');
         cancelBtn.addEventListener('click', () => {
-            console.log('[续写弹窗] 用户点击取消');
+            console.log('[\u7eed\u5199\u5f39\u7a97] \u7528\u6237\u70b9\u51fb\u5173\u95ed');
             hideMobileNotePrompt();
         });
     }
 }
 
 /**
- * 隐藏续写手机端笔记确认弹窗
- * 带淡出动画
+ * \u9690\u85cf\u7eed\u5199\u624b\u673a\u7aef\u7b14\u8bb0\u5361\u7247
  */
 function hideMobileNotePrompt() {
-    const prompt = document.getElementById('mobile-note-prompt');
-    
-    // 清除定时器
-    if (mobileNoteCountdownTimer) {
-        clearInterval(mobileNoteCountdownTimer);
-        mobileNoteCountdownTimer = null;
+    const card = document.getElementById('mobile-note-prompt');
+    if (!card) return;
+
+    if (typeof dismissNotifyCard === 'function') {
+        dismissNotifyCard(card);
+    } else {
+        // fallback
+        if (card._countdownInterval) clearInterval(card._countdownInterval);
+        card.classList.add('fading');
+        setTimeout(() => {
+            card.classList.add('hidden');
+            card.classList.remove('fading');
+        }, 450);
     }
-    if (mobileNoteAutoCloseTimer) {
-        clearTimeout(mobileNoteAutoCloseTimer);
-        mobileNoteAutoCloseTimer = null;
-    }
-    
-    if (!prompt) return;
-    
-    // 添加淡出动画
-    prompt.classList.add('fading');
-    
-    // 动画结束后隐藏
-    setTimeout(() => {
-        if (prompt) {
-            prompt.classList.add('hidden');
-            prompt.classList.remove('fading');
-        }
-    }, 500);
-    
-    console.log('[续写弹窗] 弹窗已关闭');
+    console.log('[\u7eed\u5199\u5f39\u7a97] \u5361\u7247\u5df2\u5173\u95ed');
 }
 
 // 暴露到全局作用域

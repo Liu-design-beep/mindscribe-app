@@ -3371,61 +3371,29 @@ function updateTrialStatusBubble() {
     const trialPanel = document.getElementById('trial-status-panel');
     const trialIndicator = document.getElementById('trial-mode-indicator');
     const trialCloseBtn = document.getElementById('trial-status-close');
-    const trialToggleBtn = document.getElementById('trial-status-toggle');
     const trialCountdownBadge = document.getElementById('trial-status-countdown');
-    const trialTimerNum = document.getElementById('trial-status-timer-num');
-    const trialHeader = trialPanel ? trialPanel.querySelector('.trial-status-header') : null;
+    const trialProgressBar = document.getElementById('trial-progress-bar');
 
     // 检查是否为试用模式
     const storedMode = localStorage.getItem('is_trial_mode');
     const isTrialMode = storedMode !== 'false';
 
     if (isTrialMode) {
-        // 显示试用状态面板
+        // 显示试用状态卡片
         if (trialPanel) {
             trialPanel.classList.remove('hidden');
             trialPanel.classList.remove('fading');
-            trialPanel.classList.remove('collapsed');
 
-            // 「知道了」关闭按钮
+            // 关闭按钮
             if (trialCloseBtn && !trialCloseBtn.hasAttribute('data-listener-attached')) {
                 trialCloseBtn.setAttribute('data-listener-attached', 'true');
                 trialCloseBtn.addEventListener('click', () => {
-                    dismissTrialPanel(trialPanel);
+                    dismissNotifyCard(trialPanel);
                 });
             }
 
-            // 标题栏点击折叠/展开
-            if (trialHeader && !trialHeader.hasAttribute('data-listener-attached')) {
-                trialHeader.setAttribute('data-listener-attached', 'true');
-                trialHeader.addEventListener('click', (e) => {
-                    // 避免「知道了」按钮冒泡触发折叠
-                    if (e.target.closest('.trial-status-know-btn')) return;
-                    trialPanel.classList.toggle('collapsed');
-                });
-            }
-
-            // 20 秒倒计时
-            let remaining = 20;
-            const updateBadge = () => {
-                if (trialCountdownBadge) trialCountdownBadge.textContent = remaining;
-                if (trialTimerNum) trialTimerNum.textContent = remaining;
-            };
-            updateBadge();
-
-            const countdownInterval = setInterval(() => {
-                remaining -= 1;
-                updateBadge();
-                if (remaining <= 0) {
-                    clearInterval(countdownInterval);
-                    if (trialPanel && !trialPanel.classList.contains('hidden')) {
-                        dismissTrialPanel(trialPanel);
-                    }
-                }
-            }, 1000);
-
-            // 将 interval 存到面板上，以便手动关闭时清除
-            trialPanel._countdownInterval = countdownInterval;
+            // 20 秒倒计时 + 进度条
+            startNotifyCountdown(trialPanel, trialCountdownBadge, trialProgressBar, 20);
         }
 
         // 显示右侧试用模式标识（固定显示）
@@ -3433,7 +3401,7 @@ function updateTrialStatusBubble() {
             trialIndicator.classList.remove('hidden');
         }
     } else {
-        // 隐藏试用状态面板
+        // 隐藏试用状态卡片
         if (trialPanel) {
             trialPanel.classList.add('hidden');
             trialPanel.classList.remove('fading');
@@ -3448,17 +3416,54 @@ function updateTrialStatusBubble() {
     }
 }
 
-/** 淡出并隐藏试用提示面板，同时清除倒计时 */
-function dismissTrialPanel(panel) {
-    if (!panel) return;
-    if (panel._countdownInterval) {
-        clearInterval(panel._countdownInterval);
+/**
+ * 通用倒计时函数：更新倒计时数字，到时自动淡出关闭卡片
+ * 两张卡片各自独立计时，互不影响
+ * @param {HTMLElement} card - 卡片元素
+ * @param {HTMLElement} countdownEl - 倒计时数字元素
+ * @param {HTMLElement} _unused - 保留参数，未使用
+ * @param {number} seconds - 倒计时秒数（默认 20）
+ */
+function startNotifyCountdown(card, countdownEl, _unused, seconds = 20) {
+    if (!card) return;
+    // 清除旧定时器，避免重复计时
+    if (card._countdownInterval) clearInterval(card._countdownInterval);
+
+    let remaining = seconds;
+    // 初始化显示
+    if (countdownEl) countdownEl.textContent = remaining;
+
+    // 每秒递减倒计时数字
+    card._countdownInterval = setInterval(() => {
+        remaining -= 1;
+        if (countdownEl) countdownEl.textContent = remaining;
+        if (remaining <= 0) {
+            clearInterval(card._countdownInterval);
+            card._countdownInterval = null;
+            if (!card.classList.contains('hidden')) {
+                dismissNotifyCard(card);
+            }
+        }
+    }, 1000);
+}
+
+/** 淡出并隐藏通知卡片，同时清除倒计时 */
+function dismissNotifyCard(card) {
+    if (!card) return;
+    if (card._countdownInterval) {
+        clearInterval(card._countdownInterval);
+        card._countdownInterval = null;
     }
-    panel.classList.add('fading');
+    card.classList.add('fading');
     setTimeout(() => {
-        panel.classList.add('hidden');
-        panel.classList.remove('fading');
-    }, 500);
+        card.classList.add('hidden');
+        card.classList.remove('fading');
+    }, 450);
+}
+
+/** 居容旧接口：淡出并隐藏试用提示面板 */
+function dismissTrialPanel(panel) {
+    dismissNotifyCard(panel);
 }
 
 // ============================================
