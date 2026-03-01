@@ -621,17 +621,25 @@ class LLMIntentRecognizer:
         if self.vector_store and self.vector_store.enabled and self.session_id:
             try:
                 import asyncio
-                # 如果当前已在异步环境中，直接 await；否则创建临时事件循环
-                loop = asyncio.get_event_loop()
-                if loop.is_running():
-                    # 在异步上下文中（Cloudflare Workers / FastAPI async）
-                    rag_chunks = await self.vector_store.search(
-                        query=user_input,
-                        session_id=self.session_id,
-                        top_k=3
-                    )
-                else:
-                    rag_chunks = loop.run_until_complete(
+                # recognize() 是同步函数，使用 asyncio.run() 运行异步检索
+                # 如果已有事件循环在运行（如 Jupyter），使用 nest_asyncio；否则直接 asyncio.run()
+                try:
+                    loop = asyncio.get_running_loop()
+                    # 已有运行中的循环，创建新线程运行
+                    import concurrent.futures
+                    with concurrent.futures.ThreadPoolExecutor() as pool:
+                        future = pool.submit(
+                            asyncio.run,
+                            self.vector_store.search(
+                                query=user_input,
+                                session_id=self.session_id,
+                                top_k=3
+                            )
+                        )
+                        rag_chunks = future.result(timeout=10)
+                except RuntimeError:
+                    # 没有运行中的循环，直接创建新循环
+                    rag_chunks = asyncio.run(
                         self.vector_store.search(
                             query=user_input,
                             session_id=self.session_id,
