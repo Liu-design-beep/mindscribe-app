@@ -4619,9 +4619,9 @@ kbd {
    ============================================ */
 .current-doc-badge {
     position: absolute;
-    top: 50%;
-    left: calc(var(--spacing-md) + 40px + 10px); /* 分享按钮宽度 40px + 间距 */
-    transform: translateY(-50%);
+    top: var(--spacing-sm); /* 与分享按鈕 wrapper 的 top 一致 */
+    left: calc(var(--spacing-md) + 40px + 10px); /* 分享按鈕宽度 40px + 间距 */
+    transform: translateY(6px); /* 小幅居中对齐 40px 按鈕 */
     display: inline-flex;
     align-items: center;
     gap: 4px;
