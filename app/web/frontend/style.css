@@ -4814,7 +4814,8 @@ kbd {
 .doc-badge-group {
     position: absolute;
     top: var(--spacing-sm);
-    left: calc(var(--spacing-md) + 40px + 10px); /* 与分享按鈕对齐 */
+    /* var(--spacing-md)=16px 左边距 + 笔记共享按鈕宽度约110px + 12px统一间距 */
+    left: calc(var(--spacing-md) + 110px + 12px);
     transform: translateY(6px);
     display: inline-flex;
     align-items: center;
