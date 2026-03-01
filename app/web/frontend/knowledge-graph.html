@@ -433,6 +433,94 @@
       pointer-events: none;
     }
     .graph-empty-icon { font-size: 48px; margin-bottom: 12px; }
+
+    /* ── 知识图谱功能预告提示框 ── */
+    .kg-notice {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(129,140,248,0.05) 100%);
+      border-bottom: 1px solid rgba(99,102,241,0.18);
+      flex-shrink: 0;
+      animation: kg-notice-in 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+      overflow: hidden;
+      transition: max-height 0.35s ease, opacity 0.35s ease, padding 0.35s ease;
+      max-height: 80px;
+    }
+    .kg-notice.hiding {
+      max-height: 0;
+      opacity: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+    @keyframes kg-notice-in {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .kg-notice-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .kg-notice-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .kg-notice-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-primary);
+      letter-spacing: 0.04em;
+      margin-bottom: 2px;
+    }
+    .kg-notice-text {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+    }
+    .kg-notice-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .kg-notice-countdown {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-primary-light);
+      background: rgba(99,102,241,0.1);
+      border-radius: 10px;
+      padding: 2px 8px;
+      min-width: 32px;
+      text-align: center;
+      transition: color 0.3s;
+    }
+    .kg-notice-countdown.urgent {
+      color: #f59e0b;
+      background: rgba(245,158,11,0.1);
+    }
+    .kg-notice-close {
+      width: 24px;
+      height: 24px;
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 6px;
+      background: transparent;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      line-height: 1;
+    }
+    .kg-notice-close:hover {
+      background: rgba(99,102,241,0.12);
+      color: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+
   </style>
 </head>
 <body>
@@ -444,6 +532,19 @@
   <span class="header-subtitle">· GraphRAG Sample 演示</span>
   <button class="header-close-btn" id="close-btn" title="关闭" onclick="window.parent.postMessage('closeKnowledgeGraph', '*')">✕</button>
 </header>
+
+<!-- 提示框 -->
+<div class="kg-notice" id="kg-notice">
+  <div class="kg-notice-icon">✨</div>
+  <div class="kg-notice-body">
+    <div class="kg-notice-title">功能预告</div>
+    <div class="kg-notice-text">未来将自动根据您的笔记内容，实时更新并生成对应的知识图谱，当前为 Sample 演示数据。</div>
+  </div>
+  <div class="kg-notice-right">
+    <span class="kg-notice-countdown" id="kg-notice-countdown">8s</span>
+    <button class="kg-notice-close" id="kg-notice-close" title="关闭">✕</button>
+  </div>
+</div>
 
 <!-- Body -->
 <div class="app-body">
@@ -1104,6 +1205,41 @@ function showNodeDetail(node) {
 // ── 初始化 ────────────────────────────────────────────────────────────────────
 initZoom()
 loadDataset('scientists')
+
+// ── 功能预告提示框倒计时 ──
+(function () {
+  const notice = document.getElementById('kg-notice');
+  const countdownEl = document.getElementById('kg-notice-countdown');
+  const closeBtn = document.getElementById('kg-notice-close');
+  if (!notice || !countdownEl || !closeBtn) return;
+
+  let seconds = 8;
+
+  function dismiss() {
+    clearInterval(timer);
+    notice.classList.add('hiding');
+    // 动画结束后完全移除
+    notice.addEventListener('transitionend', () => {
+      notice.style.display = 'none';
+    }, { once: true });
+  }
+
+  // 倒计时更新
+  const timer = setInterval(() => {
+    seconds -= 1;
+    countdownEl.textContent = seconds + 's';
+    if (seconds <= 3) {
+      countdownEl.classList.add('urgent');
+    }
+    if (seconds <= 0) {
+      dismiss();
+    }
+  }, 1000);
+
+  // 点击关闭按鈕
+  closeBtn.addEventListener('click', dismiss);
+}());
+
 </script>
 </body>
 </html>
