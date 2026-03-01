@@ -2908,29 +2908,41 @@ body.dns-collapsed .notify-stack {
 }
 
 .share-note-btn {
-    width: 40px;
+    width: auto;
     height: 40px;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid var(--border-color);
-    border-radius: 50%;
+    padding: 0 14px;
+    gap: 6px;
+    background: rgba(255, 160, 80, 0.15);
+    border: 1px solid rgba(255, 140, 50, 0.35);
+    border-radius: 20px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all var(--transition-fast);
-    box-shadow: var(--shadow-sm);
-    padding: 0;
+    box-shadow: 0 1px 4px rgba(255, 140, 50, 0.15);
+    color: #c2610a;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
 }
 
 .share-note-btn:hover {
-    transform: scale(1.1);
-    box-shadow: var(--shadow-md);
-    background: rgba(255, 255, 255, 1);
-    border-color: var(--primary-color);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(255, 140, 50, 0.25);
+    background: rgba(255, 160, 80, 0.28);
+    border-color: rgba(255, 140, 50, 0.55);
+    color: #a04d06;
 }
 
 .share-note-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.98);
+}
+
+.share-note-text {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
 .share-note-icon-img {
