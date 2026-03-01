@@ -1419,17 +1419,19 @@ async def chat(request: ChatRequest):
             if unknown_count >= 3:
                 # 重置计数
                 unknown_count_sessions[session_id] = 0
+                # 记录屁底日志
+                print(f"[FALLBACK屁底] session={session_id} 连续3次无法理解，触发屁底回复，已记录反馈")
                 intent_data = {
                     "intent": "UNKNOWN",
                     "intent_type": "UNKNOWN",
-                    "content": "对于这个失误，灵辑感到很抱歉。\n\n灵辑团队已经收到您对于灵辑使用上的障碍问题，并承诺进行改进。\n\n如果您能提供更多关于您想要实现的功能的信息，这将帮助我们更好地为您服务。",
+                    "content": "非常抒歉，这是我们技术部门的失误。\n\n您的这次反馈已经被记录并将第一时间同步给灵辑团队，我们会尽快进行修复和改进。\n\n您可以尝试换一种方式表达，或者稍后再试。再次为此次不便表示歉意。",
                     "message_style": "warning"
                 }
             else:
                 intent_data = {
                     "intent": "UNKNOWN",
                     "intent_type": "UNKNOWN",
-                    "content": "抱歉，我无法理解您的指令。请尝试使用更清晰的表达，或者告诉我您想要做什么。",
+                    "content": "抒歉，我暂时无法理解这个指令。请尝试用更直接的方式描述您想做的事情，我会尽力理解。",
                     "message_style": "error"
                 }
         

@@ -1616,8 +1616,10 @@ async function handleBackendResponse(response) {
             }
             break;
         case 'TEXT':
+            // 成功响应，重置 UNKNOWN 计数器
+            consecutiveUnknownCount = 0;
             // 如果是普通文本回复，只根据后端返回的message_style决定是否使用错误样式
-            // 不再依赖内容关键词判断，因为正常消息也可能包含"抱歉"等词
+            // 不再依赖内容关键词判断，因为正常消息也可能包含“抒歉”等词
             const isError = message_style === 'error';
             const isWarning = message_style === 'warning';
             
@@ -1691,6 +1693,8 @@ async function handleBackendResponse(response) {
             break;
             
         case 'DOCUMENT':
+            // 成功响应，重置 UNKNOWN 计数器
+            consecutiveUnknownCount = 0;
             // 如果是文档内容，以文档卡片形式展示
             addMessageToChat('ai', content, 'document');
             addAIFeedbackFromResponse(response);
@@ -1698,17 +1702,23 @@ async function handleBackendResponse(response) {
             break;
             
         case 'UNKNOWN':
-            // 如果是无法识别的指令，根据message_style决定使用哪种样式
-            // 注意：问候消息应该通过 GREETING 意图处理，不应该进入这个分支
-            const unknownIsWarning = message_style === 'warning';
-            const unknownIsError = (message_style === 'error' || (message_style === undefined && !unknownIsWarning));
-            
-            if (unknownIsWarning) {
-                console.log('⚠️ [UNKNOWN响应] 三次无法理解，将使用警告样式显示（黄色气泡）');
+            // 前端计数器累加（不依赖后端内存状态）
+            consecutiveUnknownCount++;
+            console.log(`⚠️ [UNKNOWN响应] 连续失败次数: ${consecutiveUnknownCount}`);
+
+            if (consecutiveUnknownCount >= 3) {
+                // 第三次屁底：重置计数，显示技术失误歉意消息
+                consecutiveUnknownCount = 0;
+                const fallbackMsg = '非常抱歉，这是我们技术部门的失误。\n\n您的这次反馈已经被记录，并将第一时间同步给灵辑团队。我们会尽快进行修复和改进。\n\n您可以尝试换一种方式表达，或者稍后再试。再次为此次不便表示歉意。';
+                console.log('⚠️ [UNKNOWN屁底] 触发屁底回复，已记录反馈');
+                addMessageToChat('ai', fallbackMsg, 'text', false, true); // warning 样式（黄色）
             } else {
+                // 前两次：正常错误提示
+                const unknownIsWarning = message_style === 'warning';
+                const unknownIsError = (message_style === 'error' || (message_style === undefined && !unknownIsWarning));
                 console.log('⚠️ [UNKNOWN响应] 收到无法识别的指令，将使用错误样式显示');
+                addMessageToChat('ai', content || '抱歉，我暂时无法理解这个指令。请尝试用更直接的方式描述您想做的事情。', 'text', unknownIsError, unknownIsWarning);
             }
-            addMessageToChat('ai', content || '抱歉，我无法理解您的指令。', 'text', unknownIsError, unknownIsWarning);
             addAIFeedbackFromResponse(response);
             break;
             
@@ -1735,6 +1745,9 @@ async function handleBackendResponse(response) {
  */
 // 标记是否已经绑定过事件，避免重复绑定
 let eventListenersBound = false;
+
+// 前端 UNKNOWN 计数器（越过后端内存状态不可靠的问题）
+let consecutiveUnknownCount = 0;
 
 // 将标记暴露到全局作用域，允许外部重置
 window.eventListenersBound = false;
