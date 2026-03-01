@@ -2212,13 +2212,24 @@ body.dns-collapsed .notify-stack {
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 14px;
-    line-height: 1;
     padding: 0;
     opacity: 0;
     transition: opacity var(--transition-fast), background var(--transition-fast);
     flex-shrink: 0;
     margin-left: 4px;
+}
+
+.doc-view-eye-img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    display: block;
+    filter: none;
+    transition: filter var(--transition-fast);
+}
+
+.doc-view-icon-btn:hover .doc-view-eye-img {
+    filter: brightness(0.7) sepia(1) hue-rotate(200deg) saturate(3);
 }
 
 .doc-list-item:hover .doc-view-icon-btn {
