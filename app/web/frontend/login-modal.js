@@ -516,6 +516,9 @@ function startTrialMode() {
         }
         
         console.log('[试用模式] 试用模式初始化完成');
+        
+        // 显示续写手机端笔记确认弹窗（右上角）
+        showMobileNotePrompt();
     }, 200);
 }
 
@@ -558,4 +561,117 @@ if (document.readyState === 'loading') {
 } else {
     setTimeout(initPasswordModal, 100);
 }
+
+// ================================
+// 续写手机端笔记确认弹窗
+// ================================
+
+// 倒计时器引用
+let mobileNoteCountdownTimer = null;
+let mobileNoteAutoCloseTimer = null;
+
+/**
+ * 显示续写手机端笔记确认弹窗
+ * 在试用模式激活后，右上角弹出，20秒后自动关闭
+ */
+function showMobileNotePrompt() {
+    const prompt = document.getElementById('mobile-note-prompt');
+    const countdownEl = document.getElementById('mobile-note-countdown');
+    const confirmBtn = document.getElementById('mobile-note-confirm-btn');
+    const cancelBtn = document.getElementById('mobile-note-cancel-btn');
+    
+    if (!prompt) {
+        console.warn('[续写弹窗] 找不到弹窗元素');
+        return;
+    }
+    
+    // 清除可能存在的旧定时器
+    if (mobileNoteCountdownTimer) {
+        clearInterval(mobileNoteCountdownTimer);
+        mobileNoteCountdownTimer = null;
+    }
+    if (mobileNoteAutoCloseTimer) {
+        clearTimeout(mobileNoteAutoCloseTimer);
+        mobileNoteAutoCloseTimer = null;
+    }
+    
+    // 重置倒计时显示
+    let secondsLeft = 20;
+    if (countdownEl) countdownEl.textContent = secondsLeft;
+    
+    // 显示弹窗
+    prompt.classList.remove('hidden');
+    prompt.classList.remove('fading');
+    console.log('[续写弹窗] 已显示续写手机端笔记弹窗');
+    
+    // 启动倒计时
+    mobileNoteCountdownTimer = setInterval(() => {
+        secondsLeft -= 1;
+        if (countdownEl) countdownEl.textContent = secondsLeft;
+        if (secondsLeft <= 0) {
+            clearInterval(mobileNoteCountdownTimer);
+            mobileNoteCountdownTimer = null;
+        }
+    }, 1000);
+    
+    // 20秒后自动关闭
+    mobileNoteAutoCloseTimer = setTimeout(() => {
+        hideMobileNotePrompt();
+    }, 20000);
+    
+    // 绑定确定按鈕（如果还没绑定）
+    if (confirmBtn && !confirmBtn.hasAttribute('data-mobile-listener')) {
+        confirmBtn.setAttribute('data-mobile-listener', 'true');
+        confirmBtn.addEventListener('click', () => {
+            console.log('[续写弹窗] 用户点击确定');
+            hideMobileNotePrompt();
+        });
+    }
+    
+    // 绑定取消按鈕（如果还没绑定）
+    if (cancelBtn && !cancelBtn.hasAttribute('data-mobile-listener')) {
+        cancelBtn.setAttribute('data-mobile-listener', 'true');
+        cancelBtn.addEventListener('click', () => {
+            console.log('[续写弹窗] 用户点击取消');
+            hideMobileNotePrompt();
+        });
+    }
+}
+
+/**
+ * 隐藏续写手机端笔记确认弹窗
+ * 带淡出动画
+ */
+function hideMobileNotePrompt() {
+    const prompt = document.getElementById('mobile-note-prompt');
+    
+    // 清除定时器
+    if (mobileNoteCountdownTimer) {
+        clearInterval(mobileNoteCountdownTimer);
+        mobileNoteCountdownTimer = null;
+    }
+    if (mobileNoteAutoCloseTimer) {
+        clearTimeout(mobileNoteAutoCloseTimer);
+        mobileNoteAutoCloseTimer = null;
+    }
+    
+    if (!prompt) return;
+    
+    // 添加淡出动画
+    prompt.classList.add('fading');
+    
+    // 动画结束后隐藏
+    setTimeout(() => {
+        if (prompt) {
+            prompt.classList.add('hidden');
+            prompt.classList.remove('fading');
+        }
+    }, 500);
+    
+    console.log('[续写弹窗] 弹窗已关闭');
+}
+
+// 暴露到全局作用域
+window.showMobileNotePrompt = showMobileNotePrompt;
+window.hideMobileNotePrompt = hideMobileNotePrompt;
 

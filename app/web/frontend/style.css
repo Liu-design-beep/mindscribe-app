@@ -4470,3 +4470,147 @@ kbd {
     white-space: nowrap;
 }
 
+
+/* ============================================
+   续写手机端笔记确认弹窗（右上角，试用模式触发）
+   ============================================ */
+.mobile-note-prompt {
+    position: fixed;
+    top: calc(var(--header-height) + 16px); /* 紧贴顶部导航栏下方 */
+    right: var(--spacing-lg); /* 右上角 */
+    width: 300px;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    border-radius: var(--border-radius-sm);
+    box-shadow: var(--shadow-lg);
+    z-index: 1500; /* 高于普通面板，低于模态框 */
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    overflow: hidden;
+    animation: mobileNoteSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes mobileNoteSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mobile-note-prompt.hidden {
+    display: none;
+}
+
+.mobile-note-prompt.fading {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.mobile-note-prompt-content {
+    padding: 16px 18px 14px;
+}
+
+.mobile-note-prompt-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.mobile-note-prompt-icon {
+    font-size: 22px;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.mobile-note-prompt-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    flex: 1;
+    line-height: 1.4;
+}
+
+.mobile-note-prompt-message {
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--text-secondary);
+    margin: 0 0 10px 0;
+}
+
+.mobile-note-prompt-countdown {
+    margin-bottom: 14px;
+}
+
+.mobile-note-prompt-countdown-text {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.2px;
+}
+
+#mobile-note-countdown {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.mobile-note-prompt-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.mobile-note-btn {
+    padding: 7px 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: inherit;
+    line-height: 1.4;
+}
+
+.mobile-note-btn-primary {
+    background: var(--primary-color);
+    color: var(--text-light);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.mobile-note-btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.mobile-note-btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+}
+
+.mobile-note-btn-secondary {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-secondary);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.mobile-note-btn-secondary:hover {
+    background: rgba(0, 0, 0, 0.09);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.mobile-note-btn-secondary:active {
+    transform: translateY(0);
+}

@@ -312,6 +312,24 @@
         </div>
     </div>
 
+    <!-- 续写手机端笔记确认弹窗（右上角，进入试用模式后显示，20秒后自动消失） -->
+    <div id="mobile-note-prompt" class="mobile-note-prompt hidden">
+        <div class="mobile-note-prompt-content">
+            <div class="mobile-note-prompt-header">
+                <span class="mobile-note-prompt-icon">📱</span>
+                <h3 class="mobile-note-prompt-title">继续您的手机笔记</h3>
+            </div>
+            <p class="mobile-note-prompt-message">检测到您有未完成的手机端笔记，是否继续续写？</p>
+            <div class="mobile-note-prompt-countdown">
+                <span class="mobile-note-prompt-countdown-text">将在 <span id="mobile-note-countdown">20</span> 秒后自动关闭</span>
+            </div>
+            <div class="mobile-note-prompt-footer">
+                <button id="mobile-note-confirm-btn" class="mobile-note-btn mobile-note-btn-primary">确定</button>
+                <button id="mobile-note-cancel-btn" class="mobile-note-btn mobile-note-btn-secondary">取消</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 面试模式介绍弹窗（左侧，在试用模式弹窗下方，点击面试模式后显示，5秒后自动消失） -->
     <div id="interview-mode-info-panel" class="interview-mode-info-panel hidden">
         <div class="interview-mode-info-content">
