@@ -2427,11 +2427,37 @@ function initEventListeners() {
         });
     }
 
-    // 新建文档按钮（复用现有 openSidebar 逻辑）
+    // 新建文档按鈕（复用现有 openSidebar 逻辑）
     const newDocBtn = document.getElementById('new-doc-btn');
     if (newDocBtn) {
         newDocBtn.addEventListener('click', () => {
             openSidebar();
+        });
+    }
+
+    // 隐私状态胶囊切换按鈕
+    const privacyToggleBtn = document.getElementById('privacy-toggle-btn');
+    if (privacyToggleBtn) {
+        privacyToggleBtn.addEventListener('click', () => {
+            const capsule = document.getElementById('privacy-capsule');
+            const lockIcon = capsule ? capsule.querySelector('.privacy-lock-icon') : null;
+            const label = capsule ? capsule.querySelector('.privacy-label') : null;
+            if (!capsule || !lockIcon || !label) return;
+
+            const isLocalOnly = capsule.classList.contains('local-only');
+            if (isLocalOnly) {
+                // 切换为云端同步
+                capsule.classList.remove('local-only');
+                lockIcon.textContent = '\uD83D\uDD13'; // 🔓
+                label.textContent = '云端自动同步';
+                console.log('[Privacy] 已切换为云端自动同步');
+            } else {
+                // 切换为仅本地存储
+                capsule.classList.add('local-only');
+                lockIcon.textContent = '\uD83D\uDD12'; // 🔒
+                label.textContent = '仅本地存储';
+                console.log('[Privacy] 已切换为仅本地存储');
+            }
         });
     }
 

@@ -4762,6 +4762,105 @@ kbd {
 }
 
 /* ============================================
+   隐私状态胶囊按鈕
+   ============================================ */
+.privacy-capsule {
+    position: absolute;
+    top: var(--spacing-sm);
+    /* current-doc-badge 的 left 是 calc(var(--spacing-md) + 40px + 10px)，它的宽度最大 200px + 8px 间距 */
+    left: calc(var(--spacing-md) + 40px + 10px + 200px + 12px);
+    transform: translateY(6px);
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    background: rgba(99, 102, 241, 0.07);
+    border: 1px solid rgba(99, 102, 241, 0.18);
+    border-radius: 20px;
+    overflow: hidden;
+    white-space: nowrap;
+    z-index: 100;
+    transition: background var(--transition-fast), border-color var(--transition-fast);
+    cursor: default;
+}
+
+.privacy-capsule:hover {
+    background: rgba(99, 102, 241, 0.12);
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+/* 左侧切换按鈕区域 */
+.privacy-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: rgba(99, 102, 241, 0.15);
+    border: none;
+    border-right: 1px solid rgba(99, 102, 241, 0.18);
+    border-radius: 20px 0 0 20px;
+    cursor: pointer;
+    padding: 0;
+    transition: background var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.privacy-toggle-btn:hover {
+    background: rgba(99, 102, 241, 0.28);
+}
+
+.privacy-toggle-icon {
+    font-size: 14px;
+    color: var(--primary-color);
+    line-height: 1;
+    font-style: normal;
+}
+
+/* 右侧状态文字区域 */
+.privacy-status-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px 4px 8px;
+}
+
+.privacy-lock-icon {
+    font-size: 13px;
+    line-height: 1;
+}
+
+.privacy-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--primary-color);
+}
+
+/* 上锁状态（仅本地存储） */
+.privacy-capsule.local-only {
+    background: rgba(234, 179, 8, 0.07);
+    border-color: rgba(234, 179, 8, 0.25);
+}
+
+.privacy-capsule.local-only:hover {
+    background: rgba(234, 179, 8, 0.12);
+    border-color: rgba(234, 179, 8, 0.4);
+}
+
+.privacy-capsule.local-only .privacy-toggle-btn {
+    background: rgba(234, 179, 8, 0.15);
+    border-right-color: rgba(234, 179, 8, 0.25);
+}
+
+.privacy-capsule.local-only .privacy-toggle-btn:hover {
+    background: rgba(234, 179, 8, 0.28);
+}
+
+.privacy-capsule.local-only .privacy-toggle-icon,
+.privacy-capsule.local-only .privacy-label {
+    color: #b45309;
+}
+
+/* ============================================
    知识图谱系统全屏面板
    ============================================ */
 .knowledge-graph-panel {
