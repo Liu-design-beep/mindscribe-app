@@ -20,10 +20,18 @@ binding = "DB"
 database_name = "developernote"
 database_id = "8fb7b530-17e4-44f1-819f-ee585effdbf2"
 
+# Vectorize 向量数据库配置（RAG 功能）
+# 创建命令： wrangler vectorize create mindscribe-notes --dimensions=1536 --metric=cosine
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "mindscribe-notes"
+
 # 环境变量配置
 [vars]
 DEV_MODE_CODE = "开发者模式#000"
 EDIT_MODE_CODE = "set000"
+# 注意：DASHSCOPE_API_KEY 建议通过 Cloudflare Dashboard 的 Secrets 配置，不要写入此文件
+# wrangler secret put DASHSCOPE_API_KEY
 
 # 生产环境配置
 [env.production]

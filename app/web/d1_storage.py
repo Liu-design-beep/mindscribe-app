@@ -5,22 +5,46 @@
 import json
 from typing import Optional, Dict, List
 
+# 尝试导入向量存储模块（RAG 功能）
+try:
+    from vector_store import VectorStore
+    VECTOR_STORE_AVAILABLE = True
+except ImportError:
+    try:
+        from web.vector_store import VectorStore
+        VECTOR_STORE_AVAILABLE = True
+    except ImportError:
+        VECTOR_STORE_AVAILABLE = False
+        VectorStore = None
+
 class D1Storage:
     """
     Cloudflare D1 数据库存储适配器
     用于在 Cloudflare Workers 环境中存储和读取文档数据
     """
     
-    def __init__(self, d1_database=None):
+    def __init__(self, d1_database=None, vectorize=None, dashscope_api_key: str = None):
         """
         初始化 D1 存储
         
         Args:
-            d1_database: Cloudflare D1 数据库对象（在 Workers 环境中传入）
+            d1_database:        Cloudflare D1 数据库对象（在 Workers 环境中传入）
+            vectorize:          Cloudflare Vectorize 绑定对象（用于 RAG）
+            dashscope_api_key:  阿里云 DashScope API Key（用于 Embedding）
         """
         self.db = d1_database
         self.is_d1 = d1_database is not None
         self.db_id = "8fb7b530-17e4-44f1-819f-ee585effdbf2"  # D1 数据库 ID
+        
+        # 初始化向量存储（RAG 功能）
+        if VECTOR_STORE_AVAILABLE and VectorStore is not None:
+            self.vector_store = VectorStore(
+                vectorize=vectorize,
+                api_key=dashscope_api_key
+            )
+        else:
+            self.vector_store = None
+            print("[D1Storage] ⚠️ VectorStore 不可用，RAG 功能已禁用")
         
         # 初始化数据库表
         if self.is_d1:
@@ -257,7 +281,7 @@ class D1Storage:
         return []
     
     async def save_document(self, title: str, content: List[str], doc_type: str = "dev", session_id: str = None) -> bool:
-        """保存文档内容"""
+        """保存文档内容，同时异步更新向量索引（RAG）"""
         # 确保content是列表格式
         if not isinstance(content, list):
             content = [content] if content else []
@@ -265,7 +289,7 @@ class D1Storage:
         content_json = json.dumps(content, ensure_ascii=False)
         
         if doc_type == "dev":
-            return await self._execute_write(
+            success = await self._execute_write(
                 """INSERT OR REPLACE INTO dev_documents 
                    (title, content, updated_at) 
                    VALUES (?, ?, CURRENT_TIMESTAMP)""",
@@ -274,12 +298,28 @@ class D1Storage:
         else:
             if not session_id:
                 return False
-            return await self._execute_write(
+            success = await self._execute_write(
                 """INSERT OR REPLACE INTO trial_documents 
                    (session_id, title, content, updated_at) 
                    VALUES (?, ?, ?, CURRENT_TIMESTAMP)""",
                 [session_id, title, content_json]
             )
+        
+        # ── RAG：同步向量化（非阻塞，失败不影响主流程）──
+        if success and self.vector_store and self.vector_store.enabled:
+            try:
+                # 使用 session_id 区分用户；dev 文档用固定前缀
+                vec_session = session_id if session_id else f"dev:{doc_type}"
+                await self.vector_store.upsert_document(
+                    session_id=vec_session,
+                    doc_title=title,
+                    content_lines=content
+                )
+            except Exception as e:
+                # 向量化失败不影响笔记保存
+                print(f"[D1Storage] ⚠️ 向量化失败（不影响保存）: {e}")
+        
+        return success
     
     async def delete_document(self, title: str, doc_type: str = "dev", session_id: str = None) -> bool:
         """删除文档"""

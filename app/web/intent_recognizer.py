@@ -7,12 +7,28 @@ from http import HTTPStatus
 from dashscope import Application
 from config import API_KEY, APP_ID
 
+# 尝试导入 VectorStore（RAG 功能）
+try:
+    from vector_store import VectorStore
+    VECTOR_STORE_AVAILABLE = True
+except ImportError:
+    try:
+        from web.vector_store import VectorStore
+        VECTOR_STORE_AVAILABLE = True
+    except ImportError:
+        VECTOR_STORE_AVAILABLE = False
+        VectorStore = None
+
 class LLMIntentRecognizer:
-    def __init__(self, doc_manager, client_config):
+    def __init__(self, doc_manager, client_config, vector_store=None):
         self.doc_manager = doc_manager
         self.client_config = client_config
         # 维护对话历史的 messages 数组
         self.messages = []
+        # RAG 向量存储（可选，不传则降级）
+        self.vector_store = vector_store
+        # 当前会话 ID（用于向量检索过滤）
+        self.session_id: str = ""
         
         # ============================================================
         # 系统提示词配置说明
@@ -601,6 +617,47 @@ class LLMIntentRecognizer:
         #         "content": context_info
         #     })
         
+        # ── RAG：如果向量存储可用，先检索相关笔记片段并注入上下文 ──
+        if self.vector_store and self.vector_store.enabled and self.session_id:
+            try:
+                import asyncio
+                # 如果当前已在异步环境中，直接 await；否则创建临时事件循环
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # 在异步上下文中（Cloudflare Workers / FastAPI async）
+                    rag_chunks = await self.vector_store.search(
+                        query=user_input,
+                        session_id=self.session_id,
+                        top_k=3
+                    )
+                else:
+                    rag_chunks = loop.run_until_complete(
+                        self.vector_store.search(
+                            query=user_input,
+                            session_id=self.session_id,
+                            top_k=3
+                        )
+                    )
+
+                if rag_chunks:
+                    context_str = VectorStore.format_context(rag_chunks)
+                    print(f"[RAG] ✅ 检索到 {len(rag_chunks)} 个相关片段，注入上下文")
+                    # 将笔记上下文作为 system 消息插入当前轮对话头部
+                    # 注意：每次对话都重新检索，确保上下文最新
+                    rag_system_msg = {
+                        "role": "system",
+                        "content": context_str
+                    }
+                    # 如果 messages 第一条是 system，更新它；否则插入头部
+                    if self.messages and self.messages[0].get("role") == "system":
+                        self.messages[0] = rag_system_msg
+                    else:
+                        self.messages.insert(0, rag_system_msg)
+                else:
+                    print("[RAG] ⚠️ 未检索到相关笔记，使用原始提示词")
+            except Exception as e:
+                print(f"[RAG] ❌ 检索失败（不影响对话）: {e}")
+
         # 将用户输入添加到 messages
         self.messages.append({
             "role": "user",
