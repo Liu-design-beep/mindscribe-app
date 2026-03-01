@@ -4972,13 +4972,12 @@ body.dns-collapsed .dns-collapse-arrow {
    布局调整：内容区域 & 思考反馈面板右移（新增 220px 侧边栏）
    ===================================================== */
 
-/* 展开状态：内容区域左侧偏移 = 60px(图标栏) + 220px(文档侧边栏) + 间距 */
+//* 展开状态：内容区域左侧偏移 = 60px(图标栏) + 220px(文档侧边栏) + 间距 */
 .chat-area {
-    margin-left: max(640px, calc((100% - 800px) / 2 + 245px)) !important;
+    margin-left: max(580px, calc((100% - 800px) / 2 + 160px)) !important;
 }
-
 .input-area {
-    left: max(640px, calc((100% - 800px) / 2 + 245px)) !important;
+    left: max(580px, calc((100% - 800px) / 2 + 160px)) !important;
 }
 
 .ai-feedback-panel {
