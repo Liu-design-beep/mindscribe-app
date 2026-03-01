@@ -4722,10 +4722,8 @@ kbd {
    当前文档显示标签（分享按钮右侧）
    ============================================ */
 .current-doc-badge {
-    position: absolute;
-    top: var(--spacing-sm); /* 与分享按鈕 wrapper 的 top 一致 */
-    left: calc(var(--spacing-md) + 40px + 10px); /* 分享按鈕宽度 40px + 间距 */
-    transform: translateY(6px); /* 小幅居中对齐 40px 按鈕 */
+    position: static; /* 由父容器 doc-badge-group 定位 */
+    transform: none;
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -4764,12 +4762,20 @@ kbd {
 /* ============================================
    隐私状态胶囊按鈕
    ============================================ */
-.privacy-capsule {
+/* doc-badge-group: 将当前文档标签和隐私胶囊放入同一 flex 容器 */
+.doc-badge-group {
     position: absolute;
     top: var(--spacing-sm);
-    /* current-doc-badge 的 left 是 calc(var(--spacing-md) + 40px + 10px)，它的宽度最大 200px + 8px 间距 */
-    left: calc(var(--spacing-md) + 40px + 10px + 200px + 12px);
+    left: calc(var(--spacing-md) + 40px + 10px); /* 与分享按鈕对齐 */
     transform: translateY(6px);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 100;
+}
+
+.privacy-capsule {
+    position: static; /* 改为相对布局，由父容器定位 */
     display: inline-flex;
     align-items: center;
     gap: 0;
@@ -4778,7 +4784,6 @@ kbd {
     border-radius: 20px;
     overflow: hidden;
     white-space: nowrap;
-    z-index: 100;
     transition: background var(--transition-fast), border-color var(--transition-fast);
     cursor: default;
 }
