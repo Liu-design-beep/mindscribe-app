@@ -20,7 +20,7 @@ except ImportError:
         VectorStore = None
 
 class LLMIntentRecognizer:
-    def __init__(self, doc_manager, client_config, vector_store=None):
+    def __init__(self, doc_manager, client_config, vector_store=None, session_id: str = ""):
         self.doc_manager = doc_manager
         self.client_config = client_config
         # 维护对话历史的 messages 数组
@@ -28,7 +28,7 @@ class LLMIntentRecognizer:
         # RAG 向量存储（可选，不传则降级）
         self.vector_store = vector_store
         # 当前会话 ID（用于向量检索过滤）
-        self.session_id: str = ""
+        self.session_id: str = session_id
         
         # ============================================================
         # 系统提示词配置说明
