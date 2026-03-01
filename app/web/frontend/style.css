@@ -1783,7 +1783,7 @@ body.dns-collapsed .notify-stack {
     width: 60px;
     height: calc(100vh - var(--header-height));
     /* 图标栏：深紫色实色背景，与文档侧边栏形成强烈颜色对比 */
-    background: linear-gradient(180deg, #4f46e5 0%, #3730a3 100%);
+    background: #4f46e5;
     border-right: none;
     z-index: 950;
     display: flex;
