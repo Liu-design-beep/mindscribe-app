@@ -1297,6 +1297,75 @@ body.dns-collapsed .notify-stack {
     transform: translateY(-1px);
 }
 
+/* 气泡状态栏：任务完成/失败 + 星级反馈 */
+.bubble-status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 14px 6px 10px;
+    margin-top: 2px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 12px;
+    opacity: 0;
+    animation: statusBarFadeIn 0.3s ease 0.15s forwards;
+}
+
+@keyframes statusBarFadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.bubble-status-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.bubble-status-ok {
+    color: #059669;
+}
+
+.bubble-status-fail {
+    color: #dc2626;
+}
+
+.bubble-rating-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bubble-rating-label {
+    color: var(--text-secondary);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.bubble-stars {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.bubble-star {
+    cursor: pointer;
+    color: #d1d5db;
+    line-height: 1;
+    transition: color 0.15s, transform 0.1s;
+    display: inline-flex;
+}
+
+.bubble-star.hovered,
+.bubble-star.selected {
+    color: #f59e0b;
+}
+
+.bubble-star:hover {
+    transform: scale(1.15);
+}
+
 /* 面试模式介绍弹窗（左侧，在试用模式弹窗下方） */
 .interview-mode-info-panel {
     position: fixed;

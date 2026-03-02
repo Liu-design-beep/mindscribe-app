@@ -360,6 +360,62 @@ function addMessageToChat(sender, content, type = 'text', isError = false, isWar
     
     // 将消息包装容器添加到气泡容器中
     bubble.appendChild(messageWrapper);
+
+    // 如果是 AI 气泡，添加状态栏（任务完成/失败 + 星级反馈）
+    if (sender === 'ai') {
+        // 先移除上一条 AI 气泡的状态栏
+        const prevStatusBars = elements.chatArea.querySelectorAll('.bubble-status-bar');
+        prevStatusBars.forEach(bar => {
+            bar.style.transition = 'opacity 0.2s';
+            bar.style.opacity = '0';
+            setTimeout(() => bar.remove(), 200);
+        });
+
+        // 创建新的状态栏
+        const statusBar = document.createElement('div');
+        statusBar.className = 'bubble-status-bar';
+
+        // 左侧：任务状态
+        const statusLeft = document.createElement('span');
+        statusLeft.className = isError ? 'bubble-status-label bubble-status-fail' : 'bubble-status-label bubble-status-ok';
+        statusLeft.innerHTML = isError
+            ? '<svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#ef4444" stroke-width="1.5"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round"/></svg> 任务失败'
+            : '<svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#10b981" stroke-width="1.5"/><path d="M4 7l2.5 2.5L10 5" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> 任务已完成';
+
+        // 右侧：星级反馈
+        const ratingWrap = document.createElement('div');
+        ratingWrap.className = 'bubble-rating-wrap';
+        ratingWrap.innerHTML = '<span class="bubble-rating-label">这个结果怎么样？</span>';
+        const starsEl = document.createElement('div');
+        starsEl.className = 'bubble-stars';
+        for (let i = 1; i <= 5; i++) {
+            const star = document.createElement('span');
+            star.className = 'bubble-star';
+            star.dataset.value = i;
+            star.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+            star.addEventListener('mouseenter', () => {
+                starsEl.querySelectorAll('.bubble-star').forEach((s, idx) => {
+                    s.classList.toggle('hovered', idx < i);
+                });
+            });
+            star.addEventListener('mouseleave', () => {
+                starsEl.querySelectorAll('.bubble-star').forEach(s => s.classList.remove('hovered'));
+            });
+            star.addEventListener('click', () => {
+                // 仅做视觉反馈，不上报
+                starsEl.querySelectorAll('.bubble-star').forEach((s, idx) => {
+                    s.classList.toggle('selected', idx < i);
+                });
+            });
+            starsEl.appendChild(star);
+        }
+        ratingWrap.appendChild(starsEl);
+
+        statusBar.appendChild(statusLeft);
+        statusBar.appendChild(ratingWrap);
+        bubble.appendChild(statusBar);
+    }
+
     // 将气泡添加到聊天区域中
     elements.chatArea.appendChild(bubble);
     
