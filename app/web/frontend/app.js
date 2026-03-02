@@ -3913,7 +3913,7 @@ function showDuckCry() {
     }
 
     // 重置状态，确保 gif 从头播放（替换 img src）
-    overlay.innerHTML = '<img src="/frontend/duck-cry.gif?t=' + Date.now() + '" alt="小鸭哭泣">';
+    overlay.innerHTML = '<img src="/duck-cry.gif?t=' + Date.now() + '" alt="小鸭哭泣">';
     overlay.classList.remove('duck-out');
     overlay.classList.add('duck-in');
     overlay.style.display = 'block';
@@ -3950,7 +3950,7 @@ function showDuckHello() {
     }
 
     // 替换为打招呼 gif（加时间戳确保重播）
-    overlay.innerHTML = '<img src="/frontend/duck-hello.gif?t=' + Date.now() + '" alt="小鸭打招呼">';
+    overlay.innerHTML = '<img src="/duck-hello.gif?t=' + Date.now() + '" alt="小鸭打招呼">';
     overlay.classList.remove('duck-out');
     overlay.classList.add('duck-in');
     overlay.style.display = 'block';
