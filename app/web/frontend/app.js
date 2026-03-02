@@ -599,7 +599,7 @@ function updateDocumentList(documents) {
         const viewBtn = document.createElement('button');
         viewBtn.className = 'doc-view-icon-btn';
         viewBtn.setAttribute('aria-label', '查看文档内容');
-        viewBtn.innerHTML = '<img src="eye-icon.png" alt="查看" class="doc-view-eye-img">';
+        viewBtn.innerHTML = '<img src="/frontend/eye-icon.png" alt="查看" class="doc-view-eye-img">';
         // 点击图标按鈕时，切换到该文档并弹出查看弹窗
         viewBtn.addEventListener('click', (e) => {
             e.stopPropagation(); // 防止触发列表项点击

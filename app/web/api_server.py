@@ -73,6 +73,11 @@ if not os.path.exists(static_dir):
     os.makedirs(static_dir)
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
+# 挂载前端目录，使前端资源（图片、JS、CSS）可通过 /frontend/ 访问
+frontend_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend")
+if os.path.exists(frontend_dir):
+    app.mount("/frontend", StaticFiles(directory=frontend_dir), name="frontend")
+
 # 确保 portfolio 目录存在
 portfolio_dir = os.path.join(static_dir, "portfolio")
 if not os.path.exists(portfolio_dir):
