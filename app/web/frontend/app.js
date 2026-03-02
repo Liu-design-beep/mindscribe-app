@@ -1735,6 +1735,8 @@ async function handleBackendResponse(response) {
                 addMessageToChat('ai', content || '抱歉，我暂时无法理解这个指令。请尝试用更直接的方式描述您想做的事情。', 'text', unknownIsError, unknownIsWarning);
             }
             addAIFeedbackFromResponse(response);
+            // 小鸭哭泣动画：显示 5 秒后渐出
+            showDuckCry();
             break;
             
         case 'SMART_ADD_NEW_DOC': {
@@ -3879,4 +3881,37 @@ if (document.readyState === 'loading') {
     // 如果文档已经加载完成，延迟一点时间确保所有脚本都已加载
     console.log('[app.js] DOM 已加载，延迟初始化...');
     setTimeout(startApp, 100);
+}
+
+// ============================================
+// 小鸭哭泣动画：无法识别意图时显示 5 秒
+// ============================================
+let _duckCryTimer = null;
+function showDuckCry() {
+    const overlay = document.getElementById('duck-cry-overlay');
+    if (!overlay) return;
+
+    // 若已有计时器（上次还没消失），先清掉
+    if (_duckCryTimer) {
+        clearTimeout(_duckCryTimer);
+        _duckCryTimer = null;
+    }
+
+    // 重置状态，确保 gif 从头播放（替换 img src）
+    overlay.innerHTML = '<img src="/frontend/duck-cry.gif?t=' + Date.now() + '" alt="小鸭哭泣">';
+    overlay.classList.remove('duck-out');
+    overlay.classList.add('duck-in');
+    overlay.style.display = 'block';
+
+    // 5 秒后渐出
+    _duckCryTimer = setTimeout(() => {
+        overlay.classList.remove('duck-in');
+        overlay.classList.add('duck-out');
+        // 等渐出动画结束后隐藏
+        setTimeout(() => {
+            overlay.style.display = 'none';
+            overlay.classList.remove('duck-out');
+        }, 450);
+        _duckCryTimer = null;
+    }, 5000);
 }
