@@ -1436,7 +1436,7 @@ async def chat(request: ChatRequest):
                 intent_data = {
                     "intent": "UNKNOWN",
                     "intent_type": "UNKNOWN",
-                    "content": "抒歉，我暂时无法理解这个指令。请尝试用更直接的方式描述您想做的事情，我会尽力理解。",
+                    "content": "灵辑正在学习中～正式版上线后，我会根据你的笔记内容来理解你的意图，给你更贴心的帮助。\n\n现在你可以试试：\n- 帮我记录一下......\n- 总结一下当前文档\n- 把这段内容加到我的笔记里",
                     "message_style": "error"
                 }
         
@@ -2884,9 +2884,9 @@ async def chat(request: ChatRequest):
                     # 重置计数
                     unknown_count_sessions[session_id] = 0
                     apology_message = (
-                        "对于这个失误，灵辑感到很抱歉。\n\n"
-                        "灵辑团队已经收到您对于灵辑使用上的障碍问题，并承诺进行改进。\n\n"
-                        "如果您能提供更多关于您想要实现的功能的信息，这将帮助我们更好地为您服务。"
+                        "灵辑暂时还没能理解你的意思，不过没关系～\n\n"
+                        "正式版上线后，灵辑会结合你的笔记内容来理解你的意图，给你更个性化的引导和帮助。\n\n"
+                        "现在可以试试更直接的表达，比如：\n- 帮我记录一下......\n- 总结一下当前文档\n- 把这段内容加到我的笔记里"
                     )
                     # 构建意图信息和工具调用信息
                     intent_info = build_intent_info(intent_data, "UNKNOWN")
@@ -2910,7 +2910,7 @@ async def chat(request: ChatRequest):
                     
                     return ChatResponse(
                         response_type="UNKNOWN",
-                        content=str(content) if content is not None else "抱歉，我没有理解您的指令。请尝试使用更清晰的表达。",
+                        content="灵辑正在学习中～正式版上线后，我会根据你的笔记内容来理解你的意图，给你更贴心的帮助。\n\n现在你可以试试：\n- 帮我记录一下......\n- 总结一下当前文档\n- 把这段内容加到我的笔记里",
                         new_session_id=session_id if not request.session_id else None,
                         message_style="error",  # UNKNOWN意图或错误内容强制使用error样式
                         intent_info=intent_info,
