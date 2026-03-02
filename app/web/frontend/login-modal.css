@@ -591,9 +591,7 @@
     display: flex;
     justify-content: center;
     /* 图标上移：增大与方框的间距 */
-    margin-bottom: 32px;
-    /* 图标右移 */
-    margin-left: 60px;
+    margin-bottom: 52px;
     z-index: 10;
     position: relative;
 }
