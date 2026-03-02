@@ -1647,7 +1647,14 @@ async function handleBackendResponse(response) {
             }
             addMessageToChat('ai', content, 'text', isError, isWarning);
             addAIFeedbackFromResponse(response);
-            // 跳出switch语句
+            // GREETING 或 HELP 意图时显示小鸭打招呼动画
+            {
+                const _intentNow = (response.intent_info && (response.intent_info.intent || response.intent_info.original_intent)) || '';
+                if (_intentNow === 'GREETING' || _intentNow === 'HELP') {
+                    showDuckHello();
+                }
+            }
+            // 跳出小局switch语句
             break;
             
         case 'CONFIRMATION':
@@ -3913,5 +3920,41 @@ function showDuckCry() {
             overlay.classList.remove('duck-out');
         }, 450);
         _duckCryTimer = null;
+    }, 5000);
+}
+
+// ============================================
+// 小鸭打招呼动画：GREETING/HELP 意图时显示 5 秒
+// ============================================
+let _duckHelloTimer = null;
+function showDuckHello() {
+    const overlay = document.getElementById('duck-cry-overlay');
+    if (!overlay) return;
+
+    // 若小鸭哭泣正在显示，先取消
+    if (_duckCryTimer) {
+        clearTimeout(_duckCryTimer);
+        _duckCryTimer = null;
+    }
+    if (_duckHelloTimer) {
+        clearTimeout(_duckHelloTimer);
+        _duckHelloTimer = null;
+    }
+
+    // 替换为打招呼 gif（加时间戳确保重播）
+    overlay.innerHTML = '<img src="/frontend/duck-hello.gif?t=' + Date.now() + '" alt="小鸭打招呼">';
+    overlay.classList.remove('duck-out');
+    overlay.classList.add('duck-in');
+    overlay.style.display = 'block';
+
+    // 5 秒后渐出
+    _duckHelloTimer = setTimeout(() => {
+        overlay.classList.remove('duck-in');
+        overlay.classList.add('duck-out');
+        setTimeout(() => {
+            overlay.style.display = 'none';
+            overlay.classList.remove('duck-out');
+        }, 450);
+        _duckHelloTimer = null;
     }, 5000);
 }
