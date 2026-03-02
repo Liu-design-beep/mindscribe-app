@@ -2390,11 +2390,14 @@ async def chat(request: ChatRequest):
             # 调试：输出完整的 intent_data
             print(f"[SUMMARY] 完整的 intent_data: {intent_data}")
             
-            doc_title = intent_data.get("doc_title")
-            # 修复：如果doc_title是占位符"{active_doc}"，则使用当前活动文档
-            if not doc_title or doc_title == "{active_doc}":
-                doc_title = app_instance.doc_manager.active_doc_title
-                print(f"[SUMMARY] 检测到doc_title为占位符或空，已替换为当前活动文档: {doc_title}")
+            # 关键修复：SUMMARY 意图始终使用当前活动文档，忽略 LLM 返回的 doc_title
+            # 原因：LLM 无法感知前端当前选中的文档，容易凭对话历史猜错文档
+            doc_title = app_instance.doc_manager.active_doc_title
+            llm_doc_title = intent_data.get("doc_title")
+            if llm_doc_title and llm_doc_title != doc_title:
+                print(f"[SUMMARY] ⚠️ LLM 返回的 doc_title='{llm_doc_title}' 与当前活动文档 '{doc_title}' 不符，强制使用当前活动文档")
+            else:
+                print(f"[SUMMARY] doc_title 使用当前活动文档: {doc_title}")
             summary_scope = intent_data.get("summary_scope", "full")  # 新增：获取总结范围
             target_chapter = intent_data.get("target_chapter")  # 新增：获取目标章节
             print(f"[SUMMARY] 开始总结文档: {doc_title}, 范围: {summary_scope}, 目标章节: {target_chapter}")
@@ -2800,14 +2803,18 @@ async def chat(request: ChatRequest):
                 intent_info = build_intent_info(intent_data, intent)
                 tools_used = build_tools_used(intent, is_dev_mode, use_cloudflare=False, use_d1=False)
                 
+                if target_chapter and str(target_chapter).strip():
+                    empty_msg = f"目前没有{target_chapter}内容在《{doc_title}》中。"
+                else:
+                    empty_msg = f"《{doc_title}》当前为空，还没有任何内容可以总结。请先添加内容后再试。"
+                
                 return ChatResponse(
                     response_type="TEXT",
-                    content=f"文档 '{doc_title}' 当前为空，无法生成总结。请先添加内容后再尝试总结。",
+                    content=empty_msg,
                     new_session_id=session_id if not request.session_id else None,
                     dev_mode_enabled=is_dev_mode,
                     intent_info=intent_info,
                     rag_info=_rag_info,
-
                     tools_used=tools_used
                 )
         
