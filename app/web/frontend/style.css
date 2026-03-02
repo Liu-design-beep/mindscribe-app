@@ -5550,3 +5550,81 @@ body.dns-collapsed .notify-stack {
 body.dns-collapsed .dns-expand-btn {
     display: flex;
 }
+
+/* =====================================================
+   知识图谱左下角提示弹窗
+   ===================================================== */
+
+.kg-hint-toast {
+    position: absolute;
+    bottom: 28px;
+    left: 72px; /* 左侧图标栏(60px) + 12px 间距 */
+    width: 320px;
+    background: rgba(30, 25, 60, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    border-radius: 14px;
+    padding: 14px 16px 14px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    z-index: 9100;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(139, 92, 246, 0.15);
+    animation: kgHintIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.kg-hint-toast.kg-hint-hidden {
+    animation: kgHintOut 0.3s ease forwards;
+    pointer-events: none;
+}
+
+@keyframes kgHintIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes kgHintOut {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to   { opacity: 0; transform: translateY(10px) scale(0.95); }
+}
+
+.kg-hint-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.kg-hint-text {
+    flex: 1;
+    font-size: 13px;
+    line-height: 1.6;
+    color: rgba(220, 215, 255, 0.92);
+}
+
+.kg-hint-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(167, 139, 250, 0.9);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.kg-hint-close {
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    color: rgba(180, 170, 220, 0.6);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s;
+    margin-top: -2px;
+}
+
+.kg-hint-close:hover {
+    color: rgba(220, 215, 255, 0.9);
+}

@@ -2580,6 +2580,15 @@ function openKnowledgeGraphPanel() {
     if (iframe && !iframe.src) {
         iframe.src = 'knowledge-graph.html';
     }
+    // 显示左下角提示弹窗，20秒后自动渐出
+    const kgHint = document.getElementById('kg-hint-toast');
+    if (kgHint) {
+        kgHint.classList.remove('kg-hint-hidden');
+        clearTimeout(window._kgHintTimer);
+        window._kgHintTimer = setTimeout(() => {
+            kgHint.classList.add('kg-hint-hidden');
+        }, 20000);
+    }
 }
 
 /**
