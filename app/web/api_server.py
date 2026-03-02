@@ -1623,6 +1623,25 @@ async def chat(request: ChatRequest):
                 else:
                     response_content = f"✅ 已成功将内容添加到文档 '{doc_title}' 的{('开头' if position.lower() == 'start' else '结尾')}。"
                 
+                 # ── RAG：确认添加内容后，异步更新向量库 ─────────────────────────
+                if hasattr(app_instance, 'vector_store') and app_instance.vector_store and app_instance.vector_store.enabled:
+                    try:
+                        _rag_lines = app_instance.doc_manager.get_document(doc_title)
+                        if isinstance(_rag_lines, str):
+                            _rag_lines = _rag_lines.split("\n")
+                        if _rag_lines:
+                            import asyncio as _asyncio
+                            _asyncio.create_task(
+                                app_instance.vector_store.upsert_document(
+                                    session_id=session_id,
+                                    doc_title=doc_title,
+                                    content_lines=_rag_lines
+                                )
+                            )
+                            print(f"[RAG] 已触发向量写入：文档='{doc_title}', session={session_id[:16]}...")
+                    except Exception as _rag_err:
+                        print(f"[RAG] 向量写入失败（不影响正常功能）: {_rag_err}")
+
                 # 构建意图信息和工具调用信息
                 intent_info = build_intent_info(intent_data_from_action, "ADD_CONTENT")
                 tools_used = build_tools_used("ADD_CONTENT", is_dev_mode, use_cloudflare=(USE_CLOUDFLARE and CLOUDFLARE_AVAILABLE and CLOUDFLARE_KV), use_d1=False)
@@ -1635,7 +1654,6 @@ async def chat(request: ChatRequest):
                     edit_mode_enabled=get_edit_mode_enabled(app_instance, cloudflare_manager),
                     intent_info=intent_info,
                     rag_info=_rag_info,
-
                     tools_used=tools_used
                 )
             
@@ -2301,34 +2319,50 @@ async def chat(request: ChatRequest):
                     app_instance.doc_manager._save_document(doc_title)
                     doc_content = [""]
             
+            # ── RAG：文档内容变更后，异步更新向量库 ──────────────────────────────
+            if hasattr(app_instance, 'vector_store') and app_instance.vector_store and app_instance.vector_store.enabled:
+                try:
+                    _rag_lines = app_instance.doc_manager.get_document(doc_title)
+                    if isinstance(_rag_lines, str):
+                        _rag_lines = _rag_lines.split("\n")
+                    if _rag_lines:
+                        import asyncio as _asyncio
+                        _asyncio.create_task(
+                            app_instance.vector_store.upsert_document(
+                                session_id=session_id,
+                                doc_title=doc_title,
+                                content_lines=_rag_lines
+                            )
+                        )
+                        print(f"[RAG] 已触发向量写入：文档='{doc_title}', session={session_id[:16]}...")
+                except Exception as _rag_err:
+                    print(f"[RAG] 向量写入失败（不影响正常功能）: {_rag_err}")
+
             if doc_content and len(doc_content) > 0 and any(line.strip() for line in doc_content):
                 # 将文档内容列表合并为字符串
                 content = '\n'.join(doc_content) if isinstance(doc_content, list) else str(doc_content)
-                
                 # 构建意图信息和工具调用信息
                 intent_info = build_intent_info(intent_data, intent)
                 tools_used = build_tools_used(
-                    intent,
-                    is_dev_mode,
-                    use_cloudflare=(USE_CLOUDFLARE and CLOUDFLARE_AVAILABLE and CLOUDFLARE_KV),
+                    intent, 
+                    is_dev_mode, 
+                    use_cloudflare=(USE_CLOUDFLARE and CLOUDFLARE_AVAILABLE and CLOUDFLARE_KV and is_dev_mode),
                     use_d1=False
                 )
-                
                 return ChatResponse(
-                    response_type="DOCUMENT",
-                    content=content,
+                    response_type="TEXT",
+                    content=f"已成功将内容添加到文档 '{doc_title}' 的{('开头' if position.lower() == 'start' else '结尾')}。",
                     new_session_id=session_id if not request.session_id else None,
                     dev_mode_enabled=is_dev_mode,
+                    edit_mode_enabled=is_edit_mode,
                     intent_info=intent_info,
                     rag_info=_rag_info,
-
                     tools_used=tools_used
                 )
             else:
                 # 文档为空，返回提示信息
                 intent_info = build_intent_info(intent_data, intent)
                 tools_used = build_tools_used(intent, is_dev_mode, use_cloudflare=False, use_d1=False)
-                
                 return ChatResponse(
                     response_type="TEXT",
                     content=f"文档 '{doc_title}' 当前为空，您可以开始添加内容。",
@@ -2336,7 +2370,6 @@ async def chat(request: ChatRequest):
                     dev_mode_enabled=is_dev_mode,
                     intent_info=intent_info,
                     rag_info=_rag_info,
-
                     tools_used=tools_used
                 )
         
