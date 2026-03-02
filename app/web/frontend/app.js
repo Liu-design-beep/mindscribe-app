@@ -413,7 +413,7 @@ function addMessageToChat(sender, content, type = 'text', isError = false, isWar
 
         statusBar.appendChild(statusLeft);
         statusBar.appendChild(ratingWrap);
-        bubble.appendChild(statusBar);
+        messageContent.appendChild(statusBar);
     }
 
     // 将气泡添加到聊天区域中
