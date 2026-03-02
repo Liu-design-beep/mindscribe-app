@@ -577,6 +577,47 @@
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
+/* 登录界面包裹容器（图标 + 方框） */
+.login-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+}
+
+/* 跳动图标容器 */
+.login-bounce-icon-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: -10px;
+    z-index: 10;
+    position: relative;
+}
+
+/* 跳动图标 */
+.login-bounce-icon {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    animation: loginIconBounce 1.2s ease-in-out infinite;
+    filter: drop-shadow(0 8px 20px rgba(99, 60, 180, 0.5));
+}
+
+@keyframes loginIconBounce {
+    0%, 100% {
+        transform: translateY(0);
+        animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+    40% {
+        transform: translateY(-18px);
+        animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+    }
+    70% {
+        transform: translateY(-8px);
+        animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+}
+
 /* 版本号 */
 .modal-version {
     text-align: center;
