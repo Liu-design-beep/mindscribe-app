@@ -590,8 +590,10 @@
 .login-bounce-icon-wrap {
     display: flex;
     justify-content: center;
-    /* 图标上移：用负向 margin-bottom 拉开与方框的间距 */
-    margin-bottom: 18px;
+    /* 图标上移：增大与方框的间距 */
+    margin-bottom: 32px;
+    /* 图标右移 */
+    margin-left: 60px;
     z-index: 10;
     position: relative;
 }
