@@ -592,6 +592,8 @@
     justify-content: center;
     /* 图标上移：增大与方框的间距 */
     margin-bottom: 52px;
+    /* 图标右移 */
+    margin-left: 60px;
     z-index: 10;
     position: relative;
 }
