@@ -1929,10 +1929,18 @@ async def chat(request: ChatRequest):
                     print(f"[文档匹配检查] 匹配度不是'perfect'，需要确认")
                 
                 if needs_confirmation:
-                    # 情况A：LLM 建议的文档不存在 → 弹出左侧 notify-stack 确认卡片（SMART_ADD_NEW_DOC）
-                    if llm_suggested_doc and llm_suggested_doc not in available_docs:
-                        # 使用 LLM 建议的文档名（已经是 LLM 生成的语义名称）
-                        smart_doc_name = llm_suggested_doc
+                    # 情况A：LLM 建议的文档不存在，或当前文档是"通用"类型但内容有明确类型 → SMART_ADD_NEW_DOC
+                    is_generic_doc_with_typed_content = (
+                        active_doc_type == "通用"
+                        and content_type is not None
+                        and content_type != "通用"
+                    )
+                    if (llm_suggested_doc and llm_suggested_doc not in available_docs) or is_generic_doc_with_typed_content:
+                        # 优先使用 LLM 建议的文档名；若不存在或是通用文档，使用内容类型推断的建议名
+                        if llm_suggested_doc and llm_suggested_doc not in available_docs:
+                            smart_doc_name = llm_suggested_doc
+                        else:
+                            smart_doc_name = DocumentMatcher.get_suggested_doc_name(content_type)
                         # 生成唯一的确认 token，存储待确认操作
                         smart_action_id = f"smart_{uuid.uuid4().hex[:12]}"
                         pending_new_doc_actions[smart_action_id] = {
