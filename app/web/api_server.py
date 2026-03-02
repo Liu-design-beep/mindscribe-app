@@ -1478,6 +1478,19 @@ async def chat(request: ChatRequest):
         
         print(f"[意图识别] 最终使用的意图: {intent} (intent字段: {intent_value}, intent_type字段: {intent_type_value})")
         
+        # 规范化意图名称：将 prompt 返回的短名称映射到后端使用的长名称
+        INTENT_NAME_MAP = {
+            "ADD": "ADD_CONTENT",
+            "DELETE": "DELETE_CONTENT",
+            "EDIT": "EDIT_CONTENT",
+            "MOVE": "MOVE_CONTENT",
+            "QUERY": "DISPLAY_DOC",
+        }
+        if intent in INTENT_NAME_MAP:
+            mapped = INTENT_NAME_MAP[intent]
+            print(f"[意图识别] 规范化意图名称: {intent} → {mapped}")
+            intent = mapped
+        
         # 处理不同类型的意图
         if intent == "CONFIRM":
             # 用户确认操作
@@ -1752,8 +1765,9 @@ async def chat(request: ChatRequest):
                 "title": doc_title
             }
             return ChatResponse(
-                response_type="CONFIRMATION",
+                response_type="DELETE_CONFIRMATION",
                 content=confirmation_message,
+                suggested_doc_title=doc_title,
                 new_session_id=session_id if not request.session_id else None,
                 dev_mode_enabled=is_dev_mode,
                 edit_mode_enabled=get_edit_mode_enabled(app_instance, cloudflare_manager)
@@ -3103,6 +3117,8 @@ async def get_documents(
                         documents.append("介绍文档")
                     if "更新记录日志" not in documents:
                         documents.append("更新记录日志")
+                    if "RAG架构设计文档" not in documents:
+                        documents.append("RAG架构设计文档")
                     if "系统提示词文档" not in documents:
                         documents.append("系统提示词文档")
                     if "RAG架构设计文档" not in documents:
@@ -3161,6 +3177,8 @@ async def get_documents(
                         documents.append("介绍文档")
                     if "更新记录日志" not in documents:
                         documents.append("更新记录日志")
+                    if "RAG架构设计文档" not in documents:
+                        documents.append("RAG架构设计文档")
                     if "系统提示词文档" not in documents:
                         documents.append("系统提示词文档")
                     if "RAG架构设计文档" not in documents:

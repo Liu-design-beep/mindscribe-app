@@ -1756,6 +1756,14 @@ async function handleBackendResponse(response) {
             addAIFeedbackFromResponse(response);
             break;
         }
+
+        case 'DELETE_CONFIRMATION': {
+            // 删除确认：弹出左侧红色警告卡片
+            const deleteDocTitle = response.suggested_doc_title || '当前文档';
+            showDeleteConfirmCard(deleteDocTitle);
+            addAIFeedbackFromResponse(response);
+            break;
+        }
         
         default:
             // 如果是未知类型，作为普通文本处理
@@ -3957,4 +3965,74 @@ function showDuckHello() {
         }, 450);
         _duckHelloTimer = null;
     }, 5000);
+}
+
+// ============================================
+// 删除确认卡片（左侧消息队列，红色警告风格）
+// ============================================
+/**
+ * 在左侧 notify-stack 弹出红色删除确认卡片
+ * @param {string} docTitle - 要删除内容的文档名
+ */
+function showDeleteConfirmCard(docTitle) {
+    const stack = document.getElementById('notify-stack');
+    if (!stack) return;
+
+    const card = document.createElement('div');
+    card.className = 'notify-card notify-card--red notify-card--slide-up';
+    card.innerHTML = `
+        <div class="notify-card-header">
+            <div class="notify-card-title">
+                <span class="notify-card-icon">🗑️</span>
+                <span class="notify-card-title-text">确认清空文档</span>
+            </div>
+            <div class="notify-card-meta">
+                <button class="notify-card-close" aria-label="关闭">×</button>
+            </div>
+        </div>
+        <div class="notify-card-body">
+            <p class="notify-card-message">即将清空《${docTitle}》的所有内容，此操作不可恢复。</p>
+            <div class="notify-card-actions">
+                <button class="notify-card-btn notify-card-btn--cancel" data-role="cancel">取消</button>
+                <button class="notify-card-btn notify-card-btn--red" data-role="confirm">确认清空</button>
+            </div>
+        </div>
+    `;
+
+    // 关闭 / 取消
+    const dismiss = () => {
+        card.classList.add('fading');
+        setTimeout(() => { if (card.parentNode) card.parentNode.removeChild(card); }, 450);
+    };
+    card.querySelector('.notify-card-close').addEventListener('click', dismiss);
+    card.querySelector('[data-role="cancel"]').addEventListener('click', dismiss);
+
+    // 确认删除
+    card.querySelector('[data-role="confirm"]').addEventListener('click', async () => {
+        card.querySelectorAll('button').forEach(b => b.disabled = true);
+        try {
+            const sessionId = AppState.sessionId || localStorage.getItem('trial_session_id');
+            const res = await fetch(API_CONFIG.baseURL + API_CONFIG.endpoints.chat, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: '确认', session_id: sessionId })
+            });
+            const data = await res.json();
+            if (data.response_type === 'TEXT') {
+                card.querySelector('.notify-card-message').textContent = `✅ 已清空《${docTitle}》`;
+                card.querySelector('.notify-card-actions').style.display = 'none';
+                const docs = await fetchDocumentList();
+                updateDocumentList(docs);
+                setTimeout(dismiss, 2000);
+            } else {
+                card.querySelector('.notify-card-message').textContent = `❌ 操作失败，请重试`;
+                card.querySelectorAll('button').forEach(b => b.disabled = false);
+            }
+        } catch (e) {
+            card.querySelector('.notify-card-message').textContent = `❌ 网络错误，请重试`;
+            card.querySelectorAll('button').forEach(b => b.disabled = false);
+        }
+    });
+
+    stack.appendChild(card);
 }

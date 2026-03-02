@@ -1271,6 +1271,32 @@ body.dns-collapsed .notify-stack {
     background: rgba(0, 0, 0, 0.1);
 }
 
+/* 删除确认卡片：红色警告风格 */
+.notify-card--red {
+    border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.notify-card--red .notify-card-header {
+    background: rgba(239, 68, 68, 0.07);
+    border-bottom-color: rgba(239, 68, 68, 0.15);
+}
+
+.notify-card--red .notify-card-icon {
+    color: #dc2626;
+}
+
+.notify-card-btn--red {
+    background: rgba(239, 68, 68, 0.12);
+    color: #b91c1c;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    font-weight: 600;
+}
+
+.notify-card-btn--red:hover {
+    background: rgba(239, 68, 68, 0.22);
+    transform: translateY(-1px);
+}
+
 /* 面试模式介绍弹窗（左侧，在试用模式弹窗下方） */
 .interview-mode-info-panel {
     position: fixed;
