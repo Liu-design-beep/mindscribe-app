@@ -1737,6 +1737,17 @@ async function handleBackendResponse(response) {
             addAIFeedbackFromResponse(response);
             break;
             
+        case 'SMART_ADD_NEW_DOC': {
+            // 未找到匹配文档，弹出左侧确认卡片
+            const smartActionId = response.smart_action_id;
+            const smartDocName = response.smart_doc_name || '新文档';
+            const smartContent = response.smart_content_preview || '';
+            showSmartAddConfirmCard(smartActionId, smartDocName, smartContent);
+            // 不在聊天区显示任何消息，弹窗本身就是反馈
+            addAIFeedbackFromResponse(response);
+            break;
+        }
+        
         default:
             // 如果是未知类型，作为普通文本处理
             // 如果content为空，显示默认消息
@@ -3551,6 +3562,136 @@ function dismissNotifyCard(card) {
 /** 居容旧接口：淡出并隐藏试用提示面板 */
 function dismissTrialPanel(panel) {
     dismissNotifyCard(panel);
+}
+
+// ============================================
+// SMART_ADD 确认卡片系统（最多3个，超出时顶掉最旧的）
+// ============================================
+
+/** 当前活跃的 SMART_ADD 卡片列表（按入局顺序） */
+const _smartAddCards = [];
+
+/**
+ * 展示一个 SMART_ADD 新建文档确认卡片
+ * @param {string} actionId - 后端返回的 smart_action_id
+ * @param {string} docName - LLM 建议的文档名
+ * @param {string} contentPreview - 内容预览（可为空）
+ */
+function showSmartAddConfirmCard(actionId, docName, contentPreview) {
+    const stack = document.getElementById('notify-stack');
+    if (!stack) return;
+
+    // 超出3个时，将最旧的卡片向上渐出并移除
+    if (_smartAddCards.length >= 3) {
+        const oldest = _smartAddCards.shift();
+        if (oldest && oldest.parentNode) {
+            oldest.classList.add('fading-up');
+            setTimeout(() => {
+                if (oldest.parentNode) oldest.parentNode.removeChild(oldest);
+            }, 380);
+        }
+    }
+
+    // 创建卡片 DOM
+    const card = document.createElement('div');
+    card.className = 'notify-card notify-card--green notify-card--slide-up';
+    card.dataset.actionId = actionId;
+
+    const previewHtml = contentPreview
+        ? `<p class="notify-card-message" style="color:var(--text-secondary);font-size:11.5px;margin-bottom:8px;">内容预览：${contentPreview.slice(0, 40)}${contentPreview.length > 40 ? '…' : ''}</p>`
+        : '';
+
+    card.innerHTML = `
+        <div class="notify-card-header">
+            <div class="notify-card-title">
+                <span class="notify-card-icon">📄</span>
+                <span class="notify-card-title-text">未找到匹配文档</span>
+            </div>
+            <div class="notify-card-meta">
+                <button class="notify-card-close" aria-label="关闭">×</button>
+            </div>
+        </div>
+        <div class="notify-card-body">
+            <p class="notify-card-message">是否新建《${docName}》并将内容写入？</p>
+            ${previewHtml}
+            <div class="notify-card-actions">
+                <button class="notify-card-btn notify-card-btn--cancel" data-role="cancel">取消本次记录</button>
+                <button class="notify-card-btn notify-card-btn--green" data-role="confirm">新建文档</button>
+            </div>
+        </div>
+    `;
+
+    // 关闭按鈕
+    card.querySelector('.notify-card-close').addEventListener('click', () => {
+        _dismissSmartAddCard(card, actionId, false);
+    });
+
+    // 取消按鈕
+    card.querySelector('[data-role="cancel"]').addEventListener('click', () => {
+        _dismissSmartAddCard(card, actionId, false);
+    });
+
+    // 确认按鈕
+    card.querySelector('[data-role="confirm"]').addEventListener('click', async () => {
+        // 禁用按鈕防重复点击
+        card.querySelectorAll('button').forEach(b => b.disabled = true);
+        try {
+            const sessionId = AppState.sessionId || localStorage.getItem('trial_session_id');
+            const res = await fetch('/api/smart-add/confirm', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action_id: actionId, session_id: sessionId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                // 卡片显示成功提示后消失
+                card.querySelector('.notify-card-message').textContent = `✅ 已新建《${docName}》并写入内容`;
+                card.querySelector('.notify-card-actions').style.display = 'none';
+                // 刷新文档列表
+                const docs = await fetchDocumentList();
+                updateDocumentList(docs);
+                setTimeout(() => _dismissSmartAddCard(card, null, true), 2000);
+            } else {
+                card.querySelector('.notify-card-message').textContent = `❌ 写入失败：${data.message}`;
+                card.querySelectorAll('button').forEach(b => b.disabled = false);
+            }
+        } catch (e) {
+            card.querySelector('.notify-card-message').textContent = `❌ 网络错误，请重试`;
+            card.querySelectorAll('button').forEach(b => b.disabled = false);
+        }
+    });
+
+    stack.appendChild(card);
+    _smartAddCards.push(card);
+}
+
+/**
+ * 关闭并移除 SMART_ADD 卡片
+ * @param {HTMLElement} card - 卡片元素
+ * @param {string|null} actionId - 如果是取消操作，需要通知后端
+ * @param {boolean} silent - 是否静默关闭（不调用后端取消接口）
+ */
+async function _dismissSmartAddCard(card, actionId, silent) {
+    // 从队列移除
+    const idx = _smartAddCards.indexOf(card);
+    if (idx !== -1) _smartAddCards.splice(idx, 1);
+
+    // 如果是取消，通知后端
+    if (!silent && actionId) {
+        try {
+            await fetch('/api/smart-add/cancel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action_id: actionId })
+            });
+        } catch (e) { /* 忽略网络错误 */ }
+    }
+
+    // 卡片淡出动画
+    card.classList.add('fading');
+    setTimeout(() => {
+        if (card.parentNode) card.parentNode.removeChild(card);
+    }, 450);
 }
 
 // ============================================

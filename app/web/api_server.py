@@ -276,7 +276,7 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     """聊天响应模型"""
-    response_type: str  # "TEXT" | "CONFIRMATION" | "DOCUMENT" | "DEV_MODE_REQUIRED" | "EDIT_MODE_REQUIRED" | "ALL_DOCUMENTS" | "UNKNOWN" | "CREATE_NEW_DOCUMENT_CONFIRMATION"
+    response_type: str  # "TEXT" | "CONFIRMATION" | "DOCUMENT" | "DEV_MODE_REQUIRED" | "EDIT_MODE_REQUIRED" | "ALL_DOCUMENTS" | "UNKNOWN" | "CREATE_NEW_DOCUMENT_CONFIRMATION" | "SMART_ADD_NEW_DOC"
     content: str
     new_session_id: Optional[str] = None
     dev_mode_enabled: Optional[bool] = None  # 开发者模式状态
@@ -289,6 +289,13 @@ class ChatResponse(BaseModel):
     rag_info: Optional[Dict[str, Any]] = None  # RAG检索信息（用于思考反馈面板）
     match_confirmation_needed: Optional[bool] = False  # 是否需要文档匹配确认
     match_warning_message: Optional[str] = None  # 文档匹配警告消息
+    smart_add_doc_name: Optional[str] = None  # SMART_ADD_NEW_DOC：LLM建议的新文档名
+    smart_add_content: Optional[str] = None  # SMART_ADD_NEW_DOC：待写入的内容
+    smart_add_section: Optional[str] = None  # SMART_ADD_NEW_DOC：建议的章节名
+    smart_add_position: Optional[str] = None  # SMART_ADD_NEW_DOC：写入位置
+    smart_action_id: Optional[str] = None  # SMART_ADD_NEW_DOC：操作唯一ID
+    smart_doc_name: Optional[str] = None  # SMART_ADD_NEW_DOC：前端显示用的文档名（与 smart_add_doc_name 相同）
+    smart_content_preview: Optional[str] = None  # SMART_ADD_NEW_DOC：内容预览
 
 class DocumentsResponse(BaseModel):
     """文档列表响应模型"""
@@ -1922,84 +1929,89 @@ async def chat(request: ChatRequest):
                     print(f"[文档匹配检查] 匹配度不是'perfect'，需要确认")
                 
                 if needs_confirmation:
-                    # 生成确认消息
+                    # 情况A：LLM 建议的文档不存在 → 弹出左侧 notify-stack 确认卡片（SMART_ADD_NEW_DOC）
                     if llm_suggested_doc and llm_suggested_doc not in available_docs:
-                        # LLM 建议的文档不存在，建议新建文档
-                        suggested_doc_name = DocumentMatcher.get_suggested_doc_name(content_type) if content_type else llm_suggested_doc
-                        # 如果匹配度不是"perfect"，添加匹配判断信息
-                        if match_degree != "perfect":
-                            match_warning = DocumentMatcher.generate_confirmation_message(
-                                active_doc_title, active_doc_type, content_type, match_degree
-                            )
-                            # 如果生成的消息中没有建议的文档名，添加它
-                            if suggested_doc_name and suggested_doc_name not in match_warning:
-                                # 消息已经包含了建议的文档名，不需要修改
-                                pass
-                        else:
-                            match_warning = f"⚠️ 文档不存在\n\nLLM 建议的文档「{llm_suggested_doc}」不存在。\n\n确定要加入到当前文档「{active_doc_title}」吗？\n\n我建议您新建一个文档「{suggested_doc_name}」"
+                        # 使用 LLM 建议的文档名（已经是 LLM 生成的语义名称）
+                        smart_doc_name = llm_suggested_doc
+                        # 生成唯一的确认 token，存储待确认操作
+                        smart_action_id = f"smart_{uuid.uuid4().hex[:12]}"
+                        pending_new_doc_actions[smart_action_id] = {
+                            "session_id": session_id,
+                            "doc_name": smart_doc_name,
+                            "content": content,
+                            "position": position,
+                            "section": section,
+                            "subsection": subsection,
+                        }
+                        print(f"[SMART_ADD] 文档 '{smart_doc_name}' 不存在，生成确认卡片，action_id={smart_action_id}")
+                        
+                        intent_info = build_intent_info(intent_data, intent)
+                        tools_used = build_tools_used(intent, is_dev_mode, False, False)
+                        
+                        return ChatResponse(
+                            response_type="SMART_ADD_NEW_DOC",
+                            content=f"未找到现有符合笔记内容的文档，是否新建《{smart_doc_name}》？",
+                            new_session_id=session_id if not request.session_id else None,
+                            dev_mode_enabled=is_dev_mode,
+                            edit_mode_enabled=get_edit_mode_enabled(app_instance, cloudflare_manager),
+                            smart_add_doc_name=smart_doc_name,
+                            smart_add_content=content,
+                            smart_add_section=section,
+                            smart_add_position=position,
+                            suggested_doc_title=smart_doc_name,
+                            smart_action_id=smart_action_id,
+                            smart_doc_name=smart_doc_name,
+                            smart_content_preview=content[:60] if content else "",
+                            intent_info=intent_info,
+                            rag_info=_rag_info,
+                            tools_used=tools_used
+                        )
                     else:
-                        # 匹配度不是"perfect"，生成匹配警告消息
+                        # 情况B：文档存在但匹配度不是 perfect → 原有的 CONFIRMATION 流程
                         match_warning = DocumentMatcher.generate_confirmation_message(
                             active_doc_title, active_doc_type, content_type, match_degree
                         )
-                        suggested_doc_name = DocumentMatcher.get_suggested_doc_name(content_type) if content_type else None
-                    
-                    # 如果 LLM 建议了不同的文档，且该文档不存在，建议新建文档
-                    if llm_suggested_doc and llm_suggested_doc != active_doc_title and llm_suggested_doc not in available_docs:
-                        # LLM 建议的文档不存在，建议新建文档
-                        if not match_warning or "文档不存在" not in match_warning:
-                            # 如果还没有生成消息，或者消息中没有"文档不存在"的提示，生成新消息
-                            if match_degree != "perfect":
-                                match_warning = DocumentMatcher.generate_confirmation_message(
-                                    active_doc_title, active_doc_type, content_type, match_degree
-                                )
-                            else:
-                                suggested_doc_name = DocumentMatcher.get_suggested_doc_name(content_type) if content_type else llm_suggested_doc
-                                match_warning = f"⚠️ 文档不存在\n\nLLM 建议的文档「{llm_suggested_doc}」不存在。\n\n💡 建议新建文档「{suggested_doc_name}」"
-                        suggested_doc_name = DocumentMatcher.get_suggested_doc_name(content_type) if content_type else (suggested_doc_name or llm_suggested_doc)
-                    elif not suggested_doc_name:
-                        # 如果没有建议的文档名，使用 LLM 建议的文档名
-                        suggested_doc_name = llm_suggested_doc
-                    
-                    # 更新 intent_data
-                    intent_data["document_type"] = active_doc_type
-                    intent_data["content_type"] = content_type
-                    intent_data["match_degree"] = match_degree
-                    intent_data["match_confirmation_needed"] = True
-                    intent_data["match_warning_message"] = match_warning
-                    intent_data["suggested_doc_name"] = suggested_doc_name
-                    intent_data["system_action_required"] = "ASK_MATCH_CONFIRMATION"
-                    intent_data["message_style"] = "warning" if match_degree == "mismatch" else "normal"
-                    
-                    # 存储待确认的添加操作
-                    app_instance.pending_action = {
-                        "intent": "ADD_CONTENT",
-                        "doc_title": active_doc_title, # 存储当前活动文档
-                        "content": content,
-                        "position": position,
-                        "section": section,
-                        "subsection": subsection,
-                        "intent_data": intent_data # 存储完整的 intent_data
-                    }
-                    
-                    # 构建意图信息和工具调用信息
-                    intent_info = build_intent_info(intent_data, intent)
-                    tools_used = build_tools_used(intent, is_dev_mode, False, False)
-                    
-                    return ChatResponse(
-                        response_type="CONFIRMATION",
-                        content=match_warning or "是否确认添加此内容？",
-                        new_session_id=session_id if not request.session_id else None,
-                        dev_mode_enabled=is_dev_mode,
-                        match_confirmation_needed=True,
-                        match_warning_message=match_warning,
-                        suggested_doc_title=suggested_doc_name,
-                        intent_info=intent_info,
-                        rag_info=_rag_info,
-
-                        tools_used=tools_used,
-                        edit_mode_enabled=get_edit_mode_enabled(app_instance, cloudflare_manager)
-                    )
+                        suggested_doc_name = DocumentMatcher.get_suggested_doc_name(content_type) if content_type else llm_suggested_doc
+                        if not suggested_doc_name:
+                            suggested_doc_name = llm_suggested_doc
+                        
+                        # 更新 intent_data
+                        intent_data["document_type"] = active_doc_type
+                        intent_data["content_type"] = content_type
+                        intent_data["match_degree"] = match_degree
+                        intent_data["match_confirmation_needed"] = True
+                        intent_data["match_warning_message"] = match_warning
+                        intent_data["suggested_doc_name"] = suggested_doc_name
+                        intent_data["system_action_required"] = "ASK_MATCH_CONFIRMATION"
+                        intent_data["message_style"] = "warning" if match_degree == "mismatch" else "normal"
+                        
+                        # 存储待确认的添加操作
+                        app_instance.pending_action = {
+                            "intent": "ADD_CONTENT",
+                            "doc_title": active_doc_title,
+                            "content": content,
+                            "position": position,
+                            "section": section,
+                            "subsection": subsection,
+                            "intent_data": intent_data
+                        }
+                        
+                        intent_info = build_intent_info(intent_data, intent)
+                        tools_used = build_tools_used(intent, is_dev_mode, False, False)
+                        
+                        return ChatResponse(
+                            response_type="CONFIRMATION",
+                            content=match_warning or "是否确认添加此内容？",
+                            new_session_id=session_id if not request.session_id else None,
+                            dev_mode_enabled=is_dev_mode,
+                            match_confirmation_needed=True,
+                            match_warning_message=match_warning,
+                            suggested_doc_title=suggested_doc_name,
+                            intent_info=intent_info,
+                            rag_info=_rag_info,
+                            tools_used=tools_used,
+                            edit_mode_enabled=get_edit_mode_enabled(app_instance, cloudflare_manager)
+                        )
                 else:
                     # 匹配度是"perfect"，直接添加到当前活动文档
                     doc_title = active_doc_title
@@ -2940,6 +2952,71 @@ async def chat(request: ChatRequest):
             status_code=500,
             detail=f"处理请求时发生错误：{error_detail}"
         )
+
+@app.post("/api/smart-add/confirm")
+async def smart_add_confirm(request: Request):
+    """
+    确认新建文档并写入内容
+    """
+    global pending_new_doc_actions
+    try:
+        body = await request.json()
+        action_id = body.get("action_id")
+        session_id = body.get("session_id")
+        
+        if not action_id or action_id not in pending_new_doc_actions:
+            return {"success": False, "message": "未找到待确认的操作"}
+        
+        action = pending_new_doc_actions.pop(action_id)
+        doc_name = action["doc_name"]
+        content = action["content"]
+        position = action.get("position", "end")
+        section = action.get("section")
+        subsection = action.get("subsection")
+        act_session_id = action.get("session_id", session_id)
+        
+        # 获取对应的 app_instance
+        app_inst = session_manager.sessions.get(act_session_id) if act_session_id else None
+        if app_inst is None:
+            # fallback: 取最新的会话
+            if session_manager.sessions:
+                app_inst = list(session_manager.sessions.values())[-1]
+            else:
+                return {"success": False, "message": "会话不存在，无法写入"}
+        
+        # 新建文档并写入内容
+        try:
+            import inspect
+            sig = inspect.signature(app_inst.doc_manager.add_content)
+            params = list(sig.parameters.keys())
+            if 'section' in params and 'subsection' in params:
+                app_inst.doc_manager.add_content(doc_name, content, position, section=section, subsection=subsection)
+            else:
+                app_inst.doc_manager.add_content(doc_name, content, position)
+            print(f"[SMART_ADD] 已新建文档 '{doc_name}' 并写入内容")
+            return {"success": True, "doc_name": doc_name, "message": f"已新建《{doc_name}》并写入内容"}
+        except Exception as e:
+            print(f"[SMART_ADD] 写入失败: {e}")
+            return {"success": False, "message": f"写入失败: {str(e)}"}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
+
+@app.post("/api/smart-add/cancel")
+async def smart_add_cancel(request: Request):
+    """
+    取消新建文档操作
+    """
+    global pending_new_doc_actions
+    try:
+        body = await request.json()
+        action_id = body.get("action_id")
+        if action_id and action_id in pending_new_doc_actions:
+            pending_new_doc_actions.pop(action_id)
+        return {"success": True, "message": "已取消本次记录"}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
 
 @app.get("/api/documents", response_model=DocumentsResponse)
 async def get_documents(

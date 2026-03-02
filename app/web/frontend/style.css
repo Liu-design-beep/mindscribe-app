@@ -1198,6 +1198,79 @@ body.dns-collapsed .notify-stack {
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
 }
 
+/* 从下往上渐入动画（SMART_ADD 确认卡片） */
+@keyframes notifySlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.notify-card--slide-up {
+    animation: notifySlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* 最旧卡片向上渐出动画 */
+@keyframes notifyFadeUp {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-24px) scale(0.95);
+    }
+}
+
+.notify-card.fading-up {
+    animation: notifyFadeUp 0.35s ease forwards;
+    pointer-events: none;
+}
+
+/* ---- 绿色主题（新建文档确认） ---- */
+.notify-card--green {
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.notify-card--green .notify-card-header {
+    background: rgba(16, 185, 129, 0.07);
+    border-bottom-color: rgba(16, 185, 129, 0.12);
+}
+
+.notify-card--green .notify-card-countdown {
+    color: #065f46;
+    background: rgba(16, 185, 129, 0.18);
+}
+
+.notify-card-progress-bar--green {
+    background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.notify-card-btn--green {
+    background: rgba(16, 185, 129, 0.12);
+    color: #065f46;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.notify-card-btn--green:hover {
+    background: rgba(16, 185, 129, 0.22);
+    transform: translateY(-1px);
+}
+
+.notify-card-btn--cancel {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-secondary);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.notify-card-btn--cancel:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
 /* 面试模式介绍弹窗（左侧，在试用模式弹窗下方） */
 .interview-mode-info-panel {
     position: fixed;
