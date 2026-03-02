@@ -46,7 +46,6 @@
     animation: slideUp 0.4s ease-out;
     position: relative;
     margin: 0 auto;
-    transform: translateX(8%);
 }
 
 /* 左侧介绍窗口 */
@@ -583,13 +582,16 @@
     flex-direction: column;
     align-items: center;
     gap: 0;
+    /* 方框整体左移：将 translateX 从 8% 降至 0 */
+    transform: translateX(0%);
 }
 
 /* 跳动图标容器 */
 .login-bounce-icon-wrap {
     display: flex;
     justify-content: center;
-    margin-bottom: -10px;
+    /* 图标上移：用负向 margin-bottom 拉开与方框的间距 */
+    margin-bottom: 18px;
     z-index: 10;
     position: relative;
 }
