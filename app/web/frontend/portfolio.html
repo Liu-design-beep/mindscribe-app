@@ -138,6 +138,27 @@
                 <div id="terminal-logs"></div>
                 <div class="terminal-cursor mt-2"></div>
             </div>
+
+            <!-- 真实媒体预加载进度区域 -->
+            <div id="media-preload-section" class="mt-6 font-mono">
+                <!-- 已加载 / 总数 -->
+                <div class="flex justify-between items-center mb-2 text-sm">
+                    <span class="text-green-400">LOADING ASSETS</span>
+                    <span id="media-count-display" class="text-green-300">0 / 0</span>
+                </div>
+                <!-- 进度条外框 -->
+                <div class="w-full bg-zinc-800 border border-green-500/30 rounded h-4 overflow-hidden">
+                    <div id="media-progress-bar"
+                         style="width:0%; transition: width 0.3s ease;"
+                         class="h-full bg-gradient-to-r from-green-600 to-emerald-400 rounded shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
+                </div>
+                <!-- 百分比 -->
+                <div class="flex justify-end mt-1">
+                    <span id="media-percent-display" class="text-green-400 text-lg font-bold">0%</span>
+                </div>
+                <!-- 当前正在加载的文件名 -->
+                <div id="media-current-file" class="mt-1 text-zinc-500 text-xs truncate">&nbsp;</div>
+            </div>
         </div>
     </div>
 
@@ -464,16 +485,18 @@
         const logsContainer = document.getElementById('terminal-logs');
         const loadingScreen = document.getElementById('loading-screen');
         const mainContent = document.getElementById('main-content');
-        
-        const sequence = [
-            { text: '> INITIALIZING SECURE CONNECTION...', delay: 500 },
-            { text: '> ACCESSING CREATOR ARCHIVES...', delay: 1200 },
-            { text: '> DECRYPTING PROJECT FILES...', delay: 2000 },
-            { text: '> LOADING ASSETS: [####################] 100%', delay: 2800 },
-            { text: '> SYSTEM READY.', delay: 3500 }
-        ];
+        const progressBar = document.getElementById('media-progress-bar');
+        const countDisplay = document.getElementById('media-count-display');
+        const percentDisplay = document.getElementById('media-percent-display');
+        const currentFileDisplay = document.getElementById('media-current-file');
 
-        let currentTime = 0;
+        // 终端日志序列（不再包含 fake 进度）
+        const sequence = [
+            { text: '> INITIALIZING SECURE CONNECTION...', delay: 300 },
+            { text: '> ACCESSING CREATOR ARCHIVES...', delay: 900 },
+            { text: '> DECRYPTING PROJECT FILES...', delay: 1500 },
+            { text: '> SCANNING MEDIA ASSETS...', delay: 2100 },
+        ];
         sequence.forEach(({ text, delay }) => {
             setTimeout(() => {
                 const p = document.createElement('div');
@@ -483,14 +506,72 @@
             }, delay);
         });
 
-        setTimeout(() => {
-            loadingScreen.classList.add('glitch-effect');
+        // 收集所有需要预加载的媒体资源（图片 + 视频）
+        const mediaAssets = projects
+            .filter(p => p.image || p.video)
+            .map(p => ({ url: p.image || p.video, name: (p.image || p.video).split('/').pop() }));
+
+        const total = mediaAssets.length;
+        let loaded = 0;
+
+        function updateProgress() {
+            const pct = total === 0 ? 100 : Math.round((loaded / total) * 100);
+            progressBar.style.width = pct + '%';
+            countDisplay.textContent = loaded + ' / ' + total;
+            percentDisplay.textContent = pct + '%';
+        }
+
+        function onAssetDone(name) {
+            loaded++;
+            currentFileDisplay.textContent = '> LOADED: ' + name;
+            updateProgress();
+            if (loaded >= total) {
+                onAllLoaded();
+            }
+        }
+
+        function onAllLoaded() {
+            const p = document.createElement('div');
+            p.className = 'mb-2 animate-in fade-in slide-in-from-left-2 duration-300 text-emerald-400';
+            p.textContent = '> ALL ASSETS LOADED. SYSTEM READY.';
+            logsContainer.appendChild(p);
+            currentFileDisplay.textContent = '> COMPLETE';
+
             setTimeout(() => {
-                loadingScreen.style.display = 'none';
-                mainContent.classList.remove('hidden');
-                mainContent.classList.add('animate-in', 'fade-in', 'duration-700');
-            }, 800);
-        }, 4000);
+                loadingScreen.classList.add('glitch-effect');
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    mainContent.classList.remove('hidden');
+                    mainContent.classList.add('animate-in', 'fade-in', 'duration-700');
+                }, 800);
+            }, 600);
+        }
+
+        // 初始化进度显示
+        updateProgress();
+
+        if (total === 0) {
+            // 没有媒体资源，直接跳转
+            setTimeout(onAllLoaded, 2500);
+        } else {
+            // 延迟 2.2s 后开始预加载（等终端动画播完）
+            setTimeout(() => {
+                mediaAssets.forEach(({ url, name }) => {
+                    if (url.match(/\.(mp4|webm|ogg)$/i)) {
+                        // 视频：用 fetch 预加载
+                        fetch(url)
+                            .then(() => onAssetDone(name))
+                            .catch(() => onAssetDone(name)); // 失败也计入进度
+                    } else {
+                        // 图片：用 Image 对象
+                        const img = new Image();
+                        img.onload = () => onAssetDone(name);
+                        img.onerror = () => onAssetDone(name);
+                        img.src = url;
+                    }
+                });
+            }, 2200);
+        }
 
         // Modal Logic
         const modal = document.getElementById('doc-modal');
