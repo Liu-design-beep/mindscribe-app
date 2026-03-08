@@ -2560,11 +2560,11 @@ function initEventListeners() {
         });
     }
 
-    // 新建文档按鈕（复用现有 openSidebar 逻辑）
+    // 新建文档按鈕：直接弹出自定义弹窗
     const newDocBtn = document.getElementById('new-doc-btn');
     if (newDocBtn) {
         newDocBtn.addEventListener('click', () => {
-            openSidebar();
+            showCreateDocumentDialog();
         });
     }
 
