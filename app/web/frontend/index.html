@@ -25,71 +25,73 @@
     <!-- 登录/试用选择悬浮提示 -->
     <div class="login-trial-modal" id="login-trial-modal" style="position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; display: flex !important; justify-content: center !important; align-items: center !important; visibility: visible !important; opacity: 1 !important; z-index: 10000 !important;">
         <div class="login-wrapper">
-        <div class="login-bounce-icon-wrap">
-            <img src="login-icon.png" alt="灵辑" class="login-bounce-icon">
-        </div>
-        <div class="modal-container">
-            <!-- 左侧介绍窗口 -->
-            <div class="intro-panel">
-                <div class="intro-header">
-                    <img src="封面图标.png" alt="灵辑" class="cover-icon" onerror="this.style.display='none';">
-                    <h2>关于灵辑</h2>
+            <!-- 左侧信息栏 -->
+            <div class="login-sidebar">
+                <div class="login-sidebar-brand">
+                    <div class="login-sidebar-brand-icon">
+                        <img src="login-icon.png" alt="灵辑" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <span style="display:none;">∞</span>
+                    </div>
+                    <span class="login-sidebar-brand-name">灵辑</span>
                 </div>
-                <div class="intro-content">
-                    <div class="intro-section">
-                        <h3>📝 灵辑 (Mindscribe)</h3>
-                        <p>智能笔记管理助手。你只需说出来，灵辑会自动分析内容、判断归属，并将其整理入对应的笔记文档——无需手动分类，也无需指定放在哪里。</p>
-                    </div>
-                    <div class="intro-section">
-                        <h3>✨ 核心能力</h3>
-                        <ul>
-                            <li>🧠 <strong>自动分析内容</strong>，智能判断应归入哪个文档</li>
-                            <li>📂 <strong>全量笔记自动整理</strong>，碎片信息不再散落</li>
-                            <li>💬 自然语言交互，想到哪里说哪里</li>
-                            <li>☁️ 云端永久存储，跨设备随时访问</li>
-                        </ul>
-                    </div>
-                    <div class="intro-section" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
-                        <div style="flex: 1;">
-                            <h3>👨‍💻 开发团队</h3>
-                            <p><strong>开发者：</strong>刘莫昕</p>
-                            <p>感谢您使用灵辑！我们致力于为您提供更好的笔记管理体验。</p>
-                            <p>联系我们🐧：2226778997</p>
-                            <div class="portfolio-btn-container" style="margin-top: 15px;">
-                                <a href="portfolio.html" class="portfolio-btn-black-gold">
-                                    <img src="按钮图标.png" alt="icon" class="portfolio-icon-img">
-                                    进入开发者作品集
-                                </a>
-                            </div>
-                        </div>
-                        <div style="flex-shrink: 0;">
-                            <img src="wechat-qr.jpg" alt="微信二维码" style="width: 120px; height: 120px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                            <p style="text-align: center; font-size: 12px; color: #666; margin-top: 5px;">扫码联系</p>
-                        </div>
+                <p class="login-sidebar-tagline">智能笔记管理助手，自动分析内容，判断归属，整理入对应文档。</p>
+                <div class="login-sidebar-feature">
+                    <span class="login-sidebar-feature-icon">🧠</span>
+                    <div class="login-sidebar-feature-text">
+                        <strong>自动分类写入</strong>
+                        语义匹配现有文档，碎片信息不再散落
                     </div>
                 </div>
+                <div class="login-sidebar-feature">
+                    <span class="login-sidebar-feature-icon">☁️</span>
+                    <div class="login-sidebar-feature-text">
+                        <strong>云端永久存储</strong>
+                        登录后跨设备随时访问
+                    </div>
+                </div>
+                <div class="login-sidebar-feature">
+                    <span class="login-sidebar-feature-icon">🗺️</span>
+                    <div class="login-sidebar-feature-text">
+                        <strong>知识图谱</strong>
+                        自动构建概念关联网络
+                    </div>
+                </div>
+                <a href="portfolio.html" class="login-sidebar-dev-link">👨‍💻 开发者作品集 →</a>
             </div>
-            <!-- 右侧登录/试用选择窗口 -->
-            <div class="modal-content">
-                <div class="modal-header">
+
+            <!-- 右侧主登录区 -->
+            <div class="login-main">
+                <!-- 跳动图标 -->
+                <div class="login-bounce-icon-wrap">
+                    <img src="login-icon.png" alt="灵辑" class="login-bounce-icon">
+                    <div class="login-bounce-shadow"></div>
+                </div>
+
+                <div class="login-main-header">
                     <h2>欢迎使用灵辑</h2>
-                    <p class="subtitle">请选择使用方式</p>
+                    <p>请选择使用方式</p>
                 </div>
-                <div class="modal-body">
-                    <div class="option-card" id="login-option">
-                        <div class="option-icon">🔐</div>
-                        <h3>登录</h3>
-                        <p>登录后可使用云端存储功能，数据永久保存</p>
+
+                <div class="login-main-actions">
+                    <div class="login-btn-primary" id="login-option">
+                        <span class="login-btn-icon">🔐</span>
+                        <div class="login-btn-text">
+                            <span class="login-btn-title">登录账号</span>
+                            <span class="login-btn-sub">数据永久保存，跨设备同步</span>
+                        </div>
                     </div>
-                    <div class="option-card" id="trial-option">
-                        <div class="option-icon">✨</div>
-                        <h3>试用</h3>
-                        <p>立即体验，无需登录</p>
+                    <div class="login-divider"><span>或</span></div>
+                    <div class="login-btn-secondary" id="trial-option">
+                        <span class="login-btn-icon">✨</span>
+                        <div class="login-btn-text">
+                            <span class="login-btn-title">立即试用</span>
+                            <span class="login-btn-sub">无需登录，即刻体验</span>
+                        </div>
                     </div>
                 </div>
+
                 <div class="modal-version">v 2026.3.2</div>
             </div>
-        </div>
         </div>
     </div>
     
