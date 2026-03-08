@@ -18,8 +18,6 @@
     <!-- href="style.css"：样式表文件的路径 -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="login-modal.css">
-    <!-- 数据看板样式 -->
-    <link rel="stylesheet" href="dashboard-style.css">
 <!-- head标签结束 -->
 </head>
 <!-- body标签：包含页面上所有可见的内容 -->
@@ -223,24 +221,6 @@
             <span>&#x276F;</span>
         </button>
         <div class="left-sidebar-bottom">
-            <!-- 数据看板按鈕（最靠上，试用模式专属） -->
-            <div class="left-sidebar-btn-wrapper" id="dashboard-btn-wrapper">
-                <button id="dashboard-btn" class="left-sidebar-btn dashboard-sidebar-btn" aria-label="数据看板">
-                    <span style="font-size:20px;line-height:1;">&#x1F4CA;</span>
-                </button>
-                <!-- 数据看板 tooltip -->
-                <div class="left-sidebar-tooltip dashboard-sidebar-tooltip">
-                    <div class="tooltip-content">
-                        <div class="tooltip-title">&#x1F4CA; AI 产品经理数据看板</div>
-                        <div class="tooltip-text">
-                            <p>全链路指标体系可视化展示</p>
-                            <p style="margin-top:6px">• 入口层 · 交互层 · AI核心层</p>
-                            <p>• 功能层 · 留存层 · 商业化层</p>
-                            <p>• 安全合规层 · 北极星指标</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <!-- 知识图谱系统入口按鈕（知识库广场上方） -->
             <div class="left-sidebar-btn-wrapper" id="knowledge-graph-btn-wrapper">
                 <button id="knowledge-graph-btn" class="left-sidebar-btn" aria-label="知识图谱系统">
@@ -941,27 +921,11 @@
     <!-- loading-indicator div结束 -->
     </div>
 
-    <!-- 数据看板全屏容器（覆盖整个页面） -->
-    <div id="dashboard-fullscreen" class="dashboard-fullscreen-overlay hidden">
-        <!-- 返回按鈕 -->
-        <button id="dashboard-back-btn" class="dashboard-back-btn" aria-label="返回试用模式">
-            <span class="dashboard-back-icon">&#x2190;</span>
-            <span class="dashboard-back-text">返回试用模式</span>
-        </button>
-        <!-- 内嵌看板内容（内联展示，非 iframe） -->
-        <div id="dashboard-inner" class="dashboard-inner-wrap">
-            <!-- 看板内容将由 dashboard.js 动态注入 -->
-        </div>
-    </div>
-
     <!-- script标签：引入外部JavaScript文件 -->
     <!-- src="app.js"：JavaScript文件的路径 -->
     <!-- 这个脚本会在页面加载完成后执行，初始化应用的所有功能 -->
     <script src="login-modal.js"></script>
     <script src="app.js" onerror="console.error('❌ app.js 加载失败！请检查文件是否存在和网络连接。')"></script>
-    <!-- Chart.js 和数据看板嵌入脚本 -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="dashboard-embed.js"></script>
     <!-- 调试脚本：检查 app.js 是否加载成功 -->
     <script>
         // 立即检查 app.js 是否加载
