@@ -4165,3 +4165,40 @@ function showDeleteConfirmCard(docTitle) {
         }
     });
 })();
+
+
+// ============================================================
+// 登录界面更新日志 Ticker 条 · 初始化
+// ============================================================
+(function() {
+    var container = document.getElementById('loginTickerContent');
+    if (!container) return;
+
+    var logs = [
+        { date: '2026.3.8',  badge: 'new',     text: '登录界面全面重构与作品集修复' },
+        { date: '2026.3.2',  badge: 'new',     text: '智能新建文档：内容自动匹配，无文档时一键创建' },
+        { date: '2026.3.1',  badge: 'new',     text: '全面跨越：面向中国用户的交互重构与知识图谱上线' },
+        { date: '2026.2.26', badge: 'improve', text: '交互体验升级：气泡反馈、登录界面重构与删除修复' },
+        { date: '2026.2.24', badge: 'new',     text: '多文档管理系统上线，支持文档切换与新建' },
+        { date: '2026.2.20', badge: 'fix',     text: '修复意图识别在多轮对话中的上下文丢失问题' },
+        { date: '2026.2.15', badge: 'new',     text: 'RAG 检索增强架构接入，笔记召回精度大幅提升' },
+        { date: '2026.2.10', badge: 'improve', text: '响应速度优化，平均延迟降低 40%' },
+    ];
+
+    var badgeText = { new: '新功能', fix: '修复', improve: '优化' };
+
+    // 生成两份内容拼接，实现无缝循环滚动
+    var html = '';
+    for (var r = 0; r < 2; r++) {
+        for (var i = 0; i < logs.length; i++) {
+            var log = logs[i];
+            html += '<span class="login-ticker-item">'
+                  + '<span class="login-ticker-date">&#x1F4C5; ' + log.date + '</span>'
+                  + '<span class="login-ticker-badge login-ticker-badge--' + log.badge + '">' + badgeText[log.badge] + '</span>'
+                  + log.text
+                  + '</span>'
+                  + '<span class="login-ticker-sep">·</span>';
+        }
+    }
+    container.innerHTML = html;
+})();

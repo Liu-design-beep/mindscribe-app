@@ -686,3 +686,147 @@
     margin-left: -5px; /* 向左微调 */
     margin-right: 5px; /* 增加与文字的间距 */
 }
+
+
+/* ============================================================
+   更新日志 Ticker 条 · 登录卡片底部
+   ============================================================ */
+
+/* 作品集按钮上移：与 Ticker 条保持间距 */
+.login-sidebar-portfolio-btn {
+    margin-bottom: 14px !important;
+}
+
+/* Ticker 条：绝对定位贴在卡片底部 */
+.login-ticker-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: linear-gradient(90deg,
+        rgba(20, 12, 48, 0.97) 0%,
+        rgba(35, 20, 75, 0.95) 50%,
+        rgba(20, 12, 48, 0.97) 100%);
+    border-top: 1px solid rgba(120, 80, 220, 0.18);
+    z-index: 5;
+}
+
+/* 左侧标签 */
+.login-ticker-label {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px 0 16px;
+    height: 100%;
+    font-size: 11px;
+    font-weight: 700;
+    color: #a78bfa;
+    letter-spacing: 0.5px;
+    border-right: 1px solid rgba(120, 80, 220, 0.2);
+    background: rgba(80, 40, 160, 0.12);
+    white-space: nowrap;
+}
+
+/* 脉冲点 */
+.login-ticker-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #7c3aed;
+    flex-shrink: 0;
+    animation: login-ticker-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes login-ticker-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.35; transform: scale(0.65); }
+}
+
+/* 滚动轨道 */
+.login-ticker-track {
+    flex: 1;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    mask-image: linear-gradient(90deg, transparent 0%, black 4%, black 96%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 4%, black 96%, transparent 100%);
+}
+
+/* 滚动内容 */
+.login-ticker-content {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    animation: login-ticker-scroll 40s linear infinite;
+}
+
+.login-ticker-content:hover {
+    animation-play-state: paused;
+}
+
+@keyframes login-ticker-scroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* 单条更新项 */
+.login-ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 24px;
+    font-size: 12px;
+    color: rgba(210, 200, 250, 0.72);
+    cursor: default;
+    transition: color 0.2s;
+}
+
+.login-ticker-item:hover { color: #c4b5fd; }
+
+.login-ticker-date {
+    color: #7c3aed;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+}
+
+.login-ticker-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 7px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.login-ticker-badge--new {
+    background: rgba(124, 58, 237, 0.18);
+    color: #a78bfa;
+    border: 1px solid rgba(124, 58, 237, 0.28);
+}
+
+.login-ticker-badge--fix {
+    background: rgba(16, 185, 129, 0.13);
+    color: #6ee7b7;
+    border: 1px solid rgba(16, 185, 129, 0.22);
+}
+
+.login-ticker-badge--improve {
+    background: rgba(245, 158, 11, 0.13);
+    color: #fcd34d;
+    border: 1px solid rgba(245, 158, 11, 0.22);
+}
+
+.login-ticker-sep {
+    color: rgba(120, 80, 220, 0.3);
+    font-size: 14px;
+    padding: 0 2px;
+    user-select: none;
+}
