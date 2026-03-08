@@ -396,7 +396,10 @@
             return true;
         }
 
-        // Render Projects
+        // 全局 Blob URL 缓存表：原始 URL -> blob: URL
+        const blobCache = {};
+
+        // Render Projects（先用占位符，预加载完后替换）
         const grid = document.getElementById('projects-grid');
         projects.forEach(project => {
             const card = document.createElement('div');
@@ -404,17 +407,13 @@
             
             let mediaContent = '';
             if (project.video) {
+                // 用 data-src 占位，预加载完后替换为 blob: URL
                 mediaContent = `
                     <div class="mt-4 rounded-md overflow-hidden border border-zinc-800 bg-black aspect-video relative group-hover:border-amber-500/30 transition-colors">
-                        <video 
-                            src="${project.video}" 
-                            controls 
-                            controlsList="nodownload"
-                            muted
-                            class="w-full h-full object-cover"
-                            onvolumechange="if(!this.muted) { this.muted = true; alert('AUDIO_OUTPUT_DISABLED: System policy enforces silent mode.'); }"
-                            onerror="this.parentElement.innerHTML = \`<div class='w-full h-full flex flex-col items-center justify-center bg-red-900/20 border border-red-800 p-4 text-center'><i data-lucide='alert-circle' class='text-red-500 mb-2'></i><span class='text-red-400 font-bold text-sm'>Video Load Failed</span><span class='text-red-300/70 text-xs mt-1 break-all'>${project.video}</span></div>\`; lucide.createIcons();">
-                        </video>
+                        <div class="w-full h-full flex items-center justify-center text-zinc-600" data-video-placeholder="${project.video}">
+                            <svg class="animate-spin h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+                            <span class="text-xs font-mono">BUFFERING...</span>
+                        </div>
                     </div>
                 `;
             } else if (project.image) {
@@ -551,19 +550,45 @@
         updateProgress();
 
         if (total === 0) {
-            // 没有媒体资源，直接跳转
             setTimeout(onAllLoaded, 2500);
         } else {
-            // 延迟 2.2s 后开始预加载（等终端动画播完）
+            // 延迟 2.2s 后开始预加载
             setTimeout(() => {
                 mediaAssets.forEach(({ url, name }) => {
                     if (url.match(/\.(mp4|webm|ogg)$/i)) {
-                        // 视频：用 fetch 预加载
+                        // 视频： fetch 全量下载后转为 Blob URL
                         fetch(url)
-                            .then(() => onAssetDone(name))
-                            .catch(() => onAssetDone(name)); // 失败也计入进度
+                            .then(res => res.blob())
+                            .then(blob => {
+                                const blobUrl = URL.createObjectURL(blob);
+                                blobCache[url] = blobUrl;
+                                // 替换占位符为真实 video 标签
+                                const placeholder = document.querySelector(`[data-video-placeholder="${url}"]`);
+                                if (placeholder) {
+                                    placeholder.outerHTML = `<video
+                                        src="${blobUrl}"
+                                        controls
+                                        controlsList="nodownload"
+                                        muted
+                                        class="w-full h-full object-cover"
+                                        onvolumechange="if(!this.muted){this.muted=true;}"
+                                    ></video>`;
+                                }
+                                onAssetDone(name);
+                            })
+                            .catch(() => {
+                                // 加载失败：显示错误提示
+                                const placeholder = document.querySelector(`[data-video-placeholder="${url}"]`);
+                                if (placeholder) {
+                                    placeholder.outerHTML = `<div class='w-full h-full flex flex-col items-center justify-center bg-red-900/20 border border-red-800 p-4 text-center'>
+                                        <span class='text-red-400 font-bold text-sm'>Video Load Failed</span>
+                                        <span class='text-red-300/70 text-xs mt-1 break-all'>${url}</span>
+                                    </div>`;
+                                }
+                                onAssetDone(name);
+                            });
                     } else {
-                        // 图片：用 Image 对象
+                        // 图片：用 Image 对象预加载
                         const img = new Image();
                         img.onload = () => onAssetDone(name);
                         img.onerror = () => onAssetDone(name);
