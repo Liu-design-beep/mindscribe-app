@@ -756,6 +756,26 @@
     <!-- footer标签结束 -->
     </footer>
 
+    <!-- 新建文档弹窗 -->
+    <div id="create-doc-modal" class="create-doc-modal hidden">
+        <div class="create-doc-modal-overlay"></div>
+        <div class="create-doc-modal-content">
+            <div class="create-doc-modal-header">
+                <span class="create-doc-modal-icon">📄</span>
+                <h3 class="create-doc-modal-title">新建文档</h3>
+            </div>
+            <div class="create-doc-modal-body">
+                <label class="create-doc-label">文档名称 <span class="create-doc-limit">(最多 10 字)</span></label>
+                <input id="create-doc-name-input" class="create-doc-input" type="text" maxlength="10" placeholder="请输入文档名称..." autocomplete="off" />
+                <div id="create-doc-error" class="create-doc-error hidden"></div>
+            </div>
+            <div class="create-doc-modal-footer">
+                <button id="create-doc-cancel-btn" class="create-doc-btn-cancel">取消</button>
+                <button id="create-doc-confirm-btn" class="create-doc-btn-confirm">确认创建</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 查看文档弹窗 -->
     <div id="view-document-modal" class="view-document-modal hidden">
         <div class="view-document-content">

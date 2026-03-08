@@ -714,61 +714,95 @@ function updateDocumentList(documents) {
 }
 
 /**
- * 显示新建文档对话框
- * 提示用户输入文档名称，然后创建新文档
+ * 显示新建文档弹窗（自定义 UI）
  */
-async function showCreateDocumentDialog() {
-    const docName = prompt("请输入新文档的名称 (最多10个字符):");
-    if (docName === null) { // 用户点击了取消
-        return;
+function showCreateDocumentDialog() {
+    const modal = document.getElementById('create-doc-modal');
+    const input = document.getElementById('create-doc-name-input');
+    const errorDiv = document.getElementById('create-doc-error');
+    const confirmBtn = document.getElementById('create-doc-confirm-btn');
+    const cancelBtn = document.getElementById('create-doc-cancel-btn');
+
+    if (!modal) return;
+
+    // 重置弹窗状态
+    input.value = '';
+    errorDiv.textContent = '';
+    errorDiv.classList.add('hidden');
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = '确认创建';
+
+    // 显示弹窗
+    modal.classList.remove('hidden');
+    setTimeout(() => input.focus(), 100);
+
+    // 取消按鈕
+    function onCancel() {
+        modal.classList.add('hidden');
+        cleanup();
     }
 
-    const trimmedDocName = docName.trim();
-
-    if (!trimmedDocName) {
-        alert("文档名称不能为空！");
-        return;
-    }
-
-    if (trimmedDocName.length > 10) {
-        alert("文档名称不能超过10个字符！");
-        return;
-    }
-
-    // 检查文档是否已存在
-    if (AppState.documents.includes(trimmedDocName)) {
-        alert(`文档 "${trimmedDocName}" 已存在，请使用其他名称。`);
-        return;
-    }
-
-    try {
-        // 发送创建文档的请求到后端
-        const response = await sendMessageToBackend(`创建文档 ${trimmedDocName}`);
-        console.log('创建文档响应:', response);
-        
-        if (response.response_type === 'TEXT' && (response.content.includes('成功创建') || response.content.includes('✅'))) {
-            // 等待一小段时间，确保后端数据已保存到D1数据库
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            // 刷新文档列表
-            const documents = await fetchDocumentList();
-            console.log('获取到的文档列表:', documents);
-            
-            // 更新文档列表显示
-            updateDocumentList(documents);
-            
-            // 切换到新创建的文档
-            switchDocument(trimmedDocName);
-            
-            // 显示成功消息（不显示alert，改为在聊天区域显示）
-            addMessageToChat('ai', `✅ 文档 "${trimmedDocName}" 创建成功！`);
-        } else {
-            alert(`创建文档失败：${response.content || '未知错误'}`);
+    // 确认创建
+    async function onConfirm() {
+        const trimmed = input.value.trim();
+        if (!trimmed) {
+            showError('文档名称不能为空');
+            return;
         }
-    } catch (error) {
-        console.error('创建文档失败:', error);
-        alert(`创建文档时发生错误：${error.message}`);
+        if (trimmed.length > 10) {
+            showError('文档名称不能超过 10 个字符');
+            return;
+        }
+        if (AppState.documents && AppState.documents.includes(trimmed)) {
+            showError(`《${trimmed}》已存在，请换一个名称`);
+            return;
+        }
+
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = '创建中...';
+
+        try {
+            const response = await sendMessageToBackend(`创建文档 ${trimmed}`);
+            if (response.response_type === 'TEXT' && (response.content.includes('成功创建') || response.content.includes('✅'))) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                const docs = await fetchDocumentList();
+                updateDocumentList(docs);
+                switchDocument(trimmed);
+                addMessageToChat('ai', `✅ 文档《${trimmed}》创建成功！`);
+                modal.classList.add('hidden');
+                cleanup();
+            } else {
+                showError('创建失败：' + (response.content || '未知错误'));
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = '确认创建';
+            }
+        } catch (err) {
+            showError('创建异常：' + err.message);
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = '确认创建';
+        }
     }
+
+    function showError(msg) {
+        errorDiv.textContent = msg;
+        errorDiv.classList.remove('hidden');
+    }
+
+    // Enter 键确认
+    function onKeydown(e) {
+        if (e.key === 'Enter') onConfirm();
+        if (e.key === 'Escape') onCancel();
+    }
+
+    function cleanup() {
+        cancelBtn.removeEventListener('click', onCancel);
+        confirmBtn.removeEventListener('click', onConfirm);
+        input.removeEventListener('keydown', onKeydown);
+    }
+
+    cancelBtn.addEventListener('click', onCancel);
+    confirmBtn.addEventListener('click', onConfirm);
+    input.addEventListener('keydown', onKeydown);
 }
 
 /**
