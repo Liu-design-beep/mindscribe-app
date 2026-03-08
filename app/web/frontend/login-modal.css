@@ -157,9 +157,10 @@
 .login-sidebar-portfolio-btn {
     margin-top: auto;
     font-size: 12px !important;
-    padding: 9px 14px !important;
+    padding: 9px 16px !important;
     justify-content: center;
-    width: 100%;
+    width: fit-content;
+    align-self: flex-start;
 }
 
 /* 右侧主登录区 */
