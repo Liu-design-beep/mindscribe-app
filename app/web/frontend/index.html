@@ -221,6 +221,18 @@
             <span>&#x276F;</span>
         </button>
         <div class="left-sidebar-bottom">
+            <!-- 数据看板入口按钮（最靠上） -->
+            <div class="left-sidebar-btn-wrapper" id="data-dashboard-btn-wrapper">
+                <button id="data-dashboard-btn" class="left-sidebar-btn" aria-label="数据看板">
+                    <span style="font-size:20px;line-height:1;">📊</span>
+                </button>
+                <div class="left-sidebar-tooltip">
+                    <div class="tooltip-content">
+                        <span class="tooltip-text">数据看板</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- 知识图谱系统入口按鈕（知识库广场上方） -->
             <div class="left-sidebar-btn-wrapper" id="knowledge-graph-btn-wrapper">
                 <button id="knowledge-graph-btn" class="left-sidebar-btn" aria-label="知识图谱系统">
@@ -428,6 +440,23 @@
                 </div>
                 <button class="kg-hint-close" onclick="document.getElementById('kg-hint-toast').classList.add('kg-hint-hidden')">×</button>
             </div>
+        </div>
+    </div>
+
+    <!-- 数据看板全屏面板 -->
+    <div id="data-dashboard-panel" class="knowledge-graph-panel hidden">
+        <div class="knowledge-graph-panel-header">
+            <span class="knowledge-graph-panel-title">📊 数据看板</span>
+            <button id="close-data-dashboard-btn" class="knowledge-graph-close-btn" aria-label="关闭">×</button>
+        </div>
+        <div class="knowledge-graph-panel-body">
+            <iframe
+                id="data-dashboard-iframe"
+                class="knowledge-graph-iframe"
+                src="data-dashboard.html"
+                frameborder="0"
+                allowfullscreen
+            ></iframe>
         </div>
     </div>
 

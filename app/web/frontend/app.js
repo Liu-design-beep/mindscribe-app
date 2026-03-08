@@ -4135,3 +4135,33 @@ function showDeleteConfirmCard(docTitle) {
 
     stack.appendChild(card);
 }
+
+
+// ============================================================
+// 数据看板面板 · 交互逻辑
+// ============================================================
+(function() {
+    var dashBtn   = document.getElementById('data-dashboard-btn');
+    var dashPanel = document.getElementById('data-dashboard-panel');
+     var closeBtn  = document.getElementById('close-data-dashboard-btn');
+    if (!dashBtn || !dashPanel) return;
+    function openDashboard() {
+        dashPanel.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDashboard() {
+        dashPanel.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    dashBtn.addEventListener('click', openDashboard);
+    if (closeBtn) closeBtn.addEventListener('click', closeDashboard);
+
+    // 监听 iframe 内部「返回试用模式」按钮发出的 postMessage
+    window.addEventListener('message', function(event) {
+        if (event.data === 'closeDashboard') {
+            closeDashboard();
+        }
+    });
+})();

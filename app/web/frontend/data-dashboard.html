@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>灵辑 · AI 产品经理全链路数据看板</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+/* ============================================================
+   灵辑 MindScribe · AI 产品经理全链路数据看板 · 内联样式
+   ============================================================ */
+:root {
+  --bg-dark: #0a0b0f;
+  --bg-card: #111318;
+  --bg-card-hover: #161a22;
+  --border: rgba(255,255,255,0.07);
+  --border-bright: rgba(255,255,255,0.14);
+  --entry-color: #6c63ff;
+  --entry-light: rgba(108,99,255,0.15);
+  --interact-color: #06b6d4;
+  --interact-light: rgba(6,182,212,0.15);
+  --ai-color: #a855f7;
+  --ai-light: rgba(168,85,247,0.15);
+  --feature-color: #f59e0b;
+  --feature-light: rgba(245,158,11,0.15);
+  --retain-color: #10b981;
+  --retain-light: rgba(16,185,129,0.15);
+  --biz-color: #f97316;
+  --biz-light: rgba(249,115,22,0.15);
+  --safety-color: #ef4444;
+  --safety-light: rgba(239,68,68,0.15);
+  --polar-color: #fbbf24;
+  --polar-light: rgba(251,191,36,0.12);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
+  --positive: #34d399;
+  --negative: #f87171;
+  --warn: #fbbf24;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── 顶部导航栏 ── */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; height: 52px;
+  background: rgba(10,11,15,0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.back-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 20px;
+  border: 1px solid rgba(108,99,255,0.4);
+  background: rgba(108,99,255,0.1);
+  color: #a78bfa; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  text-decoration: none;
+}
+.back-btn:hover { background: rgba(108,99,255,0.2); border-color: rgba(108,99,255,0.7); color: #c4b5fd; }
+.logo-wrap { display: flex; align-items: center; gap: 7px; }
+.logo-icon { font-size: 16px; color: var(--polar-color); animation: pulse-star 2s ease-in-out infinite; }
+@keyframes pulse-star { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.7;transform:scale(1.1)} }
+.logo-text { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.badge-live {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+  color: #fff; background: #ef4444; padding: 2px 6px; border-radius: 20px;
+  animation: blink-live 1.5s ease-in-out infinite;
+}
+@keyframes blink-live { 0%,100%{opacity:1} 50%{opacity:0.5} }
+.topbar-center { flex: 1; text-align: center; }
+.topbar-title { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+.topbar-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.update-time { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.layer-nav { display: flex; gap: 3px; }
+.layer-btn {
+  font-size: 11px; font-weight: 500; color: var(--text-muted);
+  text-decoration: none; padding: 3px 9px; border-radius: 20px;
+  border: 1px solid transparent; transition: all 0.2s;
+}
+.layer-btn:hover, .layer-btn.active {
+  color: var(--text-primary); background: rgba(255,255,255,0.08); border-color: var(--border-bright);
+}
+
+/* ── 北极星指标横幅 ── */
+.polar-star-banner {
+  display: flex; align-items: center; gap: 16px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, rgba(251,191,36,0.08), rgba(251,191,36,0.03));
+  border-bottom: 1px solid rgba(251,191,36,0.2);
+  overflow-x: auto; scrollbar-width: none;
+}
+.polar-star-banner::-webkit-scrollbar { display: none; }
+.polar-label {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600; color: var(--polar-color);
+  letter-spacing: 0.05em; white-space: nowrap; flex-shrink: 0;
+}
+.polar-metrics { display: flex; gap: 6px; flex-wrap: nowrap; }
+.polar-metric-chip {
+  display: flex; align-items: center; gap: 7px;
+  padding: 4px 10px;
+  background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2);
+  border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+}
+.polar-chip-name { font-size: 10px; color: var(--text-secondary); }
+.polar-chip-value { font-size: 12px; font-weight: 700; color: var(--polar-color); }
+.polar-chip-delta { font-size: 10px; font-weight: 600; }
+.polar-chip-delta.up { color: var(--positive); }
+.polar-chip-delta.down { color: var(--negative); }
+
+/* ── 主体 ── */
+.dashboard-main {
+  max-width: 1600px; margin: 0 auto;
+  padding: 28px 20px; display: flex; flex-direction: column; gap: 44px;
+}
+
+/* ── 层级区块 ── */
+.layer-section { display: flex; flex-direction: column; gap: 18px; scroll-margin-top: 68px; }
+.layer-header {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 18px 20px; border-radius: var(--radius); border: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.layer-header::before {
+  content: ''; position: absolute; inset: 0; opacity: 0.04;
+  background: radial-gradient(ellipse at 0% 50%, currentColor, transparent 70%); pointer-events: none;
+}
+.entry-header   { border-left: 3px solid var(--entry-color);   background: var(--entry-light); }
+.interact-header{ border-left: 3px solid var(--interact-color); background: var(--interact-light); }
+.ai-header      { border-left: 3px solid var(--ai-color);      background: var(--ai-light); }
+.feature-header { border-left: 3px solid var(--feature-color); background: var(--feature-light); }
+.retain-header  { border-left: 3px solid var(--retain-color);  background: var(--retain-light); }
+.biz-header     { border-left: 3px solid var(--biz-color);     background: var(--biz-light); }
+.safety-header  { border-left: 3px solid var(--safety-color);  background: var(--safety-light); }
+.layer-tag { font-size: 26px; font-weight: 800; color: rgba(255,255,255,0.08); line-height: 1; flex-shrink: 0; align-self: center; }
+.layer-info { flex: 1; }
+.layer-title { font-size: 19px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+.layer-subtitle { font-size: 13px; font-weight: 400; color: var(--text-secondary); }
+.layer-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.layer-flow { font-size: 22px; font-weight: 700; color: rgba(255,255,255,0.15); align-self: center; flex-shrink: 0; }
+
+/* ── KPI 卡片 ── */
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 10px; }
+.kpi-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px; transition: all 0.2s;
+  position: relative; overflow: hidden;
+}
+.kpi-card::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 2px; border-radius: var(--radius) var(--radius) 0 0;
+}
+.kpi-card:hover { background: var(--bg-card-hover); border-color: var(--border-bright); transform: translateY(-2px); }
+.entry-card::after   { background: var(--entry-color); }
+.interact-card::after{ background: var(--interact-color); }
+.ai-card::after      { background: var(--ai-color); }
+.feature-card::after { background: var(--feature-color); }
+.retain-card::after  { background: var(--retain-color); }
+.biz-card::after     { background: var(--biz-color); }
+.safety-card::after  { background: var(--safety-color); }
+.alert-card { border-color: rgba(251,191,36,0.25); background: rgba(251,191,36,0.04); }
+.kpi-label { font-size: 11px; color: var(--text-muted); font-weight: 500; margin-bottom: 7px; line-height: 1.4; }
+.kpi-value { font-size: 24px; font-weight: 700; color: var(--text-primary); line-height: 1; margin-bottom: 5px; font-variant-numeric: tabular-nums; }
+.polar-star-metric { color: var(--polar-color) !important; }
+.kpi-delta { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+.kpi-delta.positive { color: var(--positive); }
+.kpi-delta.negative { color: var(--negative); }
+.kpi-sub { font-size: 10px; color: var(--text-muted); }
+
+/* ── 图表区域 ── */
+.charts-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.chart-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px; transition: all 0.2s;
+}
+.chart-card:hover { border-color: var(--border-bright); }
+.chart-card.wide { grid-column: span 2; }
+.chart-title { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 14px; letter-spacing: 0.03em; text-transform: uppercase; }
+
+/* ── 性能指标条形图 ── */
+.perf-metrics { display: flex; flex-direction: column; gap: 13px; }
+.perf-item { display: grid; grid-template-columns: 130px 1fr 75px; align-items: center; gap: 10px; }
+.perf-label { font-size: 12px; color: var(--text-secondary); }
+.perf-bar-wrap { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+.perf-bar { height: 100%; border-radius: 3px; transition: width 1s ease; }
+.perf-value { font-size: 12px; font-weight: 600; color: var(--text-primary); text-align: right; font-variant-numeric: tabular-nums; }
+.warn-value { color: var(--warn); }
+.good-value { color: var(--positive); }
+.star-tag { color: var(--polar-color); font-size: 10px; }
+
+/* ── 子区块标题 ── */
+.sub-section-title {
+  font-size: 11px; font-weight: 600; color: var(--text-muted);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding-left: 10px; border-left: 3px solid var(--ai-color);
+}
+
+/* ── F2K 评测体系 ── */
+.f2k-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.f2k-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+.write-domain { border-top: 2px solid var(--ai-color); }
+.read-domain  { border-top: 2px solid var(--retain-color); }
+.f2k-domain-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 14px; }
+.f2k-metrics { display: flex; flex-direction: column; gap: 11px; }
+.f2k-item { display: grid; grid-template-columns: 145px 1fr 135px; align-items: center; gap: 9px; }
+.f2k-name { font-size: 12px; color: var(--text-secondary); }
+.f2k-bar-wrap { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+.f2k-bar { height: 100%; background: linear-gradient(90deg, var(--ai-color), rgba(168,85,247,0.5)); border-radius: 3px; transition: width 1.2s ease; }
+.warn-bar { background: linear-gradient(90deg, var(--warn), rgba(251,191,36,0.5)) !important; }
+.good-bar { background: linear-gradient(90deg, var(--positive), rgba(16,185,129,0.5)) !important; }
+.f2k-val { font-size: 12px; font-weight: 600; color: var(--text-primary); text-align: right; font-variant-numeric: tabular-nums; }
+.warn-f2k { color: var(--warn); }
+.good-f2k { color: var(--positive); }
+.f2k-target { font-size: 10px; font-weight: 400; color: var(--text-muted); margin-left: 3px; }
+
+/* ── 底部 ── */
+.dashboard-footer { border-top: 1px solid var(--border); padding: 18px 20px; background: rgba(10,11,15,0.8); }
+.footer-content { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.footer-logo { font-size: 13px; font-weight: 600; color: var(--polar-color); }
+.footer-desc, .footer-framework { font-size: 12px; color: var(--text-muted); }
+
+/* ── 响应式 ── */
+@media (max-width: 1200px) { .chart-card.wide { grid-column: span 1; } .f2k-grid { grid-template-columns: 1fr; } }
+@media (max-width: 768px) {
+  .topbar { padding: 0 12px; } .layer-nav { display: none; } .topbar-center { display: none; }
+  .dashboard-main { padding: 16px 12px; } .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .charts-row { grid-template-columns: 1fr; } .perf-item { grid-template-columns: 90px 1fr 65px; }
+  .f2k-item { grid-template-columns: 110px 1fr 100px; }
+}
+
+/* ── 滚动条 ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* ── 动画 ── */
+@keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.layer-section { animation: fadeInUp 0.5s ease both; }
+.layer-section:nth-child(1){animation-delay:0.05s}
+.layer-section:nth-child(2){animation-delay:0.1s}
+.layer-section:nth-child(3){animation-delay:0.15s}
+.layer-section:nth-child(4){animation-delay:0.2s}
+.layer-section:nth-child(5){animation-delay:0.25s}
+.layer-section:nth-child(6){animation-delay:0.3s}
+.layer-section:nth-child(7){animation-delay:0.35s}
+  </style>
+</head>
+<body>
+
+<!-- ========== 顶部导航栏 ========== -->
+<header class="topbar">
+  <div class="topbar-left">
+    <!-- 返回试用模式按钮 -->
+    <button class="back-btn" onclick="window.parent.postMessage('closeDashboard', '*')">← 返回试用模式</button>
+    <div class="logo-wrap">
+      <span class="logo-icon">✦</span>
+      <span class="logo-text">灵辑 MindScribe</span>
+    </div>
+    <span class="badge-live">LIVE</span>
+  </div>
+  <div class="topbar-center">
+    <span class="topbar-title">AI 产品经理 · 全链路数据看板</span>
+  </div>
+  <div class="topbar-right">
+    <span class="update-time" id="updateTime"></span>
+    <div class="layer-nav">
+      <a href="#layer-entry"    class="layer-btn active" data-layer="entry">入口层</a>
+      <a href="#layer-interact" class="layer-btn" data-layer="interact">交互层</a>
+      <a href="#layer-ai"       class="layer-btn" data-layer="ai">AI核心层</a>
+      <a href="#layer-feature"  class="layer-btn" data-layer="feature">功能层</a>
+      <a href="#layer-retain"   class="layer-btn" data-layer="retain">留存层</a>
+      <a href="#layer-biz"      class="layer-btn" data-layer="biz">商业化层</a>
+      <a href="#layer-safety"   class="layer-btn" data-layer="safety">安全合规</a>
+    </div>
+  </div>
+</header>
+
+<!-- ========== 北极星指标横幅 ========== -->
+<section class="polar-star-banner">
+  <div class="polar-label"><span>★</span> 北极星指标 · 12 项核心 KPI</div>
+  <div class="polar-metrics" id="polarMetrics"></div>
+</section>
+
+<!-- ========== 主体内容 ========== -->
+<main class="dashboard-main">
+
+  <!-- ===== 一、入口层 ===== -->
+  <section class="layer-section" id="layer-entry">
+    <div class="layer-header entry-header">
+      <div class="layer-tag">01</div>
+      <div class="layer-info">
+        <h2 class="layer-title">入口层 <span class="layer-subtitle">用户怎么来？</span></h2>
+        <p class="layer-desc">流量获取 → 渠道转化 → 功能激活 · 追踪用户从曝光到首次使用的完整漏斗</p>
+      </div>
+      <div class="layer-flow">进 →</div>
+    </div>
+    <div class="metrics-grid">
+      <div class="kpi-card entry-card">
+        <div class="kpi-label">日活用户 DAU</div>
+        <div class="kpi-value polar-star-metric">12,480</div>
+        <div class="kpi-delta positive">↑ 8.3%</div>
+        <div class="kpi-sub">★ 北极星指标</div>
+      </div>
+      <div class="kpi-card entry-card">
+        <div class="kpi-label">月活用户 MAU</div>
+        <div class="kpi-value">89,320</div>
+        <div class="kpi-delta positive">↑ 12.1%</div>
+        <div class="kpi-sub">较上月</div>
+      </div>
+      <div class="kpi-card entry-card">
+        <div class="kpi-label">新用户量（今日）</div>
+        <div class="kpi-value">1,847</div>
+        <div class="kpi-delta positive">↑ 5.6%</div>
+        <div class="kpi-sub">较昨日</div>
+      </div>
+      <div class="kpi-card entry-card">
+        <div class="kpi-label">功能激活率</div>
+        <div class="kpi-value">73.2%</div>
+        <div class="kpi-delta positive">↑ 2.4%</div>
+        <div class="kpi-sub">打开AI功能用户占比</div>
+      </div>
+      <div class="kpi-card entry-card">
+        <div class="kpi-label">首问率</div>
+        <div class="kpi-value polar-star-metric">68.5%</div>
+        <div class="kpi-delta positive">↑ 3.1%</div>
+        <div class="kpi-sub">★ 北极星指标</div>
+      </div>
+      <div class="kpi-card entry-card">
+        <div class="kpi-label">落地页抵达率</div>
+        <div class="kpi-value">61.8%</div>
+        <div class="kpi-delta negative">↓ 1.2%</div>
+        <div class="kpi-sub">CTR → 落地页</div>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card wide">
+        <div class="chart-title">DAU/MAU 趋势（近30天）</div>
+        <canvas id="dauChart" height="110"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">渠道来源分布</div>
+        <canvas id="channelChart" height="170"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">新用户激活漏斗</div>
+        <canvas id="funnelChart" height="170"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 二、交互层 ===== -->
+  <section class="layer-section" id="layer-interact">
+    <div class="layer-header interact-header">
+      <div class="layer-tag">02</div>
+      <div class="layer-info">
+        <h2 class="layer-title">交互层 <span class="layer-subtitle">用户真的在用吗？</span></h2>
+        <p class="layer-desc">会话深度 → 行为质量 → 满意信号 · 衡量用户与灵辑 AI 的真实互动质量</p>
+      </div>
+      <div class="layer-flow">问 →</div>
+    </div>
+    <div class="metrics-grid">
+      <div class="kpi-card interact-card">
+        <div class="kpi-label">日均会话数</div>
+        <div class="kpi-value">34,210</div>
+        <div class="kpi-delta positive">↑ 6.7%</div>
+        <div class="kpi-sub">较上周</div>
+      </div>
+      <div class="kpi-card interact-card">
+        <div class="kpi-label">人均会话数</div>
+        <div class="kpi-value">2.74</div>
+        <div class="kpi-delta positive">↑ 0.3</div>
+        <div class="kpi-sub">次/天</div>
+      </div>
+      <div class="kpi-card interact-card">
+        <div class="kpi-label">多轮对话占比</div>
+        <div class="kpi-value">58.3%</div>
+        <div class="kpi-delta positive">↑ 4.2%</div>
+        <div class="kpi-sub">3轮以上</div>
+      </div>
+      <div class="kpi-card interact-card">
+        <div class="kpi-label">平均对话时长</div>
+        <div class="kpi-value">4.8 min</div>
+        <div class="kpi-delta positive">↑ 0.6 min</div>
+        <div class="kpi-sub">较上周</div>
+      </div>
+      <div class="kpi-card interact-card">
+        <div class="kpi-label">中断率</div>
+        <div class="kpi-value">18.4%</div>
+        <div class="kpi-delta negative">↑ 1.1%</div>
+        <div class="kpi-sub">问一半退出</div>
+      </div>
+      <div class="kpi-card interact-card">
+        <div class="kpi-label">复制率</div>
+        <div class="kpi-value polar-star-metric">42.6%</div>
+        <div class="kpi-delta positive">↑ 3.8%</div>
+        <div class="kpi-sub">★ 北极星指标</div>
+      </div>
+      <div class="kpi-card interact-card">
+        <div class="kpi-label">点赞率</div>
+        <div class="kpi-value">31.2%</div>
+        <div class="kpi-delta positive">↑ 2.1%</div>
+        <div class="kpi-sub">有用反馈</div>
+      </div>
+      <div class="kpi-card interact-card">
+        <div class="kpi-label">重新生成率</div>
+        <div class="kpi-value">12.7%</div>
+        <div class="kpi-delta negative">↑ 0.8%</div>
+        <div class="kpi-sub">不满意重试</div>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">对话轮次分布</div>
+        <canvas id="roundsChart" height="170"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">用户行为信号分布</div>
+        <canvas id="behaviorChart" height="170"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">输入方式占比</div>
+        <canvas id="inputTypeChart" height="170"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 三、AI 核心层 ===== -->
+  <section class="layer-section" id="layer-ai">
+    <div class="layer-header ai-header">
+      <div class="layer-tag">03</div>
+      <div class="layer-info">
+        <h2 class="layer-title">AI 核心层 <span class="layer-subtitle">模型 &amp; 效果</span></h2>
+        <p class="layer-desc">模型效果 → 生成质量 → 性能体验 · AI PM 最核心的技术+产品结合指标</p>
+      </div>
+      <div class="layer-flow">答 →</div>
+    </div>
+    <div class="sub-section-title">模型效果指标</div>
+    <div class="metrics-grid">
+      <div class="kpi-card ai-card">
+        <div class="kpi-label">意图识别准确率</div>
+        <div class="kpi-value">94.7%</div>
+        <div class="kpi-delta positive">↑ 1.3%</div>
+        <div class="kpi-sub">ADD/SUMMARY/DELETE 等</div>
+      </div>
+      <div class="kpi-card ai-card">
+        <div class="kpi-label">回答有用率</div>
+        <div class="kpi-value polar-star-metric">87.3%</div>
+        <div class="kpi-delta positive">↑ 2.8%</div>
+        <div class="kpi-sub">★ 北极星指标</div>
+      </div>
+      <div class="kpi-card ai-card alert-card">
+        <div class="kpi-label">幻觉率</div>
+        <div class="kpi-value">3.2%</div>
+        <div class="kpi-delta positive">↓ 0.5%</div>
+        <div class="kpi-sub">★ 北极星指标（越低越好）</div>
+      </div>
+      <div class="kpi-card ai-card">
+        <div class="kpi-label">上下文理解正确率</div>
+        <div class="kpi-value">91.4%</div>
+        <div class="kpi-delta positive">↑ 1.9%</div>
+        <div class="kpi-sub">多轮记忆命中</div>
+      </div>
+      <div class="kpi-card ai-card alert-card">
+        <div class="kpi-label">拒绝率 / 安全拦截率</div>
+        <div class="kpi-value polar-star-metric">1.8%</div>
+        <div class="kpi-delta positive">↓ 0.3%</div>
+        <div class="kpi-sub">★ 北极星指标</div>
+      </div>
+      <div class="kpi-card ai-card">
+        <div class="kpi-label">多轮记忆命中率</div>
+        <div class="kpi-value">88.6%</div>
+        <div class="kpi-delta positive">↑ 3.2%</div>
+        <div class="kpi-sub">上下文连贯性</div>
+      </div>
+    </div>
+    <div class="sub-section-title">生成质量指标</div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">生成质量六维雷达</div>
+        <canvas id="qualityRadar" height="210"></canvas>
+      </div>
+      <div class="chart-card wide">
+        <div class="chart-title">性能体验指标</div>
+        <div class="perf-metrics">
+          <div class="perf-item">
+            <div class="perf-label">首包响应时间</div>
+            <div class="perf-bar-wrap"><div class="perf-bar" style="width:72%;background:linear-gradient(90deg,#6c63ff,#a78bfa)"></div></div>
+            <div class="perf-value polar-star-metric">1.24s <span class="star-tag">★</span></div>
+          </div>
+          <div class="perf-item">
+            <div class="perf-label">平均生成耗时</div>
+            <div class="perf-bar-wrap"><div class="perf-bar" style="width:58%;background:linear-gradient(90deg,#6c63ff,#a78bfa)"></div></div>
+            <div class="perf-value">3.87s</div>
+          </div>
+          <div class="perf-item">
+            <div class="perf-label">超时率</div>
+            <div class="perf-bar-wrap"><div class="perf-bar" style="width:8%;background:linear-gradient(90deg,#f97316,#fbbf24)"></div></div>
+            <div class="perf-value warn-value">0.8%</div>
+          </div>
+          <div class="perf-item">
+            <div class="perf-label">失败率 / 报错率</div>
+            <div class="perf-bar-wrap"><div class="perf-bar" style="width:5%;background:linear-gradient(90deg,#ef4444,#f97316)"></div></div>
+            <div class="perf-value warn-value">0.5%</div>
+          </div>
+          <div class="perf-item">
+            <div class="perf-label">并发稳定性</div>
+            <div class="perf-bar-wrap"><div class="perf-bar" style="width:96%;background:linear-gradient(90deg,#10b981,#34d399)"></div></div>
+            <div class="perf-value good-value">99.6%</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">响应耗时分布（ms）</div>
+        <canvas id="latencyChart" height="210"></canvas>
+      </div>
+    </div>
+    <div class="sub-section-title">灵辑专属 · F2K 评测体系指标</div>
+    <div class="f2k-grid">
+      <div class="f2k-card write-domain">
+        <div class="f2k-domain-title">写入域 · 数据结构化能力</div>
+        <div class="f2k-metrics">
+          <div class="f2k-item">
+            <span class="f2k-name">分类准确率</span>
+            <div class="f2k-bar-wrap"><div class="f2k-bar" style="width:93%"></div></div>
+            <span class="f2k-val">93.1% <span class="f2k-target">目标 &gt;90%</span></span>
+          </div>
+          <div class="f2k-item">
+            <span class="f2k-name">语义概括度</span>
+            <div class="f2k-bar-wrap"><div class="f2k-bar" style="width:88%"></div></div>
+            <span class="f2k-val">0.88 <span class="f2k-target">目标 &gt;0.85</span></span>
+          </div>
+          <div class="f2k-item">
+            <span class="f2k-name">去重查准率</span>
+            <div class="f2k-bar-wrap"><div class="f2k-bar" style="width:99%"></div></div>
+            <span class="f2k-val">99.2% <span class="f2k-target">目标 &gt;99%</span></span>
+          </div>
+          <div class="f2k-item">
+            <span class="f2k-name">增量融合成功率</span>
+            <div class="f2k-bar-wrap"><div class="f2k-bar warn-bar" style="width:78%"></div></div>
+            <span class="f2k-val warn-f2k">78.4% <span class="f2k-target">目标 &gt;80%</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="f2k-card read-domain">
+        <div class="f2k-domain-title">读取域 · 检索与召回能力</div>
+        <div class="f2k-metrics">
+          <div class="f2k-item">
+            <span class="f2k-name">模糊查询召回率@3</span>
+            <div class="f2k-bar-wrap"><div class="f2k-bar" style="width:87%"></div></div>
+            <span class="f2k-val">87.3% <span class="f2k-target">目标 &gt;85%</span></span>
+          </div>
+          <div class="f2k-item">
+            <span class="f2k-name">上下文完整性</span>
+            <div class="f2k-bar-wrap"><div class="f2k-bar" style="width:91%"></div></div>
+            <span class="f2k-val">91.2% <span class="f2k-target">目标 &gt;90%</span></span>
+          </div>
+          <div class="f2k-item">
+            <span class="f2k-name">多跳聚合准确率</span>
+            <div class="f2k-bar-wrap"><div class="f2k-bar warn-bar" style="width:82%"></div></div>
+            <span class="f2k-val">82.1% <span class="f2k-target">目标 &gt;80%</span></span>
+          </div>
+          <div class="f2k-item">
+            <span class="f2k-name">幻觉率（RAG）</span>
+            <div class="f2k-bar-wrap"><div class="f2k-bar good-bar" style="width:97%"></div></div>
+            <span class="f2k-val good-f2k">3.2% <span class="f2k-target">目标 &lt;5%</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 四、功能层 ===== -->
+  <section class="layer-section" id="layer-feature">
+    <div class="layer-header feature-header">
+      <div class="layer-tag">04</div>
+      <div class="layer-info">
+        <h2 class="layer-title">功能层 <span class="layer-subtitle">AI 功能有没有价值？</span></h2>
+        <p class="layer-desc">功能渗透 → 任务完成 → 用户满意 · 评估灵辑各 AI 功能的实际使用价值</p>
+      </div>
+      <div class="layer-flow">用 →</div>
+    </div>
+    <div class="metrics-grid">
+      <div class="kpi-card feature-card">
+        <div class="kpi-label">功能渗透率（核心）</div>
+        <div class="kpi-value polar-star-metric">71.4%</div>
+        <div class="kpi-delta positive">↑ 4.6%</div>
+        <div class="kpi-sub">★ 北极星指标</div>
+      </div>
+      <div class="kpi-card feature-card">
+        <div class="kpi-label">任务成功率</div>
+        <div class="kpi-value polar-star-metric">82.9%</div>
+        <div class="kpi-delta positive">↑ 2.3%</div>
+        <div class="kpi-sub">★ 北极星指标</div>
+      </div>
+      <div class="kpi-card feature-card">
+        <div class="kpi-label">一次成功率</div>
+        <div class="kpi-value">67.8%</div>
+        <div class="kpi-delta positive">↑ 3.5%</div>
+        <div class="kpi-sub">无需修正</div>
+      </div>
+      <div class="kpi-card feature-card">
+        <div class="kpi-label">有用率</div>
+        <div class="kpi-value polar-star-metric">87.3%</div>
+        <div class="kpi-delta positive">↑ 2.8%</div>
+        <div class="kpi-sub">★ 点赞/(点赞+点踩)</div>
+      </div>
+      <div class="kpi-card feature-card">
+        <div class="kpi-label">NPS 净推荐值</div>
+        <div class="kpi-value">+42</div>
+        <div class="kpi-delta positive">↑ 6</div>
+        <div class="kpi-sub">较上季度</div>
+      </div>
+      <div class="kpi-card feature-card">
+        <div class="kpi-label">平均修正次数</div>
+        <div class="kpi-value">1.3 次</div>
+        <div class="kpi-delta positive">↓ 0.2</div>
+        <div class="kpi-sub">越低越好</div>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card wide">
+        <div class="chart-title">各 AI 功能使用渗透率（灵辑功能模块）</div>
+        <canvas id="featurePenetrationChart" height="130"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">负面反馈类型分布</div>
+        <canvas id="feedbackChart" height="170"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 五、留存层 ===== -->
+  <section class="layer-section" id="layer-retain">
+    <div class="layer-header retain-header">
+      <div class="layer-tag">05</div>
+      <div class="layer-info">
+        <h2 class="layer-title">留存层 <span class="layer-subtitle">用户为什么不走？</span></h2>
+        <p class="layer-desc">留存曲线 → 粘性指标 → 流失分析 · 判断灵辑是否成为用户的长期习惯</p>
+      </div>
+      <div class="layer-flow">留 →</div>
+    </div>
+    <div class="metrics-grid">
+      <div class="kpi-card retain-card">
+        <div class="kpi-label">次日留存率</div>
+        <div class="kpi-value">48.2%</div>
+        <div class="kpi-delta positive">↑ 2.1%</div>
+        <div class="kpi-sub">较上周</div>
+      </div>
+      <div class="kpi-card retain-card">
+        <div class="kpi-label">7日留存率</div>
+        <div class="kpi-value polar-star-metric">31.6%</div>
+        <div class="kpi-delta positive">↑ 1.8%</div>
+        <div class="kpi-sub">★ 北极星指标</div>
+      </div>
+      <div class="kpi-card retain-card">
+        <div class="kpi-label">30日留存率</div>
+        <div class="kpi-value">18.4%</div>
+        <div class="kpi-delta positive">↑ 1.3%</div>
+        <div class="kpi-sub">月留存</div>
+      </div>
+      <div class="kpi-card retain-card">
+        <div class="kpi-label">日均提问数</div>
+        <div class="kpi-value polar-star-metric">5.7 次</div>
+        <div class="kpi-delta positive">↑ 0.4</div>
+        <div class="kpi-sub">★ 北极星指标</div>
+      </div>
+      <div class="kpi-card retain-card">
+        <div class="kpi-label">高价值用户占比</div>
+        <div class="kpi-value">23.8%</div>
+        <div class="kpi-delta positive">↑ 1.6%</div>
+        <div class="kpi-sub">高频使用用户</div>
+      </div>
+      <div class="kpi-card retain-card">
+        <div class="kpi-label">功能粘性用户</div>
+        <div class="kpi-value">34.1%</div>
+        <div class="kpi-delta positive">↑ 2.9%</div>
+        <div class="kpi-sub">核心功能依赖</div>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card wide">
+        <div class="chart-title">用户留存曲线（新用户队列）</div>
+        <canvas id="retentionChart" height="130"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">流失原因分析</div>
+        <canvas id="churnChart" height="170"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 六、商业化层 ===== -->
+  <section class="layer-section" id="layer-biz">
+    <div class="layer-header biz-header">
+      <div class="layer-tag">06</div>
+      <div class="layer-info">
+        <h2 class="layer-title">商业化层 <span class="layer-subtitle">ToC + ToB 变现</span></h2>
+        <p class="layer-desc">付费转化 → 收入健康 → 成本控制 · 验证灵辑商业模式的可持续性</p>
+      </div>
+      <div class="layer-flow">转 →</div>
+    </div>
+    <div class="metrics-grid">
+      <div class="kpi-card biz-card">
+        <div class="kpi-label">付费转化率</div>
+        <div class="kpi-value">6.8%</div>
+        <div class="kpi-delta positive">↑ 0.7%</div>
+        <div class="kpi-sub">免费→付费</div>
+      </div>
+      <div class="kpi-card biz-card">
+        <div class="kpi-label">ARPU</div>
+        <div class="kpi-value polar-star-metric">¥18.4</div>
+        <div class="kpi-delta positive">↑ ¥1.2</div>
+        <div class="kpi-sub">★ 北极星指标</div>
+      </div>
+      <div class="kpi-card biz-card">
+        <div class="kpi-label">ARPPU</div>
+        <div class="kpi-value">¥270.6</div>
+        <div class="kpi-delta positive">↑ ¥18</div>
+        <div class="kpi-sub">付费用户均值</div>
+      </div>
+      <div class="kpi-card biz-card">
+        <div class="kpi-label">会员渗透率</div>
+        <div class="kpi-value">8.3%</div>
+        <div class="kpi-delta positive">↑ 0.9%</div>
+        <div class="kpi-sub">订阅用户占比</div>
+      </div>
+      <div class="kpi-card biz-card alert-card">
+        <div class="kpi-label">单用户推理成本</div>
+        <div class="kpi-value polar-star-metric">¥0.032</div>
+        <div class="kpi-delta positive">↓ ¥0.004</div>
+        <div class="kpi-sub">★ 北极星指标（越低越好）</div>
+      </div>
+      <div class="kpi-card biz-card">
+        <div class="kpi-label">商业化健康度</div>
+        <div class="kpi-value">2.87x</div>
+        <div class="kpi-delta positive">↑ 0.23x</div>
+        <div class="kpi-sub">收入 / 模型成本</div>
+      </div>
+      <div class="kpi-card biz-card">
+        <div class="kpi-label">复购率</div>
+        <div class="kpi-value">71.4%</div>
+        <div class="kpi-delta positive">↑ 3.2%</div>
+        <div class="kpi-sub">续费/复购</div>
+      </div>
+      <div class="kpi-card biz-card">
+        <div class="kpi-label">成本回收周期</div>
+        <div class="kpi-value">4.2 月</div>
+        <div class="kpi-delta positive">↓ 0.3月</div>
+        <div class="kpi-sub">CAC 回收</div>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card wide">
+        <div class="chart-title">月收入 vs 模型成本趋势</div>
+        <canvas id="revenueChart" height="130"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">付费用户分层</div>
+        <canvas id="payTierChart" height="170"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 七、安全合规层 ===== -->
+  <section class="layer-section" id="layer-safety">
+    <div class="layer-header safety-header">
+      <div class="layer-tag">07</div>
+      <div class="layer-info">
+        <h2 class="layer-title">安全合规层 <span class="layer-subtitle">AI PM 必背</span></h2>
+        <p class="layer-desc">内容安全 → 合规风险 → 用户投诉 · 灵辑 AI 内容生成的安全底线指标</p>
+      </div>
+      <div class="layer-flow">守 ✓</div>
+    </div>
+    <div class="metrics-grid">
+      <div class="kpi-card safety-card">
+        <div class="kpi-label">违规内容拦截率</div>
+        <div class="kpi-value good-value">99.7%</div>
+        <div class="kpi-delta positive">↑ 0.1%</div>
+        <div class="kpi-sub">安全过滤</div>
+      </div>
+      <div class="kpi-card safety-card alert-card">
+        <div class="kpi-label">有害生成率</div>
+        <div class="kpi-value good-value">0.03%</div>
+        <div class="kpi-delta positive">↓ 0.01%</div>
+        <div class="kpi-sub">越低越好</div>
+      </div>
+      <div class="kpi-card safety-card">
+        <div class="kpi-label">用户投诉率</div>
+        <div class="kpi-value">0.18%</div>
+        <div class="kpi-delta positive">↓ 0.02%</div>
+        <div class="kpi-sub">较上月</div>
+      </div>
+      <div class="kpi-card safety-card">
+        <div class="kpi-label">审核响应时长</div>
+        <div class="kpi-value">2.4h</div>
+        <div class="kpi-delta positive">↓ 0.3h</div>
+        <div class="kpi-sub">平均处理时长</div>
+      </div>
+      <div class="kpi-card safety-card">
+        <div class="kpi-label">隐私合规风险点</div>
+        <div class="kpi-value">3 项</div>
+        <div class="kpi-delta positive">↓ 1</div>
+        <div class="kpi-sub">待处理风险</div>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card wide">
+        <div class="chart-title">安全拦截趋势（近30天）</div>
+        <canvas id="safetyChart" height="110"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">违规类型分布</div>
+        <canvas id="violationChart" height="170"></canvas>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ========== 底部说明 ========== -->
+<footer class="dashboard-footer">
+  <div class="footer-content">
+    <span class="footer-logo">✦ 灵辑 MindScribe</span>
+    <span class="footer-desc">AI 产品经理全链路数据看板 · 数据为虚拟演示数据，仅供参考</span>
+    <span class="footer-framework">数据框架基于 F2K 评测体系 v1.2</span>
+  </div>
+</footer>
+
+<script>
+// ── 时间更新 ──
+function updateTime() {
+  var el = document.getElementById('updateTime');
+  if (!el) return;
+  var now = new Date();
+  var pad = function(n) { return String(n).padStart(2, '0'); };
+  el.textContent = '数据更新于 ' + now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+}
+updateTime();
+setInterval(updateTime, 1000);
+
+// ── 北极星指标 ──
+var polarStarData = [
+  { name: 'DAU', value: '12,480', delta: '+8.3%', up: true },
+  { name: '首问率', value: '68.5%', delta: '+3.1%', up: true },
+  { name: '日均提问数', value: '5.7次', delta: '+0.4', up: true },
+  { name: '有用率', value: '87.3%', delta: '+2.8%', up: true },
+  { name: '7日留存', value: '31.6%', delta: '+1.8%', up: true },
+  { name: '任务成功率', value: '82.9%', delta: '+2.3%', up: true },
+  { name: '响应耗时', value: '1.24s', delta: '-0.08s', up: true },
+  { name: '幻觉率', value: '3.2%', delta: '-0.5%', up: true },
+  { name: '拒绝率', value: '1.8%', delta: '-0.3%', up: true },
+  { name: '复制/复用率', value: '42.6%', delta: '+3.8%', up: true },
+  { name: '功能渗透率', value: '71.4%', delta: '+4.6%', up: true },
+  { name: 'ARPU', value: '¥18.4', delta: '+¥1.2', up: true },
+];
+var polarContainer = document.getElementById('polarMetrics');
+polarStarData.forEach(function(item) {
+  var chip = document.createElement('div');
+  chip.className = 'polar-metric-chip';
+  chip.innerHTML = '<span class="polar-chip-name">' + item.name + '</span><span class="polar-chip-value">' + item.value + '</span><span class="polar-chip-delta ' + (item.up ? 'up' : 'down') + '">' + item.delta + '</span>';
+  polarContainer.appendChild(chip);
+});
+
+// ── Chart.js 全局配置 ──
+Chart.defaults.color = '#94a3b8';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+Chart.defaults.font.size = 11;
+
+function genDayLabels(n) {
+  var labels = [];
+  for (var i = n-1; i >= 0; i--) {
+    var d = new Date(); d.setDate(d.getDate() - i);
+    labels.push((d.getMonth()+1) + '/' + d.getDate());
+  }
+  return labels;
+}
+function genRandArr(len, min, max) {
+  var arr = [], cur = (min+max)/2;
+  for (var i = 0; i < len; i++) {
+    cur += (Math.random()-0.45)*(max-min)*0.12;
+    cur = Math.max(min, Math.min(max, cur));
+    arr.push(Math.round(cur*10)/10);
+  }
+  return arr;
+}
+
+// DAU/MAU 趋势
+new Chart(document.getElementById('dauChart'), {
+  type: 'line',
+  data: { labels: genDayLabels(30), datasets: [
+    { label: 'DAU', data: genRandArr(30,10000,14000), borderColor:'#6c63ff', backgroundColor:'rgba(108,99,255,0.08)', fill:true, tension:0.4, pointRadius:0, borderWidth:2 },
+    { label: 'MAU（日均）', data: genRandArr(30,80000,95000).map(function(v){return Math.round(v/7);}), borderColor:'rgba(108,99,255,0.4)', backgroundColor:'transparent', fill:false, tension:0.4, pointRadius:0, borderWidth:1.5, borderDash:[4,3] }
+  ]},
+  options: { responsive:true, plugins:{ legend:{position:'top',labels:{boxWidth:12,padding:14}}, tooltip:{mode:'index',intersect:false} }, scales:{ x:{grid:{display:false},ticks:{maxTicksLimit:8}}, y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{callback:function(v){return v>=1000?(v/1000).toFixed(1)+'k':v;}}} } }
+});
+
+// 渠道来源分布
+new Chart(document.getElementById('channelChart'), {
+  type: 'doughnut',
+  data: { labels:['自然搜索','应用商店','社交媒体','付费投放','口碑推荐','其他'], datasets:[{ data:[32,24,18,14,9,3], backgroundColor:['#6c63ff','#a78bfa','#06b6d4','#f59e0b','#10b981','#475569'], borderWidth:0, hoverOffset:6 }] },
+  options: { responsive:true, plugins:{ legend:{position:'bottom',labels:{boxWidth:10,padding:10,font:{size:10}}}, tooltip:{callbacks:{label:function(ctx){return ' '+ctx.label+': '+ctx.parsed+'%';}}} }, cutout:'62%' }
+});
+
+// 新用户激活漏斗
+new Chart(document.getElementById('funnelChart'), {
+  type: 'bar',
+  data: { labels:['曝光','点击','落地页','注册','功能激活','首次提问'], datasets:[{ label:'转化人数', data:[100000,38000,23500,18200,13300,12480], backgroundColor:['rgba(108,99,255,0.7)','rgba(108,99,255,0.62)','rgba(108,99,255,0.54)','rgba(108,99,255,0.46)','rgba(108,99,255,0.38)','rgba(108,99,255,0.9)'], borderRadius:4, borderSkipped:false }] },
+  options: { indexAxis:'y', responsive:true, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:function(ctx){return ' '+ctx.parsed.x.toLocaleString()+' 人';}}} }, scales:{ x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{callback:function(v){return v>=1000?(v/1000).toFixed(0)+'k':v;}}}, y:{grid:{display:false}} } }
+});
+
+// 对话轮次分布
+new Chart(document.getElementById('roundsChart'), {
+  type: 'bar',
+  data: { labels:['1轮','2轮','3轮','4轮','5轮','6-10轮','10轮+'], datasets:[{ label:'会话占比', data:[22,19.7,16.3,12.8,9.2,12.6,7.4], backgroundColor:['rgba(6,182,212,0.4)','rgba(6,182,212,0.5)','rgba(6,182,212,0.6)','rgba(6,182,212,0.7)','rgba(6,182,212,0.8)','rgba(6,182,212,0.9)','rgba(6,182,212,1.0)'], borderRadius:4, borderSkipped:false }] },
+  options: { responsive:true, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:function(ctx){return ' '+ctx.parsed.y+'%';}}} }, scales:{ x:{grid:{display:false}}, y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{callback:function(v){return v+'%';}}} } }
+});
+
+// 用户行为信号雷达
+new Chart(document.getElementById('behaviorChart'), {
+  type: 'radar',
+  data: { labels:['点赞','复制','重新生成','点踩','中断退出','分享'], datasets:[{ label:'行为信号占比', data:[31.2,42.6,12.7,5.8,18.4,8.3], backgroundColor:'rgba(6,182,212,0.15)', borderColor:'#06b6d4', pointBackgroundColor:'#06b6d4', pointRadius:4, borderWidth:2 }] },
+  options: { responsive:true, plugins:{legend:{display:false}}, scales:{ r:{ grid:{color:'rgba(255,255,255,0.06)'}, angleLines:{color:'rgba(255,255,255,0.06)'}, ticks:{display:false}, pointLabels:{font:{size:11}} } } }
+});
+
+// 输入方式占比
+new Chart(document.getElementById('inputTypeChart'), {
+  type: 'pie',
+  data: { labels:['文字输入','语音输入','图片上传','文件导入'], datasets:[{ data:[68.4,14.2,10.8,6.6], backgroundColor:['#06b6d4','#a78bfa','#f59e0b','#10b981'], borderWidth:0, hoverOffset:6 }] },
+  options: { responsive:true, plugins:{ legend:{position:'bottom',labels:{boxWidth:10,padding:10,font:{size:10}}}, tooltip:{callbacks:{label:function(ctx){return ' '+ctx.label+': '+ctx.parsed+'%';}}} } }
+});
+
+// 生成质量六维雷达
+new Chart(document.getElementById('qualityRadar'), {
+  type: 'radar',
+  data: { labels:['完整度','相关性','逻辑性','事实正确性','可读性','时效性'], datasets:[
+    { label:'当前版本', data:[91,89,87,93,88,82], backgroundColor:'rgba(168,85,247,0.15)', borderColor:'#a855f7', pointBackgroundColor:'#a855f7', pointRadius:4, borderWidth:2 },
+    { label:'上月基线', data:[87,85,84,90,85,79], backgroundColor:'rgba(168,85,247,0.05)', borderColor:'rgba(168,85,247,0.35)', pointBackgroundColor:'rgba(168,85,247,0.5)', pointRadius:3, borderWidth:1.5, borderDash:[4,3] }
+  ]},
+  options: { responsive:true, plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:12}}}, scales:{ r:{ min:70, max:100, grid:{color:'rgba(255,255,255,0.06)'}, angleLines:{color:'rgba(255,255,255,0.06)'}, ticks:{stepSize:10,display:false}, pointLabels:{font:{size:11}} } } }
+});
+
+// 响应耗时分布
+new Chart(document.getElementById('latencyChart'), {
+  type: 'bar',
+  data: { labels:['<500ms','500-1s','1-2s','2-3s','3-5s','5-10s','>10s'], datasets:[{ label:'请求占比', data:[8.2,18.4,32.6,21.3,13.8,4.9,0.8], backgroundColor:['#10b981','#34d399','#6c63ff','#a78bfa','#f59e0b','#f97316','#ef4444'], borderRadius:4, borderSkipped:false }] },
+  options: { responsive:true, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:function(ctx){return ' '+ctx.parsed.y+'%';}}} }, scales:{ x:{grid:{display:false}}, y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{callback:function(v){return v+'%';}}} } }
+});
+
+// 功能渗透率
+new Chart(document.getElementById('featurePenetrationChart'), {
+  type: 'bar',
+  data: { labels:['碎片笔记整理','文档总结(SUMMARY)','意图识别对话','内容添加(ADD)','文档查询(QUERY)','多文档管理','知识库检索(RAG)','去重检测','章节提取','开发者模式'], datasets:[{ label:'功能渗透率', data:[71.4,68.2,64.8,82.3,58.6,47.2,38.9,31.4,26.7,18.3], backgroundColor:['rgba(245,158,11,0.85)','rgba(245,158,11,0.78)','rgba(245,158,11,0.71)','rgba(245,158,11,0.64)','rgba(245,158,11,0.57)','rgba(245,158,11,0.50)','rgba(245,158,11,0.43)','rgba(245,158,11,0.36)','rgba(245,158,11,0.29)','rgba(245,158,11,0.22)'], borderRadius:4, borderSkipped:false }] },
+  options: { indexAxis:'y', responsive:true, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:function(ctx){return ' '+ctx.parsed.x+'%';}}} }, scales:{ x:{grid:{color:'rgba(255,255,255,0.04)'},max:100,ticks:{callback:function(v){return v+'%';}}}, y:{grid:{display:false},ticks:{font:{size:11}}} } }
+});
+
+// 负面反馈分布
+new Chart(document.getElementById('feedbackChart'), {
+  type: 'doughnut',
+  data: { labels:['回答不准确','速度太慢','功能不够用','理解偏差','界面难用','其他'], datasets:[{ data:[34,22,18,14,8,4], backgroundColor:['#ef4444','#f97316','#f59e0b','#a855f7','#06b6d4','#475569'], borderWidth:0, hoverOffset:6 }] },
+  options: { responsive:true, plugins:{ legend:{position:'bottom',labels:{boxWidth:10,padding:10,font:{size:10}}}, tooltip:{callbacks:{label:function(ctx){return ' '+ctx.label+': '+ctx.parsed+'%';}}} }, cutout:'60%' }
+});
+
+// 用户留存曲线
+new Chart(document.getElementById('retentionChart'), {
+  type: 'line',
+  data: { labels:['Day1','Day2','Day3','Day7','Day14','Day21','Day30'], datasets:[
+    { label:'本月新用户', data:[100,72.4,61.8,48.2,38.6,32.1,28.4], borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.08)', fill:true, tension:0.4, pointRadius:4, borderWidth:2 },
+    { label:'上月新用户', data:[100,68.2,57.4,44.8,35.2,28.9,24.6], borderColor:'rgba(16,185,129,0.4)', backgroundColor:'transparent', fill:false, tension:0.4, pointRadius:3, borderWidth:1.5, borderDash:[4,3] }
+  ]},
+  options: { responsive:true, plugins:{ legend:{position:'top',labels:{boxWidth:12,padding:14}}, tooltip:{mode:'index',intersect:false,callbacks:{label:function(ctx){return ' '+ctx.dataset.label+': '+ctx.parsed.y+'%';}}} }, scales:{ x:{grid:{display:false}}, y:{grid:{color:'rgba(255,255,255,0.04)'},min:0,max:100,ticks:{callback:function(v){return v+'%';}}} } }
+});
+
+// 流失原因
+new Chart(document.getElementById('churnChart'), {
+  type: 'bar',
+  data: { labels:['回答不好用','速度慢','功能少','太贵/限制多','界面难用','找到替代品'], datasets:[{ label:'流失占比', data:[38.4,22.1,16.8,12.3,7.2,3.2], backgroundColor:'rgba(16,185,129,0.6)', borderRadius:4, borderSkipped:false }] },
+  options: { indexAxis:'y', responsive:true, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:function(ctx){return ' '+ctx.parsed.x+'%';}}} }, scales:{ x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{callback:function(v){return v+'%';}}}, y:{grid:{display:false}} } }
+});
+
+// 月收入 vs 成本
+new Chart(document.getElementById('revenueChart'), {
+  type: 'bar',
+  data: { labels:['9月','10月','11月','12月','1月','2月','3月'], datasets:[
+    { label:'月收入（万元）', data:[8.2,10.4,13.8,16.2,19.4,22.8,26.4], backgroundColor:'rgba(249,115,22,0.7)', borderRadius:4, borderSkipped:false, yAxisID:'y' },
+    { label:'模型成本（万元）', data:[3.8,4.6,5.8,6.4,7.2,8.1,9.2], backgroundColor:'rgba(249,115,22,0.25)', borderRadius:4, borderSkipped:false, yAxisID:'y' },
+    { label:'商业化健康度', data:[2.16,2.26,2.38,2.53,2.69,2.81,2.87], type:'line', borderColor:'#fbbf24', backgroundColor:'transparent', tension:0.4, pointRadius:4, borderWidth:2, yAxisID:'y2' }
+  ]},
+  options: { responsive:true, plugins:{ legend:{position:'top',labels:{boxWidth:12,padding:14}}, tooltip:{mode:'index',intersect:false} }, scales:{ x:{grid:{display:false}}, y:{grid:{color:'rgba(255,255,255,0.04)'},position:'left',ticks:{callback:function(v){return v+'万';}}}, y2:{position:'right',grid:{display:false},min:1.5,max:4,ticks:{callback:function(v){return v+'x';}}} } }
+});
+
+// 付费用户分层
+new Chart(document.getElementById('payTierChart'), {
+  type: 'doughnut',
+  data: { labels:['免费用户','基础会员','专业会员','企业版'], datasets:[{ data:[91.7,5.4,2.1,0.8], backgroundColor:['#334155','#f97316','#fbbf24','#10b981'], borderWidth:0, hoverOffset:6 }] },
+  options: { responsive:true, plugins:{ legend:{position:'bottom',labels:{boxWidth:10,padding:10,font:{size:10}}}, tooltip:{callbacks:{label:function(ctx){return ' '+ctx.label+': '+ctx.parsed+'%';}}} }, cutout:'60%' }
+});
+
+// 安全拦截趋势
+new Chart(document.getElementById('safetyChart'), {
+  type: 'line',
+  data: { labels: genDayLabels(30), datasets:[
+    { label:'拦截次数', data:genRandArr(30,120,280), borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,0.08)', fill:true, tension:0.4, pointRadius:0, borderWidth:2 },
+    { label:'有害生成（次）', data:genRandArr(30,2,8), borderColor:'#f97316', backgroundColor:'transparent', fill:false, tension:0.4, pointRadius:0, borderWidth:1.5, borderDash:[4,3] }
+  ]},
+  options: { responsive:true, plugins:{ legend:{position:'top',labels:{boxWidth:12,padding:14}}, tooltip:{mode:'index',intersect:false} }, scales:{ x:{grid:{display:false},ticks:{maxTicksLimit:8}}, y:{grid:{color:'rgba(255,255,255,0.04)'}} } }
+});
+
+// 违规类型分布
+new Chart(document.getElementById('violationChart'), {
+  type: 'bar',
+  data: { labels:['色情/暴力','政治敏感','虚假信息','隐私泄露','版权侵犯','其他'], datasets:[{ label:'拦截次数', data:[42,28,19,14,8,5], backgroundColor:['#ef4444','#f97316','#f59e0b','#a855f7','#06b6d4','#475569'], borderRadius:4, borderSkipped:false }] },
+  options: { responsive:true, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:function(ctx){return ' '+ctx.parsed.y+' 次';}}} }, scales:{ x:{grid:{display:false}}, y:{grid:{color:'rgba(255,255,255,0.04)'}} } }
+});
+
+// ── 导航高亮 ──
+var sections = document.querySelectorAll('.layer-section');
+var navBtns = document.querySelectorAll('.layer-btn');
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      var id = entry.target.id;
+      navBtns.forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('href') === '#' + id);
+      });
+    }
+  });
+}, { threshold: 0.2, rootMargin: '-60px 0px -40% 0px' });
+sections.forEach(function(s) { observer.observe(s); });
+</script>
+</body>
+</html>
