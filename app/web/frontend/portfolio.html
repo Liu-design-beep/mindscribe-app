@@ -159,6 +159,28 @@
                 <!-- 当前正在加载的文件名 -->
                 <div id="media-current-file" class="mt-1 text-zinc-500 text-xs truncate">&nbsp;</div>
             </div>
+
+            <!-- 网络提示卡片 -->
+            <div class="mt-6 border border-yellow-500/30 bg-yellow-500/5 rounded-lg p-4 font-mono text-xs">
+                <div class="flex items-center gap-2 mb-3 text-yellow-400">
+                    <span class="text-base">⚠️</span>
+                    <span class="font-bold tracking-wider">NETWORK_WARNING</span>
+                </div>
+                <div class="space-y-2 text-zinc-400 leading-relaxed">
+                    <div class="flex items-start gap-2">
+                        <span class="text-yellow-500 mt-0.5 flex-shrink-0">&gt;</span>
+                        <span>本展示页包含多个视频与图片资源，托管于海外服务器。<span class="text-yellow-400">建议开启代理 / 梯子</span>后访问，以获得最佳加载体验。</span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <span class="text-yellow-500 mt-0.5 flex-shrink-0">&gt;</span>
+                        <span>若网速较慢或未使用代理，<span class="text-red-400">视频 / 图片可能无法正常显示</span>，页面将展示加载失败提示。</span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <span class="text-green-500 mt-0.5 flex-shrink-0">&gt;</span>
+                        <span class="text-zinc-500">当前预加载进度反映实际下载状态，请耐心等待全部资源加载完成后再进入。</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
