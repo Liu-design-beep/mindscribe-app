@@ -1428,16 +1428,36 @@ async function fetchDocumentList() {
 async function handleSendMessage() {
     console.log('[发送消息] 函数被调用');
     
-    // 试用模式密码拦截：用户发送时检查是否已验证
+    // 试用模式密码验证：在输入框内完成，不调用 AI
     const isTrialMode = localStorage.getItem('is_trial_mode') === 'true';
     if (isTrialMode && !window.trialVerified) {
-        console.log('[试用拦截] 弹出密码验证框，验证通过后自动发送');
-        // 设置验证通过后的回调：自动重新触发发送
-        window._pendingSendAfterVerify = true;
-        if (typeof showPasswordModal === 'function') {
-            showPasswordModal();
+        const inputEl = elements.userInput;
+        const inputText = inputEl ? inputEl.value.trim() : '';
+        
+        // 获取密码（从 login-modal.js 的 TRIAL_PASSWORD 常量）
+        const correctPassword = (typeof TRIAL_PASSWORD !== 'undefined') ? TRIAL_PASSWORD : '';
+        
+        if (inputText === correctPassword) {
+            // 密码正确
+            window.trialVerified = true;
+            if (inputEl) {
+                inputEl.value = '';
+                inputEl.placeholder = '灵动笔记，记录灵感...';
+                autoResizeTextarea(inputEl);
+            }
+            // 显示成功气泡（以系统消息形式，不进入对话流）
+            addMessageToChat('ai', '✅ 验证成功！欢迎体验灵辑试用模式，现在可以开始对话了 🚀');
+            console.log('[试用验证] ✅ 密码正确，已解锁试用模式');
+        } else {
+            // 密码错误
+            if (inputEl) {
+                inputEl.value = '';
+                autoResizeTextarea(inputEl);
+            }
+            addMessageToChat('ai', '❌ 密码错误，请重新输入试用密码', 'text', true);
+            console.log('[试用验证] ❌ 密码错误');
         }
-        return;
+        return; // 不进入正常发送流程
     }
     
     // 获取用户输入框中的文本，并去除首尾空白字符

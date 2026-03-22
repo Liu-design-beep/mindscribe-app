@@ -57,9 +57,19 @@ function enterTrialMode() {
     // 隐藏登录/试用选择弹窗
     hideModal();
     
-    // 直接进入应用界面，密码验证推迟到第一次输入时
+    // 直接进入应用界面，密码验证在输入框内完成
     // 重置验证状态（确保每次进入都需要重新验证）
     window.trialVerified = false;
+    window._pendingSendAfterVerify = false;
+    
+    // 设置输入框 placeholder 提示输入密码
+    setTimeout(() => {
+        const userInput = document.getElementById('user-input');
+        if (userInput) {
+            userInput.placeholder = '请输入试用密码以开始对话...';
+            console.log('[试用模式] 已设置输入框密码提示');
+        }
+    }, 300);
     
     // 显示应用界面（如果应用被隐藏）
     const appContainer = document.querySelector('.app-container') || document.body;
