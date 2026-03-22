@@ -94,6 +94,14 @@ function initElements() {
     elements.currentDocBadgeName = document.getElementById('current-doc-badge-name');
 
     
+    // 手动编辑：只读查看当前笔记
+    elements.manualEditBtn = document.getElementById('manual-edit-btn');
+    elements.readonlyDocPanel = document.getElementById('readonly-doc-panel');
+    elements.closeReadonlyDocBtn = document.getElementById('close-readonly-doc-btn');
+    elements.readonlyDocTitle = document.getElementById('readonly-doc-title');
+    elements.readonlyDocText = document.getElementById('readonly-doc-text');
+    elements.readonlyDocCharCount = document.getElementById('readonly-doc-char-count');
+    
     // 知识图谱系统入口
     elements.knowledgeGraphBtn = document.getElementById('knowledge-graph-btn');
     elements.knowledgeGraphPanel = document.getElementById('knowledge-graph-panel');
@@ -2560,6 +2568,14 @@ function initEventListeners() {
         elements.sidebarOverlay.addEventListener('click', closeSidebar);
     }
     
+    // 手动编辑按鈕点击事件（只读查看当前笔记）
+    if (elements.manualEditBtn) {
+        elements.manualEditBtn.addEventListener('click', openReadonlyDocPanel);
+    }
+    if (elements.closeReadonlyDocBtn) {
+        elements.closeReadonlyDocBtn.addEventListener('click', closeReadonlyDocPanel);
+    }
+    
     // 知识图谱系统按鈕点击事件
     if (elements.knowledgeGraphBtn) {
         elements.knowledgeGraphBtn.addEventListener('click', openKnowledgeGraphPanel);
@@ -2675,6 +2691,103 @@ function openKnowledgeGraphPanel() {
 function closeKnowledgeGraphPanel() {
     if (!elements.knowledgeGraphPanel) return;
     elements.knowledgeGraphPanel.classList.add('hidden');
+}
+
+// ============================================
+// 手动编辑：只读查看当前笔记
+// ============================================
+
+/**
+ * 打开只读文档查看面板
+ * 加载并显示当前文档的完整 Markdown 内容，不允许编辑
+ */
+async function openReadonlyDocPanel() {
+    if (!elements.readonlyDocPanel) return;
+    
+    const currentDoc = AppState.currentDocument || '试用文档';
+    
+    // 更新标题
+    if (elements.readonlyDocTitle) {
+        elements.readonlyDocTitle.textContent = '📝 ' + currentDoc;
+    }
+    
+    // 显示加载中状态
+    if (elements.readonlyDocText) {
+        elements.readonlyDocText.value = '正在加载文档内容…';
+    }
+    if (elements.readonlyDocCharCount) {
+        elements.readonlyDocCharCount.textContent = '加载中…';
+    }
+    
+    // 显示面板
+    elements.readonlyDocPanel.classList.remove('hidden');
+    
+    try {
+        const response = await sendMessageToBackend('查看所有笔记');
+        
+        if (response.response_type === 'ALL_DOCUMENTS' && response.documents) {
+            const documentKeys = Object.keys(response.documents);
+            let docContent = response.documents[currentDoc];
+            
+            // 尝试不区分大小写匹配
+            if (!docContent) {
+                for (const key in response.documents) {
+                    if (key.toLowerCase() === currentDoc.toLowerCase()) {
+                        docContent = response.documents[key];
+                        if (elements.readonlyDocTitle) {
+                            elements.readonlyDocTitle.textContent = '📝 ' + key;
+                        }
+                        break;
+                    }
+                }
+            }
+            
+            if (!docContent) {
+                if (elements.readonlyDocText) {
+                    elements.readonlyDocText.value = `文档 "${currentDoc}" 不存在或为空。\n\n可用文档：${documentKeys.join(', ')}`;
+                }
+                if (elements.readonlyDocCharCount) {
+                    elements.readonlyDocCharCount.textContent = '文档为空';
+                }
+                return;
+            }
+            
+            const content = Array.isArray(docContent) ? docContent.join('\n') : docContent;
+            if (elements.readonlyDocText) {
+                elements.readonlyDocText.value = content;
+            }
+            if (elements.readonlyDocCharCount) {
+                const charCount = content.length;
+                const lineCount = content.split('\n').length;
+                elements.readonlyDocCharCount.textContent = `共 ${charCount} 个字符 · ${lineCount} 行`;
+            }
+        } else if (response.response_type === 'DOCUMENT' || response.content) {
+            const content = response.content || '';
+            if (elements.readonlyDocText) {
+                elements.readonlyDocText.value = content;
+            }
+            if (elements.readonlyDocCharCount) {
+                elements.readonlyDocCharCount.textContent = `共 ${content.length} 个字符`;
+            }
+        } else {
+            if (elements.readonlyDocText) {
+                elements.readonlyDocText.value = '无法获取文档内容，请稍后重试。';
+            }
+        }
+    } catch (error) {
+        console.error('获取文档内容失败:', error);
+        if (elements.readonlyDocText) {
+            elements.readonlyDocText.value = `获取文档内容时发生错误：${error.message}`;
+        }
+    }
+}
+
+/**
+ * 关闭只读文档查看面板
+ */
+function closeReadonlyDocPanel() {
+    if (!elements.readonlyDocPanel) return;
+    elements.readonlyDocPanel.classList.add('hidden');
 }
 
 // ============================================

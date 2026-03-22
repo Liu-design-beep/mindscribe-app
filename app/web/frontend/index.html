@@ -848,6 +848,27 @@
         </div>
     </div>
 
+    <!-- 手动编辑：只读查看当前笔记面板 -->
+    <div id="readonly-doc-panel" class="readonly-doc-panel hidden">
+        <div class="readonly-doc-content">
+            <div class="readonly-doc-header">
+                <div class="readonly-doc-title-wrap">
+                    <span class="readonly-doc-icon">📝</span>
+                    <h3 id="readonly-doc-title" class="readonly-doc-title">当前笔记</h3>
+                    <span class="readonly-doc-badge">🔒 只读</span>
+                </div>
+                <button id="close-readonly-doc-btn" class="close-readonly-doc-btn" aria-label="关闭">×</button>
+            </div>
+            <div class="readonly-doc-toolbar">
+                <span id="readonly-doc-char-count" class="readonly-doc-char-count">0 字符</span>
+                <span class="readonly-doc-hint">此面板仅供查看，如需修改请通过对话框输入指令</span>
+            </div>
+            <div class="readonly-doc-body">
+                <textarea id="readonly-doc-text" class="readonly-doc-text" readonly spellcheck="false"></textarea>
+            </div>
+        </div>
+    </div>
+
     <!-- 文档匹配确认对话框 -->
     <div id="match-confirmation-modal" class="modal hidden">
         <div class="modal-overlay"></div>
