@@ -1475,6 +1475,7 @@ async function handleSendMessage() {
                 autoResizeTextarea(inputEl);
             }
             addMessageToChat('ai', '❌ 密码错误，请重新输入试用密码。如需试用，请联系开发团队获取密码。', 'text', true);
+            showDuckCry();
             console.log('[试用验证] ❌ 密码错误');
         }
         return; // 不进入正常发送流程
