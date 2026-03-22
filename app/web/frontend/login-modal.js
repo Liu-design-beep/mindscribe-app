@@ -2,6 +2,11 @@
  * 登录/试用选择逻辑
  */
 
+// ================================
+// 试用密码验证状态（纯内存变量，刷新页面自动重置）
+// ================================
+window.trialVerified = false; // 本次会话是否已通过密码验证
+
 // 检查是否已经选择过
 function checkUserChoice() {
     // 临时禁用检查，强制显示弹窗（用于调试）
@@ -52,8 +57,9 @@ function enterTrialMode() {
     // 隐藏登录/试用选择弹窗
     hideModal();
     
-    // 显示密码验证弹窗
-    showPasswordModal();
+    // 直接进入应用界面，密码验证推迟到第一次输入时
+    // 重置验证状态（确保每次进入都需要重新验证）
+    window.trialVerified = false;
     
     // 显示应用界面（如果应用被隐藏）
     const appContainer = document.querySelector('.app-container') || document.body;
@@ -437,11 +443,21 @@ function verifyPassword() {
     if (inputPassword === TRIAL_PASSWORD) {
         console.log('[密码验证] ✅ 密码正确');
         
+        // 标记本次会话已通过验证（纯内存，刷新即重置）
+        window.trialVerified = true;
+        
         // 隐藏密码弹窗
         hidePasswordModal();
         
-        // 执行原来的试用模式初始化逻辑
-        startTrialMode();
+        // 聚焦到输入框，让用户继续输入
+        setTimeout(() => {
+            const userInput = document.getElementById('user-input');
+            if (userInput) {
+                userInput.focus();
+                console.log('[密码验证] 已聚焦到输入框，用户可继续输入');
+            }
+        }, 100);
+        
     } else {
         console.log('[密码验证] ❌ 密码错误');
         
@@ -522,11 +538,11 @@ function startTrialMode() {
     }, 200);
 }
 
-// 取消密码验证，返回登录/试用选择弹窗
+// 取消密码验证，用户留在应用界面（但不能输入）
 function cancelPasswordVerification() {
     hidePasswordModal();
-    showModal();
-    console.log('[密码验证] 取消验证，返回选择弹窗');
+    // 不返回登录弹窗，用户留在应用界面可以浏览，但输入时会再次弹出密码框
+    console.log('[密码验证] 取消验证，用户留在应用界面');
 }
 
 // 初始化密码验证弹窗事件
