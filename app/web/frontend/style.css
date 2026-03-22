@@ -5807,3 +5807,78 @@ body.dns-collapsed .dns-expand-btn {
     cursor: not-allowed;
     transform: none;
 }
+
+/* ===== 手动编辑笔记按钮 tooltip ===== */
+.manual-edit-container {
+    position: relative;
+}
+
+.manual-edit-tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(5px);
+    width: auto;
+    min-width: 180px;
+    z-index: 10002;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+    white-space: nowrap;
+}
+
+.manual-edit-container:hover .manual-edit-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.manual-edit-tooltip .tooltip-content {
+    padding: 8px 14px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    position: relative;
+}
+
+.manual-edit-tooltip .tooltip-text p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+/* 向下箭头（指向按钮） */
+.manual-edit-tooltip .tooltip-content::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 7px solid rgba(255, 255, 255, 0.97);
+    border-bottom: none;
+}
+
+.manual-edit-tooltip .tooltip-content::after {
+    content: '';
+    position: absolute;
+    top: calc(100% + 1px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid var(--border-color);
+    border-bottom: none;
+    z-index: -1;
+}
