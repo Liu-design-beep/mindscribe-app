@@ -449,12 +449,21 @@ function verifyPassword() {
         // 隐藏密码弹窗
         hidePasswordModal();
         
-        // 聚焦到输入框，让用户继续输入
+        // 检查是否有待发送的消息（用户在验证前就按了发送）
         setTimeout(() => {
-            const userInput = document.getElementById('user-input');
-            if (userInput) {
-                userInput.focus();
-                console.log('[密码验证] 已聚焦到输入框，用户可继续输入');
+            if (window._pendingSendAfterVerify) {
+                window._pendingSendAfterVerify = false;
+                console.log('[密码验证] 检测到待发送消息，自动继续发送');
+                if (typeof handleSendMessage === 'function') {
+                    handleSendMessage();
+                }
+            } else {
+                // 没有待发内容，只需聚焦到输入框
+                const userInput = document.getElementById('user-input');
+                if (userInput) {
+                    userInput.focus();
+                    console.log('[密码验证] 已聚焦到输入框，用户可继续输入');
+                }
             }
         }, 100);
         

@@ -1428,10 +1428,12 @@ async function fetchDocumentList() {
 async function handleSendMessage() {
     console.log('[发送消息] 函数被调用');
     
-    // 试用模式密码拦截：点击发送按鈕时同样需要验证
+    // 试用模式密码拦截：用户发送时检查是否已验证
     const isTrialMode = localStorage.getItem('is_trial_mode') === 'true';
     if (isTrialMode && !window.trialVerified) {
-        console.log('[试用拦截] 点击发送按鈕，弹出密码验证框');
+        console.log('[试用拦截] 弹出密码验证框，验证通过后自动发送');
+        // 设置验证通过后的回调：自动重新触发发送
+        window._pendingSendAfterVerify = true;
         if (typeof showPasswordModal === 'function') {
             showPasswordModal();
         }
@@ -1946,23 +1948,6 @@ function initEventListeners() {
     // 输入框回车事件：当用户在输入框中按下键盘时
     if (elements.userInput) {
         elements.userInput.addEventListener('keydown', (event) => {
-            // 试用模式密码拦截：第一次输入时验证
-            const isTrialMode = localStorage.getItem('is_trial_mode') === 'true';
-            if (isTrialMode && !window.trialVerified) {
-                // 忽略功能键、修饰键、方向键、Tab 等非字符键
-                const ignoredKeys = ['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab',
-                    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
-                    'Escape', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'];
-                if (!ignoredKeys.includes(event.key)) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    console.log('[试用拦截] 第一次输入，弹出密码验证框');
-                    if (typeof showPasswordModal === 'function') {
-                        showPasswordModal();
-                    }
-                    return;
-                }
-            }
             // 如果按下的是Enter键
             if (event.key === 'Enter' || event.keyCode === 13) {
                 // 如果按住Ctrl键或Cmd键（Mac），允许换行（不阻止默认行为）
