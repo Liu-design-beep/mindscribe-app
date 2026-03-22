@@ -62,6 +62,9 @@ function enterTrialMode() {
     window.trialVerified = false;
     window._pendingSendAfterVerify = false;
     
+    // 设置试用模式标志（关键！缺少此行将导致 handleSendMessage 跳过密码验证）
+    localStorage.setItem('is_trial_mode', 'true');
+    
     // 设置输入框 placeholder 提示输入密码
     setTimeout(() => {
         const userInput = document.getElementById('user-input');
