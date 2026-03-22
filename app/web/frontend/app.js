@@ -1442,6 +1442,10 @@ async function handleSendMessage() {
             console.warn('[试用验证] 警告：window.TRIAL_PASSWORD 未定义，拦截失效');
         }
         
+        // 在「灵辑在做」面板显示密码验证日志（隐藏密码原文）
+        addAIFeedback('[用户输入] ******（试用密码验证）');
+        addAIFeedback('[系统] 正在验证试用密码...');
+        
         if (correctPassword && inputText === correctPassword) {
             // 密码正确
             window.trialVerified = true;
@@ -1450,11 +1454,14 @@ async function handleSendMessage() {
                 inputEl.placeholder = '灵动笔记，记录灵感...';
                 autoResizeTextarea(inputEl);
             }
-            // 显示 LLM 启用成功气泡
+            // 「灵辑在做」面板显示验证成功日志
+            addAIFeedback('✅ [验证通过] 试用密码正确，AI 大模型已解锁');
+            // 对话气泡显示 LLM 启用成功
             addMessageToChat('ai', '✅ 密码验证通过\n\n🤖 AI 大模型已启用，灵辑正式接入对话。现在可以开始输入了！');
             console.log('[试用验证] ✅ 密码正确，已解锁试用模式');
         } else {
             // 密码错误
+            addAIFeedback('❌ [验证失败] 密码错误，请重新输入');
             if (inputEl) {
                 inputEl.value = '';
                 autoResizeTextarea(inputEl);
