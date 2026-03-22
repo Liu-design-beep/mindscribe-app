@@ -409,7 +409,7 @@ window.handleLogin = handleLogin;
 // 试用密码验证功能
 // ================================
 
-const TRIAL_PASSWORD = '123'; // 试用密码
+window.TRIAL_PASSWORD = '123'; // 试用密码（挂载到 window，供 app.js 跨文件访问）
 
 // 显示密码验证弹窗
 function showPasswordModal() {

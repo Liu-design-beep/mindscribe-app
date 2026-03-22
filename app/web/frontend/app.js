@@ -1434,10 +1434,15 @@ async function handleSendMessage() {
         const inputEl = elements.userInput;
         const inputText = inputEl ? inputEl.value.trim() : '';
         
-        // 获取密码（从 login-modal.js 的 TRIAL_PASSWORD 常量）
-        const correctPassword = (typeof TRIAL_PASSWORD !== 'undefined') ? TRIAL_PASSWORD : '';
+        // 获取密码（从 window.TRIAL_PASSWORD，由 login-modal.js 注入）
+        const correctPassword = window.TRIAL_PASSWORD || '';
         
-        if (inputText === correctPassword) {
+        if (!correctPassword) {
+            // 密码未加载，防御性处理
+            console.warn('[试用验证] 警告：window.TRIAL_PASSWORD 未定义，拦截失效');
+        }
+        
+        if (correctPassword && inputText === correctPassword) {
             // 密码正确
             window.trialVerified = true;
             if (inputEl) {
@@ -1445,8 +1450,8 @@ async function handleSendMessage() {
                 inputEl.placeholder = '灵动笔记，记录灵感...';
                 autoResizeTextarea(inputEl);
             }
-            // 显示成功气泡（以系统消息形式，不进入对话流）
-            addMessageToChat('ai', '✅ 验证成功！欢迎体验灵辑试用模式，现在可以开始对话了 🚀');
+            // 显示 LLM 启用成功气泡
+            addMessageToChat('ai', '✅ 密码验证通过\n\n🤖 AI 大模型已启用，灵辑正式接入对话。现在可以开始输入了！');
             console.log('[试用验证] ✅ 密码正确，已解锁试用模式');
         } else {
             // 密码错误
