@@ -1,16 +1,17 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# 创建输出目录
-mkdir -p dist
-mkdir -p dist/static
+SOURCE="app/web/frontend"
+OUTPUT="dist"
 
-# 复制前端文件 (HTML, CSS, JS) 到根目录
-# 注意：现在文件都在 app/web/frontend 下
-cp -r app/web/frontend/* dist/
+if [[ ! -d "$SOURCE" ]]; then
+  echo "Missing front-end source: $SOURCE" >&2
+  exit 1
+fi
 
-# 复制静态资源 (图片, 视频) 到 static 目录
-# 注意：现在文件都在 app/web/static 下
-cp -r app/web/static/* dist/static/
+rm -rf "$OUTPUT"
+mkdir -p "$OUTPUT"
+cp -a "$SOURCE"/. "$OUTPUT"/
 
-echo "Build complete! Contents of dist:"
-ls -R dist
+echo "MindScribe portfolio static build prepared in $OUTPUT"
+find "$OUTPUT" -maxdepth 2 -type f -printf '%p\n' | sort
